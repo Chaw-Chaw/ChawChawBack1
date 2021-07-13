@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: chawchaw
+  profiles:
+    active: local
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:tcp://localhost/~/chawchaw
+    username: hajoo
+    password: 1234
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+server:
+  port: 8080
