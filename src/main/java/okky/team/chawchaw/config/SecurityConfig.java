@@ -1,7 +1,13 @@
 package okky.team.chawchaw.config;
 
+import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.config.jwt.JwtAuthenticationFilter;
+import okky.team.chawchaw.config.jwt.JwtAuthorizationFilter;
+import okky.team.chawchaw.user.UserEntity;
+import okky.team.chawchaw.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -13,7 +19,11 @@ import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final Environment env;
+    private final UserRepository userRepository;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -21,6 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(corsFilter())
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), env))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), env, userRepository))
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeRequests()

@@ -7,6 +7,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -22,6 +24,16 @@ public class UserServiceImpl implements UserService{
         UserEntity user = DtoToEntity.userDto(userDto);
         userRepository.save(user);
         return userDto;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void deleteUser(String email) {
+        List<UserEntity> users = userRepository.findByEmail(email);
+        UserEntity user = users.get(0);
+        if (user != null){
+            userRepository.delete(user);
+        }
     }
 
 }

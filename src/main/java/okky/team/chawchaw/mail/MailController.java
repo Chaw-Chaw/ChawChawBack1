@@ -16,10 +16,10 @@ public class MailController {
     private final MailService mailService;
 
     @PostMapping("users/send-mail")
-    public ResponseEntity<String> sendMail(HttpServletRequest request, @RequestBody MailDto mailDto){
+    public ResponseEntity sendMail(HttpServletRequest request, @RequestBody MailDto mailDto){
         HttpSession session = request.getSession();
         mailService.sendMail(session, mailDto);
-        return ResponseEntity.status(HttpStatus.OK).body("");
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @PostMapping("users/verification-mail")

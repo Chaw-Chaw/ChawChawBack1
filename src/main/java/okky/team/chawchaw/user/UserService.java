@@ -6,4 +6,5 @@ public interface UserService {
 
     public UserDto createUser(UserDto userDto);
 
+    public void deleteUser(String email);
 }

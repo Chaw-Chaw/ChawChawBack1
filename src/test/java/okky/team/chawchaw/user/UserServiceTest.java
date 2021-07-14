@@ -41,4 +41,26 @@ class UserServiceTest {
                 .isEqualTo("mangchhe@naver.com");
     }
 
+    @Test
+    public void 회원삭제() throws Exception {
+        //given
+        UserDto user = UserDto.builder()
+                .email("mangchhe@naver.com")
+                .password("1234")
+                .name("이름")
+                .web_email("웹메일")
+                .school("학교")
+                .content("내용")
+                .country("나라")
+                .language("언어")
+                .hopeLanguage("희망언어")
+                .build();
+        userService.createUser(user);
+        //when
+        userService.deleteUser(user.getEmail());
+        List<UserEntity> users = userRepository.findAll();
+        //then
+        Assertions.assertThat(users.size()).isEqualTo(0);
+    }
+
 }

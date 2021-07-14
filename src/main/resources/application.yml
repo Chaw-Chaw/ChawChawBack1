@@ -33,3 +33,9 @@ spring:
           writetimeout: 5000
 server:
   port: 8080
+
+token:
+  secret: "okky"
+  expiration_time: 1800000
+  prefix: "Bearer "
+  header: "Authorization"
