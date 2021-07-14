@@ -1,34 +1,23 @@
 package okky.team.chawchaw.utils;
 
-import javax.persistence.AttributeConverter;
+import okky.team.chawchaw.user.Role;
 
-public class RoleAttributeConverter implements AttributeConverter<String, Integer> {
+import javax.persistence.AttributeConverter;
+import java.util.EnumSet;
+import java.util.NoSuchElementException;
+
+public class RoleAttributeConverter implements AttributeConverter<Role, String> {
 
     @Override
-    public Integer convertToDatabaseColumn(String attribute) {
-        if ("손님".equals(attribute)) {
-            return 1;
-        }
-        else if ("일반 사용자".equals(attribute)) {
-            return 2;
-        }
-        else if ("관리자".equals(attribute)) {
-            return 3;
-        }
-        return 0;
+    public String convertToDatabaseColumn(Role attribute) {
+        return attribute.getValue();
     }
 
     @Override
-    public String convertToEntityAttribute(Integer dbData) {
-        if (1 == dbData) {
-            return "손님";
-        }
-        else if (2 == dbData) {
-            return "일반 사용자";
-        }
-        else if (3 == dbData){
-            return "관리자";
-        }
-        return "?";
+    public Role convertToEntityAttribute(String dbData) {
+        return EnumSet.allOf(Role.class).stream()
+                .filter(e -> e.getValue().equals(dbData))
+                .findAny()
+                .orElseThrow(NoSuchElementException::new);
     }
 }

@@ -1,9 +1,6 @@
 package okky.team.chawchaw.user;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import okky.team.chawchaw.utils.RoleAttributeConverter;
 import org.hibernate.annotations.ColumnDefault;
 
@@ -21,6 +18,8 @@ public class UserEntity {
     private Long id;
     @Column(nullable = false, unique = true)
     private String email;
+    @Column(nullable = false)
+    private String password;
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
@@ -41,15 +40,15 @@ public class UserEntity {
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private LocalDateTime regDate;
     @Column(nullable = false)
-    @ColumnDefault("0")
-    private Long views;
+    private Long views = 0L;
     @Column(nullable = false)
     @Convert(converter = RoleAttributeConverter.class)
     private Role role;
 
     @Builder
-    public UserEntity(String email, String name, String web_email, String school, String imageUrl, String content, String country, String language, String hopeLanguage, String socialUrl, Role role) {
+    public UserEntity(String email, String password, String name, String web_email, String school, String imageUrl, String content, String country, String language, String hopeLanguage, String socialUrl, Role role) {
         this.email = email;
+        this.password = password;
         this.name = name;
         this.web_email = web_email;
         this.school = school;
@@ -59,6 +58,6 @@ public class UserEntity {
         this.language = language;
         this.hopeLanguage = hopeLanguage;
         this.socialUrl = socialUrl;
-        this.role = role;
+        this.role = role == null ? Role.USER : role;
     }
 }
