@@ -36,10 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeRequests()
-                .antMatchers("/api/v1/users/login").permitAll()
-                .antMatchers("/api/v1/users/send-mail").permitAll()
-                .antMatchers("/api/v1/users/verification-mail").permitAll()
-                .antMatchers("/api/v1/users/signup").permitAll()
+                .antMatchers("/users/send-mail").permitAll()
+                .antMatchers("/users/verification-mail").permitAll()
+                .antMatchers("/users/signup").permitAll()
+                .antMatchers("/users/login/kakao").permitAll()
                 .anyRequest()
                 .access("hasRole('ROLE_USER')");
     }
@@ -54,7 +54,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.addAllowedHeader("*");
+        configuration.addAllowedOrigin("*");
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", configuration);

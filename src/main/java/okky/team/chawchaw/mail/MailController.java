@@ -10,7 +10,6 @@ import javax.servlet.http.HttpSession;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1")
 public class MailController {
 
     private final MailService mailService;
