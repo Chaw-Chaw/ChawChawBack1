@@ -10,14 +10,12 @@ import okky.team.chawchaw.user.dto.UserDto;
 import okky.team.chawchaw.utils.DtoToEntity;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,17 +26,33 @@ public class SocialController {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Environment env;
 
-    @PostMapping("/users/login/kakao")
-    public void verificationKakao(@RequestBody UserDto userDto,
-                                  @RequestParam String code,
-                                  HttpServletResponse response){
-        SocialDto socialDto = socialService.verificationKakao(code);
+    @PostMapping("/users/login/{provider}")
+    public void socialLogin(@PathVariable String provider,
+                            @RequestBody UserDto userDto,
+                            @RequestParam(required = false) String code,
+                            @RequestParam(required = false) String userId,
+                            @RequestParam(required = false) String accessToken,
+                            HttpServletResponse response){
+
+        SocialDto socialDto = null;
+
+        if (provider.equals("kakao")) {
+            socialDto = socialService.verificationKakao(code);
+        }
+        else if(provider.equals("facebook")) {
+            socialDto = socialService.verificationFacebook(userId, accessToken);
+        }
+        else {
+            return;
+        }
+
         List<UserEntity> users = userRepository.findByEmail(socialDto.getEmail());
+
         if (users.isEmpty()) {
             userDto.setEmail(socialDto.getEmail());
             userDto.setName(socialDto.getName());
-            userDto.setImageUrl(socialDto.getImage_url());
-            userDto.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
+            userDto.setImageUrl(socialDto.getImageUrl());
+            userDto.setPassword(bCryptPasswordEncoder.encode(UUID.randomUUID().toString()));
             UserEntity userEntity = DtoToEntity.userDto(userDto);
             userRepository.save(userEntity);
         }

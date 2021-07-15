@@ -39,7 +39,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/send-mail").permitAll()
                 .antMatchers("/users/verification-mail").permitAll()
                 .antMatchers("/users/signup").permitAll()
-                .antMatchers("/users/login/kakao").permitAll()
+                .antMatchers("/users/login/**").permitAll()
                 .anyRequest()
                 .access("hasRole('ROLE_USER')");
     }

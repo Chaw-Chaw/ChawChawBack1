@@ -7,5 +7,5 @@ import lombok.Setter;
 public class SocialDto {
     String email;
     String name;
-    String image_url;
+    String imageUrl;
 }

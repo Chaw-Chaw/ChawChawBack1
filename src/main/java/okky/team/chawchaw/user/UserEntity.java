@@ -26,6 +26,7 @@ public class UserEntity {
     private String web_email;
     @Column(nullable = false)
     private String school;
+    @Column(length = 1000)
     private String imageUrl;
     @Column(length = 2000)
     private String content;

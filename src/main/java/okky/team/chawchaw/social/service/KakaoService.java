@@ -68,9 +68,7 @@ public class KakaoService {
 
         String url = "https://kapi.kakao.com/v2/user/me";
 
-        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
-        return response.getBody();
+        return restTemplate.postForObject(url, request, String.class);
     }
 
 }

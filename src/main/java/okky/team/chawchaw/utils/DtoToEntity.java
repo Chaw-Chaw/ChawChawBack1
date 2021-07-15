@@ -13,10 +13,12 @@ public class DtoToEntity {
                 .name(userDto.getName())
                 .web_email(userDto.getWeb_email())
                 .school(userDto.getSchool())
+                .imageUrl(userDto.getImageUrl())
                 .content(userDto.getContent())
                 .country(userDto.getCountry())
                 .language(userDto.getLanguage())
                 .hopeLanguage(userDto.getHopeLanguage())
+                .socialUrl(userDto.getSocialUrl())
                 .build();
     }
 
