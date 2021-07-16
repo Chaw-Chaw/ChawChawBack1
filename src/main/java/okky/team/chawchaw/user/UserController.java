@@ -2,11 +2,17 @@ package okky.team.chawchaw.user;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
+import okky.team.chawchaw.user.dto.RequestUserVo;
+import okky.team.chawchaw.user.dto.UserCardDto;
+import okky.team.chawchaw.user.dto.UserDetailsDto;
 import okky.team.chawchaw.user.dto.UserDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +32,30 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(result);
 
     }
+
+    @GetMapping("users")
+    public ResponseEntity<List<UserCardDto>> getUserCards(@RequestBody RequestUserVo requestUserVo) {
+        return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>());
+    }
+
+    @GetMapping("users/{userId}")
+    public ResponseEntity<UserDetailsDto> getUserDetails(@PathVariable Long userId) {
+        UserDetailsDto result = userService.findUserDetails(userId);
+        if (result != null)
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        else
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("users/{userId}/profile")
+    public ResponseEntity<UserDetailsDto> getUserProfile(@PathVariable Long userId) {
+        UserDetailsDto result = userService.findUserProfile(userId);
+        if (result != null)
+            return ResponseEntity.status(HttpStatus.OK).body(result);
+        else
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
 
     @DeleteMapping("users")
     public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){

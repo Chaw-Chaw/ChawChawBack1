@@ -5,7 +5,7 @@ import okky.team.chawchaw.user.dto.UserDto;
 
 public class DtoToEntity {
 
-    public static UserEntity userDto(UserDto userDto){
+    public static UserEntity userDtoToEntity(UserDto userDto){
         return UserEntity
                 .builder()
                 .email(userDto.getEmail())

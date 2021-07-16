@@ -53,7 +53,7 @@ public class SocialController {
             userDto.setName(socialDto.getName());
             userDto.setImageUrl(socialDto.getImageUrl());
             userDto.setPassword(bCryptPasswordEncoder.encode(UUID.randomUUID().toString()));
-            UserEntity userEntity = DtoToEntity.userDto(userDto);
+            UserEntity userEntity = DtoToEntity.userDtoToEntity(userDto);
             userRepository.save(userEntity);
         }
         String token = JWT.create()

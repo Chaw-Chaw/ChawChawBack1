@@ -1,5 +1,6 @@
 package okky.team.chawchaw.user;
 
+import okky.team.chawchaw.user.dto.UserDetailsDto;
 import okky.team.chawchaw.user.dto.UserDto;
 
 public interface UserService {
@@ -7,6 +8,9 @@ public interface UserService {
     public UserDto createUser(UserDto userDto);
     public Boolean duplicateEmail(String email);
     public void deleteUser(String email);
+
+    public UserDetailsDto findUserDetails(Long userId);
+    public UserDetailsDto findUserProfile(Long userId);
 
     public UserDto updateCountry(UserDto userDto);
     public UserDto updateLanguage(UserDto userDto);

@@ -6,5 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface FollowRepository extends JpaRepository<FollowEntity, Long> {
 
     void removeByUserFromAndUserTo(UserEntity userFrom, UserEntity UserTo);
+    Long countByUserTo(UserEntity userTo);
 
 }
