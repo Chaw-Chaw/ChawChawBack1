@@ -28,7 +28,7 @@ public class SocialController {
 
     @PostMapping("/users/login/{provider}")
     public void socialLogin(@PathVariable String provider,
-                            @RequestBody UserDto userDto,
+                            @RequestBody(required = false) UserDto userDto,
                             @RequestParam(required = false) String code,
                             @RequestParam(required = false) String userId,
                             @RequestParam(required = false) String accessToken,

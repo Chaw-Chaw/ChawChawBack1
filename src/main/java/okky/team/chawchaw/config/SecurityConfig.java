@@ -36,10 +36,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .formLogin().disable()
                 .httpBasic().disable()
                 .authorizeRequests()
-                .antMatchers("/users/send-mail").permitAll()
-                .antMatchers("/users/verification-mail").permitAll()
                 .antMatchers("/users/signup").permitAll()
                 .antMatchers("/users/login/**").permitAll()
+                .antMatchers("/users/email/**").permitAll()
                 .anyRequest()
                 .access("hasRole('ROLE_USER')");
     }

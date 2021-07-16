@@ -14,14 +14,14 @@ public class MailController {
 
     private final MailService mailService;
 
-    @PostMapping("users/send-mail")
+    @PostMapping("users/email/send")
     public ResponseEntity sendMail(HttpServletRequest request, @RequestBody MailDto mailDto){
         HttpSession session = request.getSession();
         mailService.sendMail(session, mailDto);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PostMapping("users/verification-mail")
+    @PostMapping("users/email/verification")
     public ResponseEntity<Boolean> verificationMail(HttpServletRequest request, @RequestBody MailDto mailDto){
         HttpSession session = request.getSession();
         Object expect = session.getAttribute(mailDto.getEmail());

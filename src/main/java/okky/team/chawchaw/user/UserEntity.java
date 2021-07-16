@@ -61,4 +61,32 @@ public class UserEntity {
         this.socialUrl = socialUrl;
         this.role = role == null ? Role.USER : role;
     }
+
+    public void changeName(String name) {
+        this.name = name;
+    }
+
+    public void changeImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public void changeContent(String content) {
+        this.content = content;
+    }
+
+    public void changeCountry(String country) {
+        this.country = country;
+    }
+
+    public void changeLanguage(String language) {
+        this.language = language;
+    }
+
+    public void changeHopeLanguage(String hopeLanguage) {
+        this.hopeLanguage = hopeLanguage;
+    }
+
+    public void changeSocialUrl(String socialUrl) {
+        this.socialUrl = socialUrl;
+    }
 }
