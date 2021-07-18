@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.social.Dto.KakaoAccessTokenDto;
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,14 +20,15 @@ public class KakaoService {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-
-    private final String kakaoOauth2ClientId = "";
-    private final String frontendRedirectUrl = "http://localhost:8080";
+    private final Environment env;
 
     /*
     * 인가 코드(code)를 이용하여 accessToken 얻기
     * */
     public KakaoAccessTokenDto getAccessTokenByCode(String code) {
+
+        String clientId = env.getProperty("kakao.client-id");
+        String redirectUrl = env.getProperty("kakao.redirect-url");
         String grantType = "authorization_code";
 
         HttpHeaders headers = new HttpHeaders();
@@ -34,10 +36,9 @@ public class KakaoService {
 
         LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
-        params.add("client_id", kakaoOauth2ClientId);
-        params.add("redirect_uri", frontendRedirectUrl + "/oauth2/code/kakao");
+        params.add("client_id", clientId);
+        params.add("redirect_uri", redirectUrl);
         params.add("code", code);
-        params.add("client_secret", "");
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 

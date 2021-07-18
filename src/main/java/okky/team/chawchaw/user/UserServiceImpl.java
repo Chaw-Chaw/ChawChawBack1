@@ -51,80 +51,29 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDetailsDto findUserDetails(Long userId) {
-        Optional<UserEntity> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isPresent()) {
-            UserEntity userEntity = optionalUser.get();
-            UserDetailsDto user = EntityToDto.entityToUserDetailsDto(userEntity);
-            user.setFollows(followRepository.countByUserTo(userEntity));
-            return user;
-        }
-        else
-            return null;
+        return null;
     }
 
     @Override
     public UserDetailsDto findUserProfile(Long userId) {
-        Optional<UserEntity> optionalUser = userRepository.findById(userId);
-        if (optionalUser.isPresent()) {
-            UserEntity userEntity = optionalUser.get();
-            UserDetailsDto user = EntityToDto.entityToUserDetailsDto(userEntity);
-            return user;
-        }
-        else
-            return null;
+        return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto updateCountry(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String country = userEntity.getCountry();
-            if (country.isEmpty()) {
-                userEntity.changeCountry(country + userDto.getCountry());
-            }else{
-                userEntity.changeCountry(country + "," + userDto.getCountry());
-            }
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto updateLanguage(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String country = userEntity.getLanguage();
-            if (country.isEmpty()) {
-                userEntity.changeLanguage(country + userDto.getLanguage());
-            }else{
-                userEntity.changeLanguage(country + "," + userDto.getLanguage());
-            }
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto updateHopeLanguage(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String country = userEntity.getHopeLanguage();
-            if (country.isEmpty()) {
-                userEntity.changeHopeLanguage(country + userDto.getHopeLanguage());
-            }else{
-                userEntity.changeHopeLanguage(country + "," + userDto.getHopeLanguage());
-            }
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
@@ -144,100 +93,36 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional(readOnly = false)
     public UserDto updateSocialUrl(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String country = userEntity.getSocialUrl();
-            if (country.isEmpty()) {
-                userEntity.changeSocialUrl(country + userDto.getSocialUrl());
-            }else{
-                userEntity.changeSocialUrl(country + "," + userDto.getSocialUrl());
-            }
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto updateImageUrl(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String country = userEntity.getImageUrl();
-            if (country.isEmpty()) {
-                userEntity.changeImageUrl(country + userDto.getImageUrl());
-            }else{
-                userEntity.changeImageUrl(country + "," + userDto.getImageUrl());
-            }
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto deleteCountry(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String country = Arrays.stream(userEntity.getCountry().split(","))
-                    .filter(s -> !s.equals(userDto.getCountry()))
-                    .collect(Collectors.joining(","));
-            userEntity.changeCountry(country);
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto deleteLanguage(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String language = Arrays.stream(userEntity.getLanguage().split(","))
-                    .filter(s -> !s.equals(userDto.getLanguage()))
-                    .collect(Collectors.joining(","));
-            userEntity.changeLanguage(language);
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto deleteHopeLanguage(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String hopeLanguage = Arrays.stream(userEntity.getHopeLanguage().split(","))
-                    .filter(s -> !s.equals(userDto.getHopeLanguage()))
-                    .collect(Collectors.joining(","));
-            userEntity.changeHopeLanguage(hopeLanguage);
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 
     @Override
     @Transactional(readOnly = false)
     public UserDto deleteSocialUrl(UserDto userDto) {
-        Optional<UserEntity> user = userRepository.findById(userDto.getId());
-        UserEntity userEntity = null;
-        if (user.isPresent()) {
-            userEntity = user.get();
-            String socialUrl = Arrays.stream(userEntity.getSocialUrl().split(","))
-                    .filter(s -> !s.equals(userDto.getSocialUrl()))
-                    .collect(Collectors.joining(","));
-            userEntity.changeSocialUrl(socialUrl);
-            return EntityToDto.entityToUserDto(userEntity);
-        }
         return null;
     }
 

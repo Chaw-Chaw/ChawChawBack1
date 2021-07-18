@@ -14,7 +14,8 @@ public class RequestUserVo {
     String language;
     String hopeLanguage;
     String order;
-    String socialUrl;
+    String facebookUrl;
+    String instagramUrl;
     String imageUrl;
 
 }

@@ -18,7 +18,8 @@ public class UserDetailsDto {
     String country;
     String language;
     String hopeLanguage;
-    String socialUrl;
+    String facebookUrl;
+    String instagramUrl;
     LocalDateTime days;
     Long views;
     Long follows;

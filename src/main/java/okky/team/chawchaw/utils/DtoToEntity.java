@@ -15,10 +15,8 @@ public class DtoToEntity {
                 .school(userDto.getSchool())
                 .imageUrl(userDto.getImageUrl())
                 .content(userDto.getContent())
-                .country(userDto.getCountry())
-                .language(userDto.getLanguage())
-                .hopeLanguage(userDto.getHopeLanguage())
-                .socialUrl(userDto.getSocialUrl())
+                .facebookUrl(userDto.getFacebookUrl())
+                .instagramUrl(userDto.getInstagramUrl())
                 .build();
     }
 

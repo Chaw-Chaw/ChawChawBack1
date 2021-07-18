@@ -30,13 +30,8 @@ public class UserEntity {
     private String imageUrl;
     @Column(length = 2000)
     private String content;
-    @Column(nullable = false)
-    private String country;
-    @Column(nullable = false)
-    private String language;
-    @Column(nullable = false)
-    private String hopeLanguage;
-    private String socialUrl;
+    private String facebookUrl;
+    private String instagramUrl;
     @Column(nullable = false, insertable = false, updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private LocalDateTime regDate;
@@ -47,7 +42,7 @@ public class UserEntity {
     private Role role;
 
     @Builder
-    public UserEntity(String email, String password, String name, String web_email, String school, String imageUrl, String content, String country, String language, String hopeLanguage, String socialUrl, Role role) {
+    public UserEntity(String email, String password, String name, String web_email, String school, String imageUrl, String content, String facebookUrl, String instagramUrl, Role role) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -55,15 +50,9 @@ public class UserEntity {
         this.school = school;
         this.imageUrl = imageUrl;
         this.content = content;
-        this.country = country;
-        this.language = language;
-        this.hopeLanguage = hopeLanguage;
-        this.socialUrl = socialUrl;
+        this.facebookUrl = facebookUrl;
+        this.instagramUrl = instagramUrl;
         this.role = role == null ? Role.USER : role;
-    }
-
-    public void changeName(String name) {
-        this.name = name;
     }
 
     public void changeImageUrl(String imageUrl) {
@@ -74,19 +63,4 @@ public class UserEntity {
         this.content = content;
     }
 
-    public void changeCountry(String country) {
-        this.country = country;
-    }
-
-    public void changeLanguage(String language) {
-        this.language = language;
-    }
-
-    public void changeHopeLanguage(String hopeLanguage) {
-        this.hopeLanguage = hopeLanguage;
-    }
-
-    public void changeSocialUrl(String socialUrl) {
-        this.socialUrl = socialUrl;
-    }
 }

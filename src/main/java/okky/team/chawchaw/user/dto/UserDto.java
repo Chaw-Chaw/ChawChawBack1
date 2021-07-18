@@ -21,7 +21,8 @@ public class UserDto {
     private String country;
     private String language;
     private String hopeLanguage;
-    private String socialUrl;
+    private String facebookUrl;
+    private String instagramUrl;
     private LocalDateTime regDate;
     private Long views;
 
