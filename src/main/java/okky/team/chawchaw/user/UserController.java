@@ -2,10 +2,7 @@ package okky.team.chawchaw.user;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
-import okky.team.chawchaw.user.dto.RequestUserVo;
-import okky.team.chawchaw.user.dto.UserCardDto;
-import okky.team.chawchaw.user.dto.UserDetailsDto;
-import okky.team.chawchaw.user.dto.UserDto;
+import okky.team.chawchaw.user.dto.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,9 +18,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("users/signup")
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto userDto){
-        UserDto user = userService.createUser(userDto);
-        return ResponseEntity.status(HttpStatus.OK).body(user);
+    public ResponseEntity<UserDto> createUser(@RequestBody CreateUserVo createUserVo){
+        Boolean result = userService.createUser(createUserVo);
+        if (result)
+            return new ResponseEntity<>(HttpStatus.OK);
+        else
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @GetMapping("users/email/duplicate")
@@ -66,29 +66,32 @@ public class UserController {
     @PutMapping("users/{element}")
     public ResponseEntity<UserDto> updateUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                             @PathVariable String element,
-                                            @RequestBody UserDto userDto) {
-        UserDto result = null;
-        userDto.setId(principalDetails.getId());
+                                            @RequestBody RequestUserVo requestUserVo) {
+        Boolean result = false;
+        requestUserVo.setId(principalDetails.getId());
         if (element.equals("country")) {
-            result = userService.updateCountry(userDto);
+            result = userService.updateCountry(requestUserVo);
         }
         else if (element.equals("language")) {
-            result = userService.updateLanguage(userDto);
+            result = userService.updateLanguage(requestUserVo);
         }
         else if (element.equals("hope-language")) {
-            result = userService.updateHopeLanguage(userDto);
+            result = userService.updateHopeLanguage(requestUserVo);
         }
         else if (element.equals("content")) {
-            result = userService.updateContent(userDto);
+            result = userService.updateContent(requestUserVo);
         }
-        else if (element.equals("social-url")) {
-            result = userService.updateSocialUrl(userDto);
+        else if (element.equals("facebook-url")) {
+            result = userService.updateFacebookUrl(requestUserVo);
+        }
+        else if (element.equals("instagram-url")) {
+            result = userService.updateInstagramUrl(requestUserVo);
         }
         else if (element.equals("image-url")) {
-            result = userService.updateImageUrl(userDto);
+            result = userService.updateImageUrl(requestUserVo);
         }
-        if (result != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(result);
+        if (result) {
+            return new ResponseEntity<>(HttpStatus.OK);
         }else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -97,26 +100,29 @@ public class UserController {
     @DeleteMapping("users/{element}")
     public ResponseEntity deleteUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                             @PathVariable String element,
-                                            @RequestBody UserDto userDto) {
-        UserDto result = null;
-        userDto.setId(principalDetails.getId());
+                                            @RequestBody RequestUserVo requestUserVo) {
+        Boolean result = false;
+        requestUserVo.setId(principalDetails.getId());
         if (element.equals("country")) {
-            result = userService.deleteCountry(userDto);
+            result = userService.deleteCountry(requestUserVo);
         }
         else if (element.equals("language")) {
-            result = userService.deleteLanguage(userDto);
+            result = userService.deleteLanguage(requestUserVo);
         }
         else if (element.equals("hope-language")) {
-            result = userService.deleteHopeLanguage(userDto);
+            result = userService.deleteHopeLanguage(requestUserVo);
         }
-        else if (element.equals("social-url")) {
-            result = userService.deleteSocialUrl(userDto);
+        else if (element.equals("facebook-url")) {
+            result = userService.deleteFacebookUrl(requestUserVo);
+        }
+        else if (element.equals("instagram-url")) {
+            result = userService.deleteInstagramUrl(requestUserVo);
         }
         else if (element.equals("image-url")) {
-            result = userService.deleteImageUrl(userDto);
+            result = userService.deleteImageUrl(requestUserVo);
         }
-        if (result != null){
-            return ResponseEntity.status(HttpStatus.OK).body(result);
+        if (result){
+            return new ResponseEntity(HttpStatus.OK);
         }else {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }

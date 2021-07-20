@@ -1,6 +1,8 @@
 package okky.team.chawchaw.utils;
 
 import okky.team.chawchaw.user.UserEntity;
+import okky.team.chawchaw.user.dto.CreateUserVo;
+import okky.team.chawchaw.user.dto.RequestUserVo;
 import okky.team.chawchaw.user.dto.UserDto;
 
 public class DtoToEntity {
@@ -17,6 +19,34 @@ public class DtoToEntity {
                 .content(userDto.getContent())
                 .facebookUrl(userDto.getFacebookUrl())
                 .instagramUrl(userDto.getInstagramUrl())
+                .build();
+    }
+
+    public static UserEntity RequestUserVoToEntity(RequestUserVo requestUserVo) {
+        return UserEntity.builder()
+                .email(requestUserVo.getEmail())
+                .password(requestUserVo.getPassword())
+                .name(requestUserVo.getName())
+                .web_email(requestUserVo.getWeb_email())
+                .school(requestUserVo.getSchool())
+                .imageUrl(requestUserVo.getImageUrl())
+                .content(requestUserVo.getContent())
+                .facebookUrl(requestUserVo.getFacebookUrl())
+                .instagramUrl(requestUserVo.getInstagramUrl())
+                .build();
+    }
+
+    public static UserEntity CreateUserVoToEntity(CreateUserVo createUserVo) {
+        return UserEntity.builder()
+                .email(createUserVo.getEmail())
+                .password(createUserVo.getPassword())
+                .name(createUserVo.getName())
+                .web_email(createUserVo.getWeb_email())
+                .school(createUserVo.getSchool())
+                .imageUrl(createUserVo.getImageUrl())
+                .content(createUserVo.getContent())
+                .facebookUrl(createUserVo.getFacebookUrl())
+                .instagramUrl(createUserVo.getInstagramUrl())
                 .build();
     }
 

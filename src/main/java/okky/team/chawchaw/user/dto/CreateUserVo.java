@@ -8,15 +8,14 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestUserVo {
+public class CreateUserVo {
 
-    Long id;
     String email;
     String password;
     String name;
-    String country;
-    String language;
-    String hopeLanguage;
+    List<String> country;
+    List<String> language;
+    List<String> hopeLanguage;
     String content;
     String school;
     String web_email;

@@ -14,5 +14,6 @@ public class LanguageEntity {
     @Column(name = "language_id")
     Long id;
     String name;
+    String abbr;
 
 }

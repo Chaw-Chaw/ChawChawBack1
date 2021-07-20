@@ -1,6 +1,7 @@
 package okky.team.chawchaw.user.country;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import okky.team.chawchaw.user.UserEntity;
 
 import javax.persistence.*;
@@ -8,6 +9,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "user_country")
 @Getter
+@NoArgsConstructor
 public class UserCountryEntity {
 
     @Id
@@ -22,4 +24,13 @@ public class UserCountryEntity {
     @JoinColumn(name = "country_id")
     CountryEntity country;
 
+    public void changeUser(UserEntity userEntity) {
+        this.user = userEntity;
+        user.getUserCountryEntities().add(this);
+    }
+
+    public UserCountryEntity(UserEntity user, CountryEntity country) {
+        this.user = user;
+        this.country = country;
+    }
 }

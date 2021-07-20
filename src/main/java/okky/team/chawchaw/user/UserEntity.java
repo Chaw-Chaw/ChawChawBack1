@@ -1,11 +1,16 @@
 package okky.team.chawchaw.user;
 
 import lombok.*;
+import okky.team.chawchaw.user.country.UserCountryEntity;
+import okky.team.chawchaw.user.language.UserHopeLanguageEntity;
+import okky.team.chawchaw.user.language.UserLanguageEntity;
 import okky.team.chawchaw.utils.RoleAttributeConverter;
 import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -32,6 +37,14 @@ public class UserEntity {
     private String content;
     private String facebookUrl;
     private String instagramUrl;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<UserCountryEntity> userCountryEntities = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<UserLanguageEntity> userLanguageEntities = new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
+    private List<UserHopeLanguageEntity> userHopeLanguageEntities = new ArrayList<>();
+
     @Column(nullable = false, insertable = false, updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private LocalDateTime regDate;
@@ -59,8 +72,10 @@ public class UserEntity {
         this.imageUrl = imageUrl;
     }
 
-    public void changeContent(String content) {
-        this.content = content;
-    }
+    public void changeContent(String content) { this.content = content; }
+
+    public void changeFacebookUrl(String url) { this.facebookUrl = url; }
+
+    public void changeInstagramUrl(String url) { this.instagramUrl = url; }
 
 }

@@ -1,27 +1,31 @@
 package okky.team.chawchaw.user;
 
+import okky.team.chawchaw.user.dto.CreateUserVo;
+import okky.team.chawchaw.user.dto.RequestUserVo;
 import okky.team.chawchaw.user.dto.UserDetailsDto;
 import okky.team.chawchaw.user.dto.UserDto;
 
 public interface UserService {
 
-    public UserDto createUser(UserDto userDto);
+    public Boolean createUser(CreateUserVo createUserVo);
     public Boolean duplicateEmail(String email);
     public void deleteUser(String email);
 
     public UserDetailsDto findUserDetails(Long userId);
     public UserDetailsDto findUserProfile(Long userId);
 
-    public UserDto updateCountry(UserDto userDto);
-    public UserDto updateLanguage(UserDto userDto);
-    public UserDto updateHopeLanguage(UserDto userDto);
-    public UserDto updateContent(UserDto userDto);
-    public UserDto updateSocialUrl(UserDto userDto);
-    public UserDto updateImageUrl(UserDto userDto);
+    public Boolean updateCountry(RequestUserVo requestUserVo);
+    public Boolean updateLanguage(RequestUserVo requestUserVo);
+    public Boolean updateHopeLanguage(RequestUserVo requestUserVo);
+    public Boolean updateContent(RequestUserVo requestUserVo);
+    public Boolean updateFacebookUrl(RequestUserVo requestUserVo);
+    public Boolean updateInstagramUrl(RequestUserVo requestUserVo);
+    public Boolean updateImageUrl(RequestUserVo requestUserVo);
 
-    public UserDto deleteCountry(UserDto userDto);
-    public UserDto deleteLanguage(UserDto userDto);
-    public UserDto deleteHopeLanguage(UserDto userDto);
-    public UserDto deleteSocialUrl(UserDto userDto);
-    public UserDto deleteImageUrl(UserDto userDto);
+    public Boolean deleteCountry(RequestUserVo requestUserVo);
+    public Boolean deleteLanguage(RequestUserVo requestUserVo);
+    public Boolean deleteHopeLanguage(RequestUserVo requestUserVo);
+    public Boolean deleteFacebookUrl(RequestUserVo requestUserVo);
+    public Boolean deleteInstagramUrl(RequestUserVo requestUserVo);
+    public Boolean deleteImageUrl(RequestUserVo requestUserVo);
 }
