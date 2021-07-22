@@ -26,7 +26,7 @@ public class UserHopeLanguageEntity {
 
     public void changeUser(UserEntity userEntity) {
         this.user = userEntity;
-        user.getUserHopeLanguageEntities().add(this);
+        user.getUserHopeLanguages().add(this);
     }
 
     public UserHopeLanguageEntity(UserEntity user, LanguageEntity hopeLanguage) {

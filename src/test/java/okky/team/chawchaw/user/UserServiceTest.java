@@ -1,17 +1,12 @@
 package okky.team.chawchaw.user;
 
 import okky.team.chawchaw.follow.FollowService;
-import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
-import okky.team.chawchaw.user.dto.CreateUserVo;
 import okky.team.chawchaw.user.dto.RequestUserVo;
-import okky.team.chawchaw.user.dto.UserDetailsDto;
-import okky.team.chawchaw.user.dto.UserDto;
-import okky.team.chawchaw.user.language.UserHopeLanguageEntity;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
-import okky.team.chawchaw.user.language.UserLanguageEntity;
 import okky.team.chawchaw.user.language.UserLanguageRepository;
 import org.assertj.core.api.Assertions;
+import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,9 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
@@ -43,7 +37,7 @@ class UserServiceTest {
     @Test
     public void 회원가입() throws Exception {
         //given
-        CreateUserVo createUserVo = CreateUserVo.builder()
+        RequestUserVo requestUserVo = RequestUserVo.builder()
                 .email("mangchhe@naver.com")
                 .password("1234")
                 .name("이름")
@@ -53,22 +47,22 @@ class UserServiceTest {
                 .facebookUrl("페이스북주소")
                 .instagramUrl("인스타그램주소")
                 .imageUrl("이미지 주소")
-                .language(Arrays.asList(
+                .language(Sets.newHashSet(Arrays.asList(
                         "ko",
                         "kv",
                         "kg"
-                ))
-                .hopeLanguage(Arrays.asList(
+                )))
+                .hopeLanguage(Sets.newHashSet(Arrays.asList(
                         "en",
                         "ee"
-                ))
-                .country(Arrays.asList(
+                )))
+                .country(Sets.newHashSet(Arrays.asList(
                         "South Korea",
                         "United States"
-                ))
+                )))
                 .build();
         //when
-        userService.createUser(createUserVo);
+        userService.createUser(requestUserVo);
         List<UserEntity> users = userRepository.findAll();
         List<String> countrys = userCountryRepository.findAll().stream().map(x -> x.getCountry().getName()).collect(Collectors.toList());
         List<String> languages = userLanguageRepository.findAll().stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList());
@@ -101,7 +95,7 @@ class UserServiceTest {
     @Test
     public void 회원중복() throws Exception {
         //given
-        CreateUserVo createUserVo = CreateUserVo.builder()
+        RequestUserVo requestUserVo = RequestUserVo.builder()
                 .email("mangchhe@naver.com")
                 .password("1234")
                 .name("이름")
@@ -111,21 +105,21 @@ class UserServiceTest {
                 .facebookUrl("페이스북주소")
                 .instagramUrl("인스타그램주소")
                 .imageUrl("이미지 주소")
-                .language(Arrays.asList(
+                .language(Sets.newHashSet(Arrays.asList(
                         "ko",
                         "kv",
                         "kg"
-                ))
-                .hopeLanguage(Arrays.asList(
+                )))
+                .hopeLanguage(Sets.newHashSet(Arrays.asList(
                         "en",
                         "ee"
-                ))
-                .country(Arrays.asList(
+                )))
+                .country(Sets.newHashSet(Arrays.asList(
                         "South Korea",
                         "United States"
-                ))
+                )))
                 .build();
-        userService.createUser(createUserVo);
+        userService.createUser(requestUserVo);
         //when
         Boolean result = userService.duplicateEmail("mangchhe@naver.com");
         Boolean result2 = userService.duplicateEmail("mangchhe2@naver.com");
@@ -137,7 +131,7 @@ class UserServiceTest {
     @Test
     public void 회원삭제() throws Exception {
         //given
-        CreateUserVo createUserVo = CreateUserVo.builder()
+        RequestUserVo requestUserVo = RequestUserVo.builder()
                 .email("mangchhe@naver.com")
                 .password("1234")
                 .name("이름")
@@ -147,23 +141,24 @@ class UserServiceTest {
                 .facebookUrl("페이스북주소")
                 .instagramUrl("인스타그램주소")
                 .imageUrl("이미지 주소")
-                .language(Arrays.asList(
+                .language(Sets.newHashSet(Arrays.asList(
                         "ko",
                         "kv",
                         "kg"
-                ))
-                .hopeLanguage(Arrays.asList(
+                )))
+                .hopeLanguage(Sets.newHashSet(Arrays.asList(
                         "en",
                         "ee"
-                ))
-                .country(Arrays.asList(
+                )))
+                .country(Sets.newHashSet(Arrays.asList(
                         "South Korea",
                         "United States"
-                ))
+                )))
                 .build();
-        userService.createUser(createUserVo);
+
+        userService.createUser(requestUserVo);
         //when
-        userService.deleteUser(createUserVo.getEmail());
+        userService.deleteUser(requestUserVo.getEmail());
         List<UserEntity> users = userRepository.findAll();
         //then
         Assertions.assertThat(users.size()).isEqualTo(0);
@@ -172,7 +167,8 @@ class UserServiceTest {
     @Test
     public void 프로필_수정() throws Exception {
         //given
-        CreateUserVo createUserVo = CreateUserVo.builder()
+
+        RequestUserVo createVo = RequestUserVo.builder()
                 .email("mangchhe@naver.com")
                 .password("1234")
                 .name("이름")
@@ -182,26 +178,55 @@ class UserServiceTest {
                 .facebookUrl("페이스북주소")
                 .instagramUrl("인스타그램주소")
                 .imageUrl("이미지주소")
-                .language(Arrays.asList(
-                        "kv"
-                ))
-                .hopeLanguage(Arrays.asList(
-                        "en"
-                ))
-                .country(Arrays.asList(
-                        "United States"
-                ))
+                .language(Sets.newHashSet(Arrays.asList(
+                        "fy",
+                        "xh",
+                        "yi",
+                        "yo"
+                )))
+                .hopeLanguage(Sets.newHashSet(Arrays.asList(
+                        "ab",
+                        "aa",
+                        "af",
+                        "ak"
+                )))
+                .country(Sets.newHashSet(Arrays.asList(
+                        "United States",
+                        "South Korea",
+                        "Zambia",
+                        "Zimbabwe"
+                )))
                 .build();
-        userService.createUser(createUserVo);
+        userService.createUser(createVo);
         UserEntity user = userRepository.findAll().get(0);
+        RequestUserVo requestUserVo = RequestUserVo.builder()
+                .id(user.getId())
+                .content("내용2")
+                .imageUrl("이미지주소2")
+                .facebookUrl("페이스북주소2")
+                .instagramUrl("인스타그램주소2")
+                .country(Sets.newHashSet(Arrays.asList(
+                        "United States",
+                        "South Korea",
+                        "Samoa",
+                        "Kosovo"
+                )))
+                .language(Sets.newHashSet(Arrays.asList(
+                        "fy",
+                        "xh",
+                        "wo",
+                        "cy"
+                )))
+                .hopeLanguage(Sets.newHashSet(Arrays.asList(
+                        "ab",
+                        "aa",
+                        "sq",
+                        "am"
+                )))
+                .build();
+
         //when
-        userService.updateCountry(RequestUserVo.builder().id(user.getId()).country("South Korea").build());
-        userService.updateLanguage(RequestUserVo.builder().id(user.getId()).language("ko").build());
-        userService.updateHopeLanguage(RequestUserVo.builder().id(user.getId()).hopeLanguage("ko").build());
-        userService.updateFacebookUrl(RequestUserVo.builder().id(user.getId()).facebookUrl("페이스북주소2").build());
-        userService.updateInstagramUrl(RequestUserVo.builder().id(user.getId()).instagramUrl("인스타그램주소2").build());
-        userService.updateImageUrl(RequestUserVo.builder().id(user.getId()).imageUrl("이미지주소2").build());
-        userService.updateContent(RequestUserVo.builder().id(user.getId()).content("내용2").build());
+        userService.updateProfile(requestUserVo);
 
         //then
         List<String> countrys = userCountryRepository.findAll().stream().map(x -> x.getCountry().getName()).collect(Collectors.toList());
@@ -211,75 +236,21 @@ class UserServiceTest {
         Assertions.assertThat(countrys)
                 .usingRecursiveComparison()
                 .ignoringCollectionOrder()
-                .isEqualTo(Arrays.asList("South Korea", "United States"));
+                .isEqualTo(Arrays.asList("South Korea", "United States", "Samoa", "Kosovo"));
         Assertions.assertThat(languages)
                 .usingRecursiveComparison()
                 .ignoringCollectionOrder()
-                .isEqualTo(Arrays.asList("kv", "ko"));
+                .isEqualTo(Arrays.asList("fy", "xh", "wo", "cy"));
         Assertions.assertThat(hopeLanguages)
                 .usingRecursiveComparison()
                 .ignoringCollectionOrder()
-                .isEqualTo(Arrays.asList("en", "ko"));
+                .isEqualTo(Arrays.asList("ab", "aa", "sq", "am"));
         Assertions.assertThat(user.getFacebookUrl()).isEqualTo("페이스북주소2");
         Assertions.assertThat(user.getInstagramUrl()).isEqualTo("인스타그램주소2");
         Assertions.assertThat(user.getImageUrl()).isEqualTo("이미지주소2");
         Assertions.assertThat(user.getContent()).isEqualTo("내용2");
     }
 
-    @Test
-    public void 프로필_삭제() throws Exception {
-        //given
-        CreateUserVo createUserVo = CreateUserVo.builder()
-                .email("mangchhe@naver.com")
-                .password("1234")
-                .name("이름")
-                .web_email("웹메일")
-                .school("학교")
-                .content("내용")
-                .facebookUrl("페이스북주소")
-                .instagramUrl("인스타그램주소")
-                .imageUrl("이미지주소")
-                .language(Arrays.asList(
-                        "kv", "ko"
-                ))
-                .hopeLanguage(Arrays.asList(
-                        "en", "ko"
-                ))
-                .country(Arrays.asList(
-                        "United States", "South Korea"
-                ))
-                .build();
-        userService.createUser(createUserVo);
-        UserEntity user = userRepository.findAll().get(0);
-        //when
-        userService.deleteCountry(RequestUserVo.builder().id(user.getId()).country("South Korea").build());
-        userService.deleteLanguage(RequestUserVo.builder().id(user.getId()).language("ko").build());
-        userService.deleteHopeLanguage(RequestUserVo.builder().id(user.getId()).hopeLanguage("ko").build());
-        userService.deleteFacebookUrl(RequestUserVo.builder().id(user.getId()).facebookUrl("페이스북주소").build());
-        userService.deleteInstagramUrl(RequestUserVo.builder().id(user.getId()).instagramUrl("인스타그램주소").build());
-        userService.deleteImageUrl(RequestUserVo.builder().id(user.getId()).imageUrl("이미지주소").build());
-
-        //then
-        List<String> countrys = userCountryRepository.findAll().stream().map(x -> x.getCountry().getName()).collect(Collectors.toList());
-        List<String> languages = userLanguageRepository.findAll().stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList());
-        List<String> hopeLanguages = userHopeLanguageRepository.findAll().stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toList());
-
-        Assertions.assertThat(countrys)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(Arrays.asList("United States"));
-        Assertions.assertThat(languages)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(Arrays.asList("kv"));
-        Assertions.assertThat(hopeLanguages)
-                .usingRecursiveComparison()
-                .ignoringCollectionOrder()
-                .isEqualTo(Arrays.asList("en"));
-        Assertions.assertThat(user.getFacebookUrl()).isEqualTo("");
-        Assertions.assertThat(user.getInstagramUrl()).isEqualTo("");
-        Assertions.assertThat(user.getImageUrl()).isEqualTo("");
-    }
 
 //    @Test
 //    public void 카드상세보기() throws Exception {

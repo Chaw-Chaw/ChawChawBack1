@@ -26,7 +26,7 @@ public class UserCountryEntity {
 
     public void changeUser(UserEntity userEntity) {
         this.user = userEntity;
-        user.getUserCountryEntities().add(this);
+        user.getUserCountrys().add(this);
     }
 
     public UserCountryEntity(UserEntity user, CountryEntity country) {

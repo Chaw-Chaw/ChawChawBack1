@@ -18,8 +18,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("users/signup")
-    public ResponseEntity<UserDto> createUser(@RequestBody CreateUserVo createUserVo){
-        Boolean result = userService.createUser(createUserVo);
+    public ResponseEntity<UserDto> createUser(@RequestBody RequestUserVo requestUserVo){
+        Boolean result = userService.createUser(requestUserVo);
         if (result)
             return new ResponseEntity<>(HttpStatus.OK);
         else
@@ -63,33 +63,14 @@ public class UserController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("users/{element}")
+    @PostMapping("users/profile")
     public ResponseEntity<UserDto> updateUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                            @PathVariable String element,
                                             @RequestBody RequestUserVo requestUserVo) {
         Boolean result = false;
         requestUserVo.setId(principalDetails.getId());
-        if (element.equals("country")) {
-            result = userService.updateCountry(requestUserVo);
-        }
-        else if (element.equals("language")) {
-            result = userService.updateLanguage(requestUserVo);
-        }
-        else if (element.equals("hope-language")) {
-            result = userService.updateHopeLanguage(requestUserVo);
-        }
-        else if (element.equals("content")) {
-            result = userService.updateContent(requestUserVo);
-        }
-        else if (element.equals("facebook-url")) {
-            result = userService.updateFacebookUrl(requestUserVo);
-        }
-        else if (element.equals("instagram-url")) {
-            result = userService.updateInstagramUrl(requestUserVo);
-        }
-        else if (element.equals("image-url")) {
-            result = userService.updateImageUrl(requestUserVo);
-        }
+
+        result = userService.updateProfile(requestUserVo);
+
         if (result) {
             return new ResponseEntity<>(HttpStatus.OK);
         }else {
@@ -97,35 +78,5 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("users/{element}")
-    public ResponseEntity deleteUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                            @PathVariable String element,
-                                            @RequestBody RequestUserVo requestUserVo) {
-        Boolean result = false;
-        requestUserVo.setId(principalDetails.getId());
-        if (element.equals("country")) {
-            result = userService.deleteCountry(requestUserVo);
-        }
-        else if (element.equals("language")) {
-            result = userService.deleteLanguage(requestUserVo);
-        }
-        else if (element.equals("hope-language")) {
-            result = userService.deleteHopeLanguage(requestUserVo);
-        }
-        else if (element.equals("facebook-url")) {
-            result = userService.deleteFacebookUrl(requestUserVo);
-        }
-        else if (element.equals("instagram-url")) {
-            result = userService.deleteInstagramUrl(requestUserVo);
-        }
-        else if (element.equals("image-url")) {
-            result = userService.deleteImageUrl(requestUserVo);
-        }
-        if (result){
-            return new ResponseEntity(HttpStatus.OK);
-        }else {
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
-    }
 
 }

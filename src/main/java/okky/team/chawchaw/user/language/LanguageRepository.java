@@ -6,5 +6,4 @@ public interface LanguageRepository extends JpaRepository<LanguageEntity, Long> 
 
     LanguageEntity findByAbbr(String abbr);
 
-
 }

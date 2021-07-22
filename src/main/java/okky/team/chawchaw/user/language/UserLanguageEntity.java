@@ -26,7 +26,7 @@ public class UserLanguageEntity {
 
     public void changeUser(UserEntity userEntity) {
         this.user = userEntity;
-        user.getUserLanguageEntities().add(this);
+        user.getUserLanguages().add(this);
     }
 
     public UserLanguageEntity(UserEntity user, LanguageEntity language) {

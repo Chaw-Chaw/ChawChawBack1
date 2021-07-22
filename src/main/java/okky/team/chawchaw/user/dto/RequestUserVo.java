@@ -3,6 +3,7 @@ package okky.team.chawchaw.user.dto;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Getter @Setter
 @Builder
@@ -14,9 +15,9 @@ public class RequestUserVo {
     String email;
     String password;
     String name;
-    String country;
-    String language;
-    String hopeLanguage;
+    Set<String> country;
+    Set<String> language;
+    Set<String> hopeLanguage;
     String content;
     String school;
     String web_email;

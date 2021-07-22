@@ -1,6 +1,7 @@
 package okky.team.chawchaw.user;
 
 import lombok.*;
+import okky.team.chawchaw.follow.FollowEntity;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.language.UserHopeLanguageEntity;
 import okky.team.chawchaw.user.language.UserLanguageEntity;
@@ -39,11 +40,11 @@ public class UserEntity {
     private String instagramUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<UserCountryEntity> userCountryEntities = new ArrayList<>();
+    private List<UserCountryEntity> userCountrys = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<UserLanguageEntity> userLanguageEntities = new ArrayList<>();
+    private List<UserLanguageEntity> userLanguages = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-    private List<UserHopeLanguageEntity> userHopeLanguageEntities = new ArrayList<>();
+    private List<UserHopeLanguageEntity> userHopeLanguages = new ArrayList<>();
 
     @Column(nullable = false, insertable = false, updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
