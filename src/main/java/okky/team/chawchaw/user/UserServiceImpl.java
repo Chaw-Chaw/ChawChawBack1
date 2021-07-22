@@ -8,6 +8,7 @@ import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.RequestUserVo;
 import okky.team.chawchaw.user.dto.UserDetailsDto;
+import okky.team.chawchaw.user.dto.UserProfileDto;
 import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.utils.DtoToEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,15 +73,14 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Boolean duplicateEmail(String email) {
-        List<UserEntity> users = userRepository.findByEmail(email);
-        return !users.isEmpty();
+        Optional<UserEntity> user = userRepository.findByEmail(email);
+        return user.isPresent();
     }
 
     @Override
     @Transactional(readOnly = false)
     public void deleteUser(String email) {
-        List<UserEntity> users = userRepository.findByEmail(email);
-        UserEntity user = users.get(0);
+        UserEntity user = userRepository.findByEmail(email).orElseThrow();
         followRepository.deleteByUserFromOrUserTo(user, user);
         if (user != null)
             userRepository.delete(user);
@@ -88,12 +89,50 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDetailsDto findUserDetails(Long userId) {
-        return null;
+        UserEntity user = userRepository.findById(userId).orElseThrow();
+
+        List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
+        List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
+        List<UserHopeLanguageEntity> hopeLanguages = userHopeLanguageRepository.findByUser(user);
+        Long follows = followRepository.countByUserToId(user.getId());
+
+        UserDetailsDto result = UserDetailsDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .imageUrl(user.getImageUrl())
+                .content(user.getContent())
+                .facebookUrl(user.getFacebookUrl())
+                .instagramUrl(user.getInstagramUrl())
+                .days(user.getRegDate())
+                .views(null) /* 미구현 */
+                .follows(follows)
+                .country(countrys.stream().map(x -> x.getCountry().getName()).collect(Collectors.toList()))
+                .language(languages.stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList()))
+                .hopeLanguage(hopeLanguages.stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toList()))
+                .build();
+
+        return result;
     }
 
     @Override
-    public UserDetailsDto findUserProfile(Long userId) {
-        return null;
+    public UserProfileDto findUserProfile(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow();
+
+        List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
+        List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
+        List<UserHopeLanguageEntity> hopeLanguages = userHopeLanguageRepository.findByUser(user);
+
+        UserProfileDto result = UserProfileDto.builder()
+                .imageUrl(user.getImageUrl())
+                .content(user.getContent())
+                .facebookUrl(user.getFacebookUrl())
+                .instagramUrl(user.getInstagramUrl())
+                .country(countrys.stream().map(x -> x.getCountry().getName()).collect(Collectors.toList()))
+                .language(languages.stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList()))
+                .hopeLanguage(hopeLanguages.stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toList()))
+                .build();
+
+        return result;
     }
 
     @Override
@@ -128,11 +167,9 @@ public class UserServiceImpl implements UserService{
         user.changeInstagramUrl(requestUserVo.getInstagramUrl());
         user.changeImageUrl(requestUserVo.getImageUrl());
 
-        System.out.println("하위이이웅ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ");
         for (String removeCountry : removeCountrys) {
             userCountryRepository.deleteByUserAndCountry(user, countryRepository.findByName(removeCountry));
         }
-        System.out.println("하위이이웅ㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇㅇ2222222222222222");
         for (String addCountry : addCountrys) {
             userCountryRepository.save(new UserCountryEntity(user, countryRepository.findByName(addCountry)));
         }
@@ -150,14 +187,6 @@ public class UserServiceImpl implements UserService{
         for (String addHopeLanguage : addHopeLanguages) {
             userHopeLanguageRepository.save(new UserHopeLanguageEntity(user, languageRepository.findByAbbr(addHopeLanguage)));
         }
-
-
-
-//        fy, xh, yi, yo               fy, xh, wo, cy
-//
-//                추가해야 될꺼 wo, cy
-//                삭제해야 될꺼 yi, yo
-//                그래도 둬야될꺼 fy, xh
 
         return true;
     }

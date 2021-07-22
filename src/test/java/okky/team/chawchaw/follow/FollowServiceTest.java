@@ -53,8 +53,8 @@ class FollowServiceTest {
                 .build();
         userService.createUser(requestUserVo);
         userService.createUser(requestUserVo2);
-        UserEntity userFrom = userRepository.findByEmail("mangchhe@naver.com").get(0);
-        UserEntity userTo = userRepository.findByEmail("mangchhe2@naver.com").get(0);
+        UserEntity userFrom = userRepository.findByEmail("mangchhe@naver.com").orElseGet(null);
+        UserEntity userTo = userRepository.findByEmail("mangchhe2@naver.com").orElseGet(null);
 
         //when && then
         followService.addFollow(userFrom, userTo.getId());
@@ -90,8 +90,8 @@ class FollowServiceTest {
                 .build();
         userService.createUser(requestUserVo);
         userService.createUser(requestUserVo2);
-        UserEntity userFrom = userRepository.findByEmail("mangchhe@naver.com").get(0);
-        UserEntity userTo = userRepository.findByEmail("mangchhe2@naver.com").get(0);
+        UserEntity userFrom = userRepository.findByEmail("mangchhe@naver.com").orElseGet(null);
+        UserEntity userTo = userRepository.findByEmail("mangchhe2@naver.com").orElseGet(null);
         followService.addFollow(userFrom, userTo.getId());
         followService.addFollow(userFrom, userTo.getId());
         followService.addFollow(userFrom, userTo.getId());

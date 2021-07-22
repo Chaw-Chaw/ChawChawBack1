@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "follow")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Cacheable
 public class FollowEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

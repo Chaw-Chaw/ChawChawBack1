@@ -46,9 +46,9 @@ public class SocialController {
             return;
         }
 
-        List<UserEntity> users = userRepository.findByEmail(socialDto.getEmail());
+        UserEntity user = userRepository.findByEmail(socialDto.getEmail()).orElseGet(null);
 
-        if (users.isEmpty()) {
+        if (user != null) {
             userDto.setEmail(socialDto.getEmail());
             userDto.setName(socialDto.getName());
             userDto.setImageUrl(socialDto.getImageUrl());

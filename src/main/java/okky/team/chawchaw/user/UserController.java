@@ -48,8 +48,8 @@ public class UserController {
     }
 
     @GetMapping("users/{userId}/profile")
-    public ResponseEntity<UserDetailsDto> getUserProfile(@PathVariable Long userId) {
-        UserDetailsDto result = userService.findUserProfile(userId);
+    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long userId) {
+        UserProfileDto result = userService.findUserProfile(userId);
         if (result != null)
             return ResponseEntity.status(HttpStatus.OK).body(result);
         else

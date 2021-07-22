@@ -5,14 +5,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter @Setter
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailsDto {
+public class UserProfileDto {
 
-    Long id;
-    String name;
     String imageUrl;
     String content;
     List<String> country;
@@ -20,8 +19,5 @@ public class UserDetailsDto {
     List<String> hopeLanguage;
     String facebookUrl;
     String instagramUrl;
-    LocalDateTime days;
-    Long views;
-    Long follows;
 
 }

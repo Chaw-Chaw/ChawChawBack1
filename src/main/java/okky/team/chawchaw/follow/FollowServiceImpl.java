@@ -3,6 +3,7 @@ package okky.team.chawchaw.follow;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
