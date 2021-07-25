@@ -3,7 +3,7 @@ package okky.team.chawchaw.social.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import okky.team.chawchaw.social.Dto.KakaoAccessTokenDto;
+import okky.team.chawchaw.social.dto.KakaoAccessTokenDto;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

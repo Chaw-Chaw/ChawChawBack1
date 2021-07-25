@@ -24,7 +24,7 @@ create table users
     instagram_url varchar(255)  null,
     name          varchar(255)  not null,
     password      varchar(255)  not null,
-    reg_date      datetime(6)   not null,
+    reg_date      DATETIME default CURRENT_TIMESTAMP,
     role          varchar(255)  not null,
     school        varchar(255)  not null,
     views         bigint        not null,
@@ -36,7 +36,7 @@ create table follow
 (
     follow_id bigint auto_increment
         primary key,
-    reg_date  datetime(6) not null,
+    reg_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
     user_from bigint      null,
     user_to   bigint      null,
     foreign key (user_to) references users (user_id),

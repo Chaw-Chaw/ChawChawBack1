@@ -2,6 +2,8 @@ package okky.team.chawchaw.follow;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
+import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.message.ResponseFollowMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,16 +19,15 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping("follow/{userId}")
-    public ResponseEntity<Boolean> createFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ResponseEntity createFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                 @PathVariable Long userId) {
 
         Boolean result = followService.addFollow(principalDetails.getUserEntity(), userId);
 
         if (result)
-            return ResponseEntity.status(HttpStatus.OK).body(true);
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
         else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
-
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_FAIL, false), HttpStatus.CREATED);
     }
 
     @DeleteMapping("follow/{userId}")
@@ -36,9 +37,9 @@ public class FollowController {
         Boolean result = followService.deleteFollow(principalDetails.getUserEntity(), userId);
 
         if (result)
-            return ResponseEntity.status(HttpStatus.OK).body(true);
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_SUCCESS, true), HttpStatus.OK);
         else
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(false);
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_FAIL, false), HttpStatus.OK);
 
     }
 

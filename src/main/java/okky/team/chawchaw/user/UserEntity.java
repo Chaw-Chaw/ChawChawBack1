@@ -7,6 +7,7 @@ import okky.team.chawchaw.user.language.UserHopeLanguageEntity;
 import okky.team.chawchaw.user.language.UserLanguageEntity;
 import okky.team.chawchaw.utils.RoleAttributeConverter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,6 +18,7 @@ import java.util.List;
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@DynamicInsert
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

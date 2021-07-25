@@ -1,7 +1,7 @@
 package okky.team.chawchaw.social.service;
 
 import lombok.RequiredArgsConstructor;
-import okky.team.chawchaw.social.Dto.SocialDto;
+import okky.team.chawchaw.social.dto.SocialDto;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

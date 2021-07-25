@@ -1,6 +1,8 @@
 package okky.team.chawchaw.mail;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.message.ResponseMailMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,19 +20,21 @@ public class MailController {
     public ResponseEntity sendMail(HttpServletRequest request, @RequestBody MailDto mailDto){
         HttpSession session = request.getSession();
         mailService.sendMail(session, mailDto);
-        return new ResponseEntity(HttpStatus.OK);
+
+        return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.SEND_SUCCESS, true), HttpStatus.OK);
     }
 
     @PostMapping("users/email/verification")
-    public ResponseEntity<Boolean> verificationMail(HttpServletRequest request, @RequestBody MailDto mailDto){
+    public ResponseEntity verificationMail(HttpServletRequest request, @RequestBody MailDto mailDto){
         HttpSession session = request.getSession();
         Object expect = session.getAttribute(mailDto.getEmail());
         if (expect != null)
             if (Integer.parseInt(expect.toString()) == mailDto.getToken())
-                return ResponseEntity.status(HttpStatus.OK).body(true);
+                return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.VERIFICATION_SUCEESS, true), HttpStatus.OK);
             else {
                 session.invalidate();
             }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(false);
+
+        return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.VERIFICATION_FAIL, false), HttpStatus.OK);
     }
 }

@@ -1,4 +1,4 @@
-package okky.team.chawchaw.social.Dto;
+package okky.team.chawchaw.social.dto;
 
 import lombok.Getter;
 import lombok.Setter;
