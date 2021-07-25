@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: chawchaw
+  profiles: prod
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: <>
+    username: <>
+    password: <>
+#    initialization-mode: always
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    generate-ddl: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: <>
+    password: <>
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+            required: true
+          auth: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+server:
+  port: 8080
+
+token:
+  secret: <>
+  expiration_time: 1800000
+  prefix: "Bearer "
+  header: "Authorization"
+
+kakao:
+  client-id: <>
+  client-secret: <>
