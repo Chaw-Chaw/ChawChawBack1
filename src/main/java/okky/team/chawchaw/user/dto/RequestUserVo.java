@@ -21,7 +21,6 @@ public class RequestUserVo {
     String content;
     String school;
     String web_email;
-    String order;
     String facebookUrl;
     String instagramUrl;
     String imageUrl;

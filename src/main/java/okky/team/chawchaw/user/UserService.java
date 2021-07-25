@@ -1,8 +1,6 @@
 package okky.team.chawchaw.user;
 
-import okky.team.chawchaw.user.dto.RequestUserVo;
-import okky.team.chawchaw.user.dto.UserDetailsDto;
-import okky.team.chawchaw.user.dto.UserProfileDto;
+import okky.team.chawchaw.user.dto.*;
 
 public interface UserService {
 
@@ -10,6 +8,7 @@ public interface UserService {
     public Boolean duplicateEmail(String email);
     public void deleteUser(String email);
 
+    public UserCardDto findUserCards(FindUserVo findUserVo);
     public UserDetailsDto findUserDetails(Long userId);
     public UserProfileDto findUserProfile(Long userId);
 

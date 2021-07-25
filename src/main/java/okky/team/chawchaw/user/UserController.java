@@ -34,7 +34,10 @@ public class UserController {
     }
 
     @GetMapping("users")
-    public ResponseEntity<List<UserCardDto>> getUserCards(@RequestBody RequestUserVo requestUserVo) {
+    public ResponseEntity<List<UserCardDto>> getUserCards(@ModelAttribute FindUserVo findUserVo) {
+
+        userService.findUserCards(findUserVo);
+
         return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>());
     }
 

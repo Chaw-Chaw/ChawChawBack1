@@ -6,9 +6,7 @@ import okky.team.chawchaw.user.country.CountryEntity;
 import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
-import okky.team.chawchaw.user.dto.RequestUserVo;
-import okky.team.chawchaw.user.dto.UserDetailsDto;
-import okky.team.chawchaw.user.dto.UserProfileDto;
+import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.utils.DtoToEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -85,6 +83,12 @@ public class UserServiceImpl implements UserService{
         if (user != null)
             userRepository.delete(user);
 
+    }
+
+    @Override
+    public UserCardDto findUserCards(FindUserVo findUserVo) {
+        userRepository.findAllByElement(findUserVo);
+        return new UserCardDto();
     }
 
     @Override
