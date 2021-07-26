@@ -8,4 +8,5 @@ public class SocialDto {
     String email;
     String name;
     String imageUrl;
+    String provider;
 }

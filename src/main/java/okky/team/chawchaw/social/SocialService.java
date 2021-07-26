@@ -26,12 +26,13 @@ public class SocialService {
 
         try {
             JsonNode jsonNode = objectMapper.readTree(userInfo);
-            String email = String.valueOf(jsonNode.get("id"));
+            String email = "kakao_" + jsonNode.get("id");
             socialDto.setEmail(email.substring(1, email.length() - 1));
             String name = String.valueOf(jsonNode.get("kakao_account").get("profile").get("nickname"));
             socialDto.setName(name.substring(1, name.length() - 1));
             String imageUrl = String.valueOf(jsonNode.get("kakao_account").get("profile").get("profile_image_url"));
             socialDto.setImageUrl(imageUrl.substring(1, imageUrl.length() - 1));
+            socialDto.setProvider("kakao");
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -45,11 +46,12 @@ public class SocialService {
         String userInfo = facebookService.getUserInfoByAccessToken(userId, accessToken);
         try {
             JsonNode jsonNode = objectMapper.readTree(userInfo);
-            socialDto.setEmail(String.valueOf(userId));
+            socialDto.setEmail("facebook_" + userId);
             String name = String.valueOf(jsonNode.get("name"));
             socialDto.setName(name.substring(1, name.length() - 1));
             String imageUrl = String.valueOf(jsonNode.get("picture").get("data").get("url"));
             socialDto.setImageUrl(imageUrl.substring(1, imageUrl.length() - 1));
+            socialDto.setProvider("facebook");
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
