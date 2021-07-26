@@ -15,7 +15,6 @@ public class ResponseUserMessage {
     public static final String UPDATE_FAIL = "유저 수정 실패";
     public static final String DELETE_SUCCESS = "유저 삭제 성공";
     public static final String DELETE_FAIL = "유저 삭제 실패";
-    public static final String EXPIRE_TOKEN = "JWT 토큰 만료";
-    public static final String WRONG_TOKEN_FORM = "JWT 토큰 형태가 잘못됨";
+    public static final String NEED_SIGNUP = "회원가입 필요";
 
 }

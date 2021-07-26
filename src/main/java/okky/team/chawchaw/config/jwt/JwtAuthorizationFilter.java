@@ -7,6 +7,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
+import okky.team.chawchaw.utils.message.ResponseAuthMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -69,7 +70,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             response.setCharacterEncoding("utf-8");
             response.setStatus(403);
             writer = response.getWriter();
-            String json = "{ \"responseMessage\" : \"" + ResponseUserMessage.EXPIRE_TOKEN + "\"," +
+            String json = "{ \"responseMessage\" : \"" + ResponseAuthMessage.EXPIRE_TOKEN + "\"," +
                     "\"isSuccess\" : false" +
                     "}";
             writer.print(json);
@@ -79,7 +80,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             response.setCharacterEncoding("utf-8");
             response.setStatus(403);
             writer = response.getWriter();
-            String json = "{ \"responseMessage\" : \"" + ResponseUserMessage.WRONG_TOKEN_FORM + "\"," +
+            String json = "{ \"responseMessage\" : \"" + ResponseAuthMessage.WRONG_TOKEN_FORM + "\"," +
                     "\"isSuccess\" : false" +
                     "}";
             writer.print(json);

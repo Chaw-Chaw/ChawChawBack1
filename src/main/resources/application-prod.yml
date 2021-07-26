@@ -16,6 +16,7 @@ spring:
       hibernate:
         format_sql: true
     generate-ddl: true
+    open-in-view: false
 
   mail:
     host: smtp.gmail.com
@@ -43,4 +44,4 @@ token:
 
 kakao:
   client-id: <>
-  client-secret: <>
+  redirect-url: <>

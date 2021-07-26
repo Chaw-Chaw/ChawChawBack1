@@ -195,5 +195,9 @@ public class UserServiceImpl implements UserService{
         return true;
     }
 
+    @Override
+    public Boolean isUser(String email) {
+        return userRepository.findByEmail(email).isPresent();
+    }
 
 }

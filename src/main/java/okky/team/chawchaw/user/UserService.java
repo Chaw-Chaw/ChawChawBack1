@@ -13,4 +13,6 @@ public interface UserService {
     public UserProfileDto findUserProfile(Long userId);
 
     public Boolean updateProfile(RequestUserVo requestUserVo);
+
+    public Boolean isUser(String email);
 }
