@@ -43,7 +43,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             String jwtHeader = request.getHeader("Authorization");
 
             if (jwtHeader == null || !jwtHeader.startsWith("Bearer")) {
-                throw new JWTDecodeException("JWT 포맷 오류");
+                chain.doFilter(request, response);
+                return;
             }
 
             String token = jwtHeader.replace("Bearer ", "");
@@ -82,6 +83,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
                     "\"isSuccess\" : false" +
                     "}";
             writer.print(json);
+
         } catch (UsernameNotFoundException usernameNotFoundException) {
             response.setContentType("application/json");
             response.setCharacterEncoding("utf-8");
