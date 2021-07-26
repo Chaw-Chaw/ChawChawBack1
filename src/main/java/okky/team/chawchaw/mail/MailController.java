@@ -18,10 +18,17 @@ public class MailController {
 
     @PostMapping("users/email/send")
     public ResponseEntity sendMail(HttpServletRequest request, @RequestBody MailDto mailDto){
-        HttpSession session = request.getSession();
-        mailService.sendMail(session, mailDto);
+        String domain = mailDto.getEmail().split("@")[1];
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.SEND_SUCCESS, true), HttpStatus.OK);
+        if (domain.length() > 5 && domain.substring(domain.length() - 6, domain.length()).equals(".ac.kr")){
+            HttpSession session = request.getSession();
+            mailService.sendMail(session, mailDto);
+            return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.SEND_SUCCESS, true), HttpStatus.OK);
+        }
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.WRONG_EMAIL_DOMAIN, false), HttpStatus.OK);
+
+
     }
 
     @PostMapping("users/email/verification")
@@ -29,12 +36,16 @@ public class MailController {
         HttpSession session = request.getSession();
         Object expect = session.getAttribute(mailDto.getEmail());
         if (expect != null)
-            if (Integer.parseInt(expect.toString()) == mailDto.getToken())
-                return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.VERIFICATION_SUCEESS, true), HttpStatus.OK);
+            if (Integer.parseInt(expect.toString()) == mailDto.getToken()) {
+                session.removeAttribute(mailDto.getEmail());
+                return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.VERIFICATION_SUCCESS, true), HttpStatus.OK);
+            }
             else {
-                session.invalidate();
+                session.removeAttribute(mailDto.getEmail());
+                return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.VERIFICATION_FAIL, false), HttpStatus.OK);
             }
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.VERIFICATION_FAIL, false), HttpStatus.OK);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.EXPIRED_TOKEN, false), HttpStatus.OK);
+
     }
 }
