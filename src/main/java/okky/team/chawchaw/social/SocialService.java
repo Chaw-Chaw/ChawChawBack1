@@ -26,8 +26,7 @@ public class SocialService {
 
         try {
             JsonNode jsonNode = objectMapper.readTree(userInfo);
-            String email = "kakao_" + jsonNode.get("id");
-            socialDto.setEmail(email.substring(1, email.length() - 1));
+            socialDto.setEmail("kakao_" + jsonNode.get("id"));
             String name = String.valueOf(jsonNode.get("kakao_account").get("profile").get("nickname"));
             socialDto.setName(name.substring(1, name.length() - 1));
             String imageUrl = String.valueOf(jsonNode.get("kakao_account").get("profile").get("profile_image_url"));
