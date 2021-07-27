@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -25,7 +26,7 @@ public class KakaoService {
     /*
     * 인가 코드(code)를 이용하여 accessToken 얻기
     * */
-    public KakaoAccessTokenDto getAccessTokenByCode(String code) {
+    public KakaoAccessTokenDto getAccessTokenByCode(String code) throws Exception {
 
         String clientId = env.getProperty("kakao.client-id");
         String redirectUrl = env.getProperty("kakao.redirect-url");
@@ -44,12 +45,14 @@ public class KakaoService {
 
         String url = "https://kauth.kakao.com/oauth/token";
 
-        ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
-
         try {
+            ResponseEntity<String> response = restTemplate.postForEntity(url, request, String.class);
+
             return objectMapper.readValue(response.getBody(), KakaoAccessTokenDto.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+        } catch (HttpClientErrorException e) {
+            throw new Exception();
         }
         return null;
     }
@@ -57,19 +60,24 @@ public class KakaoService {
     /*
     * accessToken 을 이용하여 유저정보 받기
     * */
-    public String getUserInfoByAccessToken(String accessToken) {
+    public String getUserInfoByAccessToken(String accessToken) throws Exception {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        try {
 
-        LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+            LinkedMultiValueMap<String, String> params = new LinkedMultiValueMap<>();
 
-        String url = "https://kapi.kakao.com/v2/user/me";
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        return restTemplate.postForObject(url, request, String.class);
+            String url = "https://kapi.kakao.com/v2/user/me";
+
+            return restTemplate.postForObject(url, request, String.class);
+        } catch (HttpClientErrorException e) {
+            throw new Exception();
+        }
     }
 
 }

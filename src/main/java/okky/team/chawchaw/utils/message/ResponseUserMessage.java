@@ -16,5 +16,6 @@ public class ResponseUserMessage {
     public static final String DELETE_SUCCESS = "유저 삭제 성공";
     public static final String DELETE_FAIL = "유저 삭제 실패";
     public static final String NEED_SIGNUP = "회원가입 필요";
+    public static final String WRONG_CODE = "인가 코드가 잘못됨";
 
 }

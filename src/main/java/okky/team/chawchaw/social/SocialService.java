@@ -18,7 +18,7 @@ public class SocialService {
     private final FacebookService facebookService;
     private final ObjectMapper objectMapper;
 
-    public SocialDto verificationKakao(String code){
+    public SocialDto verificationKakao(String code) throws Exception {
 
         SocialDto socialDto = new SocialDto();
         KakaoAccessTokenDto authorization = kakaoService.getAccessTokenByCode(code);
@@ -39,7 +39,7 @@ public class SocialService {
         return socialDto;
     }
 
-    public SocialDto verificationFacebook(String userId, String accessToken){
+    public SocialDto verificationFacebook(String userId, String accessToken) throws Exception {
 
         SocialDto socialDto = new SocialDto();
         String userInfo = facebookService.getUserInfoByAccessToken(userId, accessToken);

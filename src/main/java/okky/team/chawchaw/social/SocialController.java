@@ -33,15 +33,16 @@ public class SocialController {
 
         SocialDto socialDto = null;
         Boolean isUser = false;
-
-        if (provider.equals("kakao") && requestSocialVo.getCode() != null) {
-            socialDto = socialService.verificationKakao(requestSocialVo.getCode());
-        }
-        else if(provider.equals("facebook") && requestSocialVo.getAccessToken() != null) {
-            socialDto = socialService.verificationFacebook(requestSocialVo.getEmail(), requestSocialVo.getAccessToken());
-        }
-        else {
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.LOGIN_FAIL, false), HttpStatus.OK);
+        try {
+            if (provider.equals("kakao") && requestSocialVo.getCode() != null) {
+                socialDto = socialService.verificationKakao(requestSocialVo.getCode());
+            } else if (provider.equals("facebook") && requestSocialVo.getAccessToken() != null) {
+                socialDto = socialService.verificationFacebook(requestSocialVo.getEmail(), requestSocialVo.getAccessToken());
+            } else {
+                return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.LOGIN_FAIL, false), HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.WRONG_CODE, false), HttpStatus.OK);
         }
 
         /* REST API 통신 실패 */
