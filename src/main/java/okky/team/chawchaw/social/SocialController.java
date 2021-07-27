@@ -3,9 +3,8 @@ package okky.team.chawchaw.social;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.social.dto.RequestSocialVo;
 import okky.team.chawchaw.social.dto.SocialDto;
-import okky.team.chawchaw.user.UserEntity;
-import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.user.dto.RequestUserVo;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
@@ -29,19 +28,20 @@ public class SocialController {
 
     @PostMapping("/users/login/{provider}")
     public ResponseEntity socialLogin(@PathVariable String provider,
-                                      @RequestParam(required = false) String code,
-                                      @RequestParam(required = false) String userId,
-                                      @RequestParam(required = false) String accessToken,
+                                      @RequestBody RequestSocialVo requestSocialVo,
                                       HttpServletResponse response){
 
         SocialDto socialDto = null;
         Boolean isUser = false;
 
-        if (provider.equals("kakao")) {
-            socialDto = socialService.verificationKakao(code);
+        if (provider.equals("kakao") && requestSocialVo.getCode() != null) {
+            socialDto = socialService.verificationKakao(requestSocialVo.getCode());
         }
-        else if(provider.equals("facebook")) {
-            socialDto = socialService.verificationFacebook(userId, accessToken);
+        else if(provider.equals("facebook") && requestSocialVo.getAccessToken() != null) {
+            socialDto = socialService.verificationFacebook(requestSocialVo.getEmail(), requestSocialVo.getAccessToken());
+        }
+        else {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.LOGIN_FAIL, false), HttpStatus.OK);
         }
 
         /* REST API 통신 실패 */
