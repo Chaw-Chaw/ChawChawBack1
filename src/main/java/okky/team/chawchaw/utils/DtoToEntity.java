@@ -32,6 +32,9 @@ public class DtoToEntity {
                 .content(requestUserVo.getContent())
                 .facebookUrl(requestUserVo.getFacebookUrl())
                 .instagramUrl(requestUserVo.getInstagramUrl())
+                .repCountry(requestUserVo.getRepCountry())
+                .repLanguage(requestUserVo.getRepLanguage())
+                .repHopeLanguage(requestUserVo.getRepHopeLanguage())
                 .build();
     }
 
@@ -46,6 +49,9 @@ public class DtoToEntity {
                 .content(requestUserVo.getContent())
                 .facebookUrl(requestUserVo.getFacebookUrl())
                 .instagramUrl(requestUserVo.getInstagramUrl())
+                .repCountry(requestUserVo.getRepCountry())
+                .repLanguage(requestUserVo.getRepLanguage())
+                .repHopeLanguage(requestUserVo.getRepHopeLanguage())
                 .build();
     }
 

@@ -49,6 +49,9 @@ class UserServiceTest {
                 .facebookUrl("페이스북주소")
                 .instagramUrl("인스타그램주소")
                 .imageUrl("이미지 주소")
+                .repCountry("South Korea")
+                .repLanguage("ko")
+                .repHopeLanguage("en")
                 .language(Sets.newHashSet(Arrays.asList(
                         "ko",
                         "kv",
@@ -92,6 +95,10 @@ class UserServiceTest {
                 .usingRecursiveComparison()
                 .ignoringCollectionOrder()
                 .isEqualTo(Arrays.asList("en", "ee"));
+        // 대표
+        Assertions.assertThat(users.get(0).getRepCountry()).isEqualTo("South Korea");
+        Assertions.assertThat(users.get(0).getRepLanguage()).isEqualTo("ko");
+        Assertions.assertThat(users.get(0).getRepHopeLanguage()).isEqualTo("en");
     }
 
     @Test
@@ -179,6 +186,15 @@ class UserServiceTest {
                 .facebookUrl("페이스북주소")
                 .instagramUrl("인스타그램주소")
                 .imageUrl("이미지주소")
+                .repCountry("United States")
+                .repLanguage("fy")
+                .repHopeLanguage("ab")
+                .country(Sets.newHashSet(Arrays.asList(
+                        "United States",
+                        "South Korea",
+                        "Zambia",
+                        "Zimbabwe"
+                )))
                 .language(Sets.newHashSet(Arrays.asList(
                         "fy",
                         "xh",
@@ -191,12 +207,6 @@ class UserServiceTest {
                         "af",
                         "ak"
                 )))
-                .country(Sets.newHashSet(Arrays.asList(
-                        "United States",
-                        "South Korea",
-                        "Zambia",
-                        "Zimbabwe"
-                )))
                 .build();
         userService.createUser(createVo);
         UserEntity user = userRepository.findAll().get(0);
@@ -206,6 +216,9 @@ class UserServiceTest {
                 .imageUrl("이미지주소2")
                 .facebookUrl("페이스북주소2")
                 .instagramUrl("인스타그램주소2")
+                .repCountry("Samoa")
+                .repLanguage("cy")
+                .repHopeLanguage("am")
                 .country(Sets.newHashSet(Arrays.asList(
                         "United States",
                         "South Korea",
@@ -250,6 +263,9 @@ class UserServiceTest {
         Assertions.assertThat(user.getInstagramUrl()).isEqualTo("인스타그램주소2");
         Assertions.assertThat(user.getImageUrl()).isEqualTo("이미지주소2");
         Assertions.assertThat(user.getContent()).isEqualTo("내용2");
+        Assertions.assertThat(user.getRepCountry()).isEqualTo("Samoa");
+        Assertions.assertThat(user.getRepLanguage()).isEqualTo("cy");
+        Assertions.assertThat(user.getRepHopeLanguage()).isEqualTo("am");
     }
 
     @Test

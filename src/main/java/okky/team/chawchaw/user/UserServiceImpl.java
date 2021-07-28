@@ -143,6 +143,15 @@ public class UserServiceImpl implements UserService{
     public Boolean updateProfile(RequestUserVo requestUserVo) {
 
         UserEntity user = userRepository.findById(requestUserVo.getId()).orElseThrow();
+
+        user.changeContent(requestUserVo.getContent());
+        user.changeFacebookUrl(requestUserVo.getFacebookUrl());
+        user.changeInstagramUrl(requestUserVo.getInstagramUrl());
+        user.changeImageUrl(requestUserVo.getImageUrl());
+        user.changeRepCountry(requestUserVo.getRepCountry());
+        user.changeRepLanguage(requestUserVo.getRepLanguage());
+        user.changeRepHopeLanguage(requestUserVo.getRepHopeLanguage());
+
         List<UserCountryEntity> userCountrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> userLanguages = userLanguageRepository.findByUser(user);
         List<UserHopeLanguageEntity> userHopeLanguages = userHopeLanguageRepository.findByUser(user);
@@ -164,11 +173,6 @@ public class UserServiceImpl implements UserService{
 
         removeHopeLanguages.removeAll(addHopeLanguages);
         addHopeLanguages.removeAll(userHopeLanguages.stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toSet()));
-
-        user.changeContent(requestUserVo.getContent());
-        user.changeFacebookUrl(requestUserVo.getFacebookUrl());
-        user.changeInstagramUrl(requestUserVo.getInstagramUrl());
-        user.changeImageUrl(requestUserVo.getImageUrl());
 
         for (String removeCountry : removeCountrys) {
             userCountryRepository.deleteByUserAndCountry(user, countryRepository.findByName(removeCountry));

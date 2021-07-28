@@ -61,7 +61,7 @@ public class UserEntity {
     private Role role;
 
     @Builder
-    public UserEntity(String email, String password, String name, String web_email, String school, String imageUrl, String content, String facebookUrl, String instagramUrl, Role role) {
+    public UserEntity(String email, String password, String name, String web_email, String school, String imageUrl, String content, String facebookUrl, String instagramUrl, Role role, String repCountry, String repLanguage, String repHopeLanguage) {
         this.email = email;
         this.password = password;
         this.name = name;
@@ -72,16 +72,30 @@ public class UserEntity {
         this.facebookUrl = facebookUrl;
         this.instagramUrl = instagramUrl;
         this.role = role == null ? Role.USER : role;
+        this.repCountry = repCountry;
+        this.repLanguage = repLanguage;
+        this.repHopeLanguage= repHopeLanguage;
     }
 
     public void changeImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+        this.imageUrl = imageUrl != null ? imageUrl : this.imageUrl;
     }
-
-    public void changeContent(String content) { this.content = content; }
-
-    public void changeFacebookUrl(String url) { this.facebookUrl = url; }
-
-    public void changeInstagramUrl(String url) { this.instagramUrl = url; }
-
+    public void changeContent(String content) {
+        this.content = content != null ? content : this.content;
+    }
+    public void changeFacebookUrl(String url) {
+        this.facebookUrl = url != null ? url : this.facebookUrl;
+    }
+    public void changeInstagramUrl(String url) {
+        this.instagramUrl = url != null ? url : this.instagramUrl;
+    }
+    public void changeRepCountry(String repCountry) {
+        this.repCountry = repCountry != null ? repCountry : this.repCountry;
+    }
+    public void changeRepLanguage(String repLanguage) {
+        this.repLanguage = repLanguage != null ? repLanguage : this.repLanguage;
+    }
+    public void changeRepHopeLanguage(String repHopeLanguage) {
+        this.repHopeLanguage = repHopeLanguage != null ? repHopeLanguage : this.repHopeLanguage;
+    }
 }
