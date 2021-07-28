@@ -24,5 +24,8 @@ public class RequestUserVo {
     String facebookUrl;
     String instagramUrl;
     String imageUrl;
+    String repCountry;
+    String repLangugae;
+    String repHopeLangugae;
 
 }

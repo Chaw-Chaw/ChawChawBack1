@@ -16,7 +16,7 @@ public class MailController {
 
     private final MailService mailService;
 
-    @PostMapping("users/email/send")
+    @PostMapping("email/send")
     public ResponseEntity sendMail(HttpServletRequest request, @RequestBody MailDto mailDto){
         String domain = mailDto.getEmail().split("@")[1];
 
@@ -31,7 +31,7 @@ public class MailController {
 
     }
 
-    @PostMapping("users/email/verification")
+    @PostMapping("email/verification")
     public ResponseEntity verificationMail(HttpServletRequest request, @RequestBody MailDto mailDto){
         HttpSession session = request.getSession();
         Object expect = session.getAttribute(mailDto.getEmail());

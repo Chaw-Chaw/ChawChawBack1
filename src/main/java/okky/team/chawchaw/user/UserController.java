@@ -66,9 +66,9 @@ public class UserController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
     }
 
-    @GetMapping("users/{userId}/profile")
-    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable Long userId) {
-        UserProfileDto result = userService.findUserProfile(userId);
+    @GetMapping("users/profile")
+    public ResponseEntity<UserProfileDto> getUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        UserProfileDto result = userService.findUserProfile(principalDetails.getId());
         if (result != null)
             return new ResponseEntity(DefaultResponseVo.res(
                     ResponseUserMessage.FIND_SUCCESS,

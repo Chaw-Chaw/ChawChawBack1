@@ -40,6 +40,9 @@ public class UserEntity {
     private String content;
     private String facebookUrl;
     private String instagramUrl;
+    private String repCountry;
+    private String repLangugae;
+    private String repHopeLangugae;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<UserCountryEntity> userCountrys = new ArrayList<>();
