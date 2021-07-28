@@ -86,9 +86,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserCardDto findUserCards(FindUserVo findUserVo) {
-        userRepository.findAllByElement(findUserVo);
-        return new UserCardDto();
+    public List<UserCardDto> findUserCards(FindUserVo findUserVo) {
+        return userRepository.findAllByElement(findUserVo);
     }
 
     @Override

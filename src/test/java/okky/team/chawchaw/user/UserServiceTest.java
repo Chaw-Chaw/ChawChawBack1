@@ -2,9 +2,7 @@ package okky.team.chawchaw.user;
 
 import okky.team.chawchaw.follow.FollowService;
 import okky.team.chawchaw.user.country.UserCountryRepository;
-import okky.team.chawchaw.user.dto.RequestUserVo;
-import okky.team.chawchaw.user.dto.UserDetailsDto;
-import okky.team.chawchaw.user.dto.UserProfileDto;
+import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
 import okky.team.chawchaw.user.language.UserLanguageRepository;
 import org.assertj.core.api.Assertions;
@@ -12,6 +10,7 @@ import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
@@ -21,6 +20,7 @@ import java.util.stream.Collectors;
 
 @SpringBootTest
 @Transactional
+@ActiveProfiles("dev")
 class UserServiceTest {
 
     @Autowired
@@ -250,6 +250,76 @@ class UserServiceTest {
         Assertions.assertThat(user.getInstagramUrl()).isEqualTo("인스타그램주소2");
         Assertions.assertThat(user.getImageUrl()).isEqualTo("이미지주소2");
         Assertions.assertThat(user.getContent()).isEqualTo("내용2");
+    }
+
+    @Test
+    public void 카드조회() throws Exception {
+        //given
+        RequestUserVo createVo = null;
+        for (int i = 0; i < 3; i++) {
+            createVo = RequestUserVo.builder()
+                    .email("mangchhe" + String.valueOf(i) +"@naver.com")
+                    .password("1234")
+                    .name("이름")
+                    .web_email("웹메일")
+                    .school("학교")
+                    .content("내용" + String.valueOf(i))
+                    .facebookUrl("페이스북주소")
+                    .instagramUrl("인스타그램주소")
+                    .imageUrl("이미지주소")
+                    .language(Sets.newHashSet(Arrays.asList(
+                            "fy",
+                            "xh",
+                            "yi",
+                            "yo"
+                    )))
+                    .hopeLanguage(Sets.newHashSet(Arrays.asList(
+                            "ab",
+                            "aa",
+                            "af",
+                            "ak"
+                    )))
+                    .country(Sets.newHashSet(Arrays.asList(
+                            "United States",
+                            "South Korea",
+                            "Zambia",
+                            "Zimbabwe"
+                    )))
+                    .build();
+            userService.createUser(createVo);
+        }
+        List<UserEntity> users = userRepository.findAll();
+        for (int i = 0; i < 2; i++) {
+            for (int j = i + 1; j < 3; j++) {
+                followService.addFollow(users.get(i), users.get(j).getId());
+            }
+        }
+        //when
+        List<UserCardDto> result = userRepository.findAllByElement(FindUserVo.builder()
+                .language("yi")
+                .hopeLanguage("ab")
+                .build());
+        //then
+        Assertions.assertThat(result).extracting("content")
+                .usingRecursiveComparison()
+                .ignoringCollectionOrder()
+                .isEqualTo(Arrays.asList("내용0", "내용1", "내용2"));
+        Assertions.assertThat(result).extracting("follows")
+                .usingRecursiveComparison()
+                .ignoringCollectionOrder()
+                .isEqualTo(Arrays.asList(0L, 1L, 2L));
+        //given & when
+        createVo.setEmail("mangchhe3@naver.com");
+        userService.createUser(createVo);
+        List<UserEntity> users2 = userRepository.findAll();
+        List<UserCardDto> result2 = userRepository.findAllByElement(FindUserVo.builder()
+                .language("yi")
+                .hopeLanguage("ab")
+                .build());
+        //then
+        Assertions.assertThat(users2.size()).isEqualTo(4);
+        Assertions.assertThat(result2.size()).isEqualTo(3);
+
     }
 
     @Test

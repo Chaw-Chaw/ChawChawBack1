@@ -44,13 +44,20 @@ public class UserController {
     @GetMapping("users")
     public ResponseEntity<List<UserCardDto>> getUserCards(@ModelAttribute FindUserVo findUserVo) {
 
-        /*
-        * 미구현
-        * */
+        try {
 
-        userService.findUserCards(findUserVo);
+            List<UserCardDto> result = userService.findUserCards(findUserVo);
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ArrayList<>());
+            if (result.isEmpty())
+                return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_NOT_EXIST, false), HttpStatus.OK);
+            else
+                return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
+
+        } catch (Exception e) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
+        }
+
+
     }
 
     @GetMapping("users/{userId}")

@@ -25,7 +25,7 @@ public class RequestUserVo {
     String instagramUrl;
     String imageUrl;
     String repCountry;
-    String repLangugae;
-    String repHopeLangugae;
+    String repLanguage;
+    String repHopeLanguage;
 
 }

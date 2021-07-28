@@ -13,6 +13,9 @@ public class UserCardDto {
     Long id;
     String imageUrl;
     String content;
+    String repCountry;
+    String repLanguage;
+    String repHopeLanguage;
     LocalDateTime days;
     Long views;
     Long follows;
