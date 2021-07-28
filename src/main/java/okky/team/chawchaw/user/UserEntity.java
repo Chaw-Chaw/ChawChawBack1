@@ -50,6 +50,10 @@ public class UserEntity {
     private List<UserLanguageEntity> userLanguages = new ArrayList<>();
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<UserHopeLanguageEntity> userHopeLanguages = new ArrayList<>();
+    @OneToMany(mappedBy = "userFrom")
+    private List<FollowEntity> followFrom = new ArrayList<>();
+    @OneToMany(mappedBy = "userTo")
+    private List<FollowEntity> followTo = new ArrayList<>();
 
     @Column(nullable = false, insertable = false, updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
