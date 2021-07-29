@@ -8,6 +8,8 @@ import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.*;
+import okky.team.chawchaw.user.view.ViewEntity;
+import okky.team.chawchaw.user.view.ViewRepository;
 import okky.team.chawchaw.utils.DtoToEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService{
     private final LanguageRepository languageRepository;
     private final UserLanguageRepository userLanguageRepository;
     private final UserHopeLanguageRepository userHopeLanguageRepository;
+    private final ViewRepository viewRepository;
 
     @Override
     @Transactional(readOnly = false)
@@ -91,8 +94,18 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDetailsDto findUserDetails(Long userId) {
+    @Transactional(readOnly = false)
+    public UserDetailsDto findUserDetails(Long userId, Long userId2) {
+
         UserEntity user = userRepository.findById(userId).orElseThrow();
+        UserEntity user2 = userRepository.findById(userId2).orElseThrow();
+
+        ViewEntity view = viewRepository.findByUserFromIdAndUserToId(userId2, userId);
+
+        if (view == null && !userId.equals(userId2)) {
+            user.plusViews();
+            viewRepository.save(new ViewEntity(user2, user));
+        }
 
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
@@ -107,7 +120,7 @@ public class UserServiceImpl implements UserService{
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
                 .days(user.getRegDate())
-                .views(null) /* 미구현 */
+                .views(user.getViews())
                 .follows(follows)
                 .country(countrys.stream().map(x -> x.getCountry().getName()).collect(Collectors.toList()))
                 .language(languages.stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList()))

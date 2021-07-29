@@ -11,7 +11,7 @@ public interface UserService {
     public void deleteUser(String email);
 
     public List<UserCardDto> findUserCards(FindUserVo findUserVo);
-    public UserDetailsDto findUserDetails(Long userId);
+    public UserDetailsDto findUserDetails(Long userId, Long userId2);
     public UserProfileDto findUserProfile(Long userId);
 
     public Boolean updateProfile(RequestUserVo requestUserVo);

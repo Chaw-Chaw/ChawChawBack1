@@ -102,4 +102,7 @@ public class UserEntity {
     public void changeRepHopeLanguage(String repHopeLanguage) {
         this.repHopeLanguage = repHopeLanguage != null ? repHopeLanguage : this.repHopeLanguage;
     }
+    public void plusViews() {
+        this.views += 1;
+    }
 }

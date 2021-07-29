@@ -314,6 +314,7 @@ class UserServiceTest {
         List<UserCardDto> result = userRepository.findAllByElement(FindUserVo.builder()
                 .language("yi")
                 .hopeLanguage("ab")
+                .pageNo(1)
                 .build());
         //then
         Assertions.assertThat(result).extracting("content")
@@ -374,7 +375,7 @@ class UserServiceTest {
         List<UserEntity> users = userRepository.findAll();
         UserEntity user = users.get(0);
         //when
-        UserDetailsDto result = userService.findUserDetails(user.getId());
+        UserDetailsDto result = userService.findUserDetails(user.getId(), user.getId());
         //then
         Assertions.assertThat(result.getName()).isEqualTo("이름");
         Assertions.assertThat(result.getImageUrl()).isEqualTo("이미지주소");
