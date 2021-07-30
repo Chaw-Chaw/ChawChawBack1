@@ -18,6 +18,6 @@ public class UserCardDto {
     String repHopeLanguage;
     LocalDateTime days;
     Long views;
-    Long follows;
+    Integer follows;
 
 }

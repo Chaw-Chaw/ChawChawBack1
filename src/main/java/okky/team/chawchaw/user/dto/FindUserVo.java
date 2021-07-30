@@ -15,6 +15,7 @@ public class FindUserVo {
     String language;
     String hopeLanguage;
     String order;
+    String school;
     Integer pageNo;
     List<Integer> exclude;
 

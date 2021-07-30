@@ -30,9 +30,9 @@ public class UserController {
 
     }
 
-    @GetMapping("users/email/duplicate")
-    public ResponseEntity<Boolean> duplicateEmail(@RequestBody UserDto userDto){
-        Boolean result = userService.duplicateEmail(userDto.getEmail());
+    @GetMapping("users/email/duplicate/{email}")
+    public ResponseEntity<Boolean> duplicateEmail(@PathVariable String email){
+        Boolean result = userService.duplicateEmail(email);
 
         if (result)
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.EMAIL_EXIST, true), HttpStatus.OK);
@@ -42,7 +42,10 @@ public class UserController {
     }
 
     @GetMapping("users")
-    public ResponseEntity<List<UserCardDto>> getUserCards(@ModelAttribute FindUserVo findUserVo) {
+    public ResponseEntity<List<UserCardDto>> getUserCards(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                                          @ModelAttribute FindUserVo findUserVo) {
+
+        findUserVo.setSchool(principalDetails.getSchool());
 
         try {
 

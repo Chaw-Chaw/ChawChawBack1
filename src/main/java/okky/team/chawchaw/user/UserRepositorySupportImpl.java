@@ -6,6 +6,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.follow.QFollowEntity;
@@ -56,10 +57,9 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         user.repHopeLanguage,
                         user.regDate,
                         user.views,
-                        user.count()
+                        user.followTo.size()
                 ))
                 .from(user)
-                .leftJoin(user.followTo, follow)
                 .where(
                         /* 구사할 수 있는 언어 */
                         StringUtils.hasText(findUserVo.getLanguage()) ?
@@ -81,6 +81,8 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                                                 .join(userHopeLanguage.hopeLanguage, language)
                                                 .where(userHopeLanguage.hopeLanguage.abbr.eq(findUserVo.getHopeLanguage()))
                                 ) : null,
+                        /* 학교 */
+                        StringUtils.hasText(findUserVo.getSchool()) ? user.school.eq(findUserVo.getSchool()) : null,
                         /* 이름 */
                         StringUtils.hasText(findUserVo.getName()) ? user.name.eq(findUserVo.getName()) : null,
                         /* 제외 목록 */
@@ -97,7 +99,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
     private OrderSpecifier<?> getSortedColumn(String order) {
         if (StringUtils.hasText(order)) {
             if (order.equals("like")) {
-                return user.count().desc();
+                return user.followTo.size().desc();
             }
             else if (order.equals("view")) {
                 return user.views.desc();
