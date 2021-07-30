@@ -6,5 +6,5 @@ import lombok.Setter;
 @Getter @Setter
 public class MailDto {
     private String email;
-    private Integer token;
+    private Integer verificationNumber;
 }

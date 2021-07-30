@@ -36,7 +36,7 @@ public class MailController {
         HttpSession session = request.getSession();
         Object expect = session.getAttribute(mailDto.getEmail());
         if (expect != null)
-            if (Integer.parseInt(expect.toString()) == mailDto.getToken()) {
+            if (Integer.parseInt(expect.toString()) == mailDto.getVerificationNumber()) {
                 session.removeAttribute(mailDto.getEmail());
                 return new ResponseEntity(DefaultResponseVo.res(ResponseMailMessage.VERIFICATION_SUCCESS, true), HttpStatus.OK);
             }
