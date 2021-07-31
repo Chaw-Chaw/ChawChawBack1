@@ -1,15 +1,26 @@
 package okky.team.chawchaw.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +29,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final Environment env;
 
     @PostMapping("users/signup")
     public ResponseEntity createUser(@RequestBody RequestUserVo requestUserVo){
@@ -90,7 +102,6 @@ public class UserController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
     }
 
-
     @DeleteMapping("users")
     public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
         userService.deleteUser(principalDetails.getUsername());
@@ -99,7 +110,7 @@ public class UserController {
     }
 
     @PostMapping("users/profile")
-    public ResponseEntity<UserDto> updateUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ResponseEntity updateUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                             @RequestBody RequestUserVo requestUserVo) {
         requestUserVo.setId(principalDetails.getId());
 
@@ -112,5 +123,39 @@ public class UserController {
 
     }
 
+    @GetMapping("/users/image")
+    public ResponseEntity findUserImage(@RequestParam String imageUrl) {
+        byte[] result = null;
+        HttpHeaders header = new HttpHeaders();
+
+        try {
+            File file = new File(env.getProperty("user.profile.image.path") + File.separator + imageUrl);
+            header.add("Content-Type", Files.probeContentType(file.toPath()));
+            result = FileCopyUtils.copyToByteArray(file);
+
+        } catch (Exception e) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.FIND_FAIL, false), HttpStatus.OK);
+        }
+        return new ResponseEntity(result, header, HttpStatus.OK);
+    }
+
+    @PostMapping("/users/image")
+    public ResponseEntity uploadUserImage(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                          @RequestParam MultipartFile file) {
+            String result = userService.uploadImage(file, principalDetails.getId());
+            if (!result.isEmpty())
+                return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_SUCCESS, true, result), HttpStatus.OK);
+            else
+                return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_FAIL, false), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/users/image")
+    public ResponseEntity deleteUserImage(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        String result = userService.deleteImage(principalDetails.getImageUrl(), principalDetails.getId());
+        if (!result.isEmpty())
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.DELETE_SUCCESS, true, result), HttpStatus.OK);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.DELETE_FAIL, false), HttpStatus.OK);
+    }
 
 }

@@ -1,6 +1,7 @@
 package okky.team.chawchaw.user;
 
 import okky.team.chawchaw.user.dto.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public interface UserService {
     public UserProfileDto findUserProfile(Long userId);
 
     public Boolean updateProfile(RequestUserVo requestUserVo);
+    public String uploadImage(MultipartFile file, Long userId);
+    public String deleteImage(String imageUrl, Long userId);
 
     public Boolean isUser(String email);
 }

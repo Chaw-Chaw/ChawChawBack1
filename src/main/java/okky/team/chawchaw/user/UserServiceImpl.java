@@ -11,13 +11,29 @@ import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.user.view.ViewEntity;
 import okky.team.chawchaw.user.view.ViewRepository;
 import okky.team.chawchaw.utils.DtoToEntity;
+import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.message.ResponseUserMessage;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.swing.filechooser.FileSystemView;
+import java.io.File;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +50,7 @@ public class UserServiceImpl implements UserService{
     private final UserLanguageRepository userLanguageRepository;
     private final UserHopeLanguageRepository userHopeLanguageRepository;
     private final ViewRepository viewRepository;
+    private final Environment env;
 
     @Override
     @Transactional(readOnly = false)
@@ -209,6 +226,50 @@ public class UserServiceImpl implements UserService{
         }
 
         return true;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public String uploadImage(MultipartFile file, Long userId) {
+        try {
+            UserEntity user = userRepository.findById(userId).orElseThrow();
+            String uploadPath = env.getProperty("user.profile.image.path");
+            String uuid = UUID.randomUUID().toString();
+            String fileName = file.getOriginalFilename();
+
+            /* 폴더 생성 */
+            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            String folderPath = date.replace("//", File.separator);
+            File uploadPathFolder = new File(uploadPath, folderPath);
+            if (!uploadPathFolder.exists()) {
+                uploadPathFolder.mkdirs();
+            }
+
+            String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
+            Path savePath = Paths.get(saveName);
+            file.transferTo(savePath);
+            String encodeUrl = URLEncoder.encode(folderPath + File.separator + uuid + "_" + fileName, "UTF-8");
+            new File(uploadPath + URLDecoder.decode(user.getImageUrl(), "UTF-8")).delete();
+            user.changeImageUrl(encodeUrl);
+            return encodeUrl;
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public String deleteImage(String imageUrl, Long userId) {
+        try {
+            UserEntity user = userRepository.findById(userId).orElseThrow();
+            String uploadPath = env.getProperty("user.profile.image.path");
+            String savePath = uploadPath + "default.png";
+            user.changeImageUrl(savePath);
+            new File(uploadPath + URLDecoder.decode(imageUrl, "UTF-8")).delete();
+            return savePath;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     @Override

@@ -33,6 +33,12 @@ spring:
           connectiontimeout: 5000
           timeout: 5000
           writetimeout: 5000
+  servlet:
+    multipart:
+      enabled: true
+      location: <>
+      max-request-size: 30MB
+      max-file-size: 10MB
 server:
   port: 8080
 
@@ -45,3 +51,8 @@ token:
 kakao:
   client-id: <>
   redirect-url: <>
+
+user:
+  profile:
+    image:
+      path: <>
