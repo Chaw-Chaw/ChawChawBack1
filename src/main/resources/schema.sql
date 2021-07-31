@@ -26,6 +26,9 @@ create table users
     school        varchar(255)  not null,
     views         bigint        not null,
     web_email     varchar(255)  not null,
+    rep_country       varchar(255) null,
+    rep_language      varchar(255) null,
+    rep_hope_language varchar(255) null,
     unique (email)
 );
 
