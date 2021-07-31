@@ -42,13 +42,13 @@ create table follow
     foreign key (user_from) references users (user_id)
 );
 
-create table VIEW
+create table views
 (
-    VIEW_ID   BIGINT auto_increment primary key,
-    USER_FROM BIGINT,
-    USER_TO   BIGINT,
-    foreign key (USER_TO) references USERS (USER_ID),
-    foreign key (USER_FROM) references USERS (USER_ID)
+    view_id   bigint auto_increment primary key,
+    user_from bigint,
+    user_to   bigint,
+    foreign key (user_to) references users (user_id),
+    foreign key (user_from) references users (user_id)
 );
 
 

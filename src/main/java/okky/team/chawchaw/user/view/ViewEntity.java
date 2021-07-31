@@ -7,7 +7,7 @@ import okky.team.chawchaw.user.UserEntity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "view")
+@Table(name = "views")
 @Getter
 @NoArgsConstructor
 public class ViewEntity {
