@@ -56,3 +56,4 @@ user:
   profile:
     image:
       path: <>
+      default: <>

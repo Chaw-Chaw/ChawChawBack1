@@ -2,7 +2,6 @@ package okky.team.chawchaw.user;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.follow.FollowRepository;
-import okky.team.chawchaw.user.country.CountryEntity;
 import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
@@ -11,19 +10,15 @@ import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.user.view.ViewEntity;
 import okky.team.chawchaw.user.view.ViewRepository;
 import okky.team.chawchaw.utils.DtoToEntity;
-import okky.team.chawchaw.utils.dto.DefaultResponseVo;
-import okky.team.chawchaw.utils.message.ResponseUserMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -51,12 +46,19 @@ public class UserServiceImpl implements UserService{
     private final UserHopeLanguageRepository userHopeLanguageRepository;
     private final ViewRepository viewRepository;
     private final Environment env;
+    @Value("${user.profile.image.path}")
+    private String uploadPath;
+    @Value("${user.profile.image.default}")
+    private String defaultImage;
 
     @Override
     @Transactional(readOnly = false)
     public Boolean createUser(RequestUserVo requestUserVo) {
         requestUserVo.setPassword(passwordEncoder.encode(requestUserVo.getPassword()));
         UserEntity user = DtoToEntity.CreateUserVoToEntity(requestUserVo);
+        if (!StringUtils.hasText(user.getImageUrl())) {
+                user.changeImageUrl(defaultImage);
+        }
         userRepository.save(user);
 
         if (requestUserVo.getCountry() != null && requestUserVo.getLanguage() != null && requestUserVo.getHopeLanguage() != null) {
@@ -233,7 +235,6 @@ public class UserServiceImpl implements UserService{
     public String uploadImage(MultipartFile file, Long userId) {
         try {
             UserEntity user = userRepository.findById(userId).orElseThrow();
-            String uploadPath = env.getProperty("user.profile.image.path");
             String uuid = UUID.randomUUID().toString();
             String fileName = file.getOriginalFilename();
 
@@ -249,7 +250,9 @@ public class UserServiceImpl implements UserService{
             Path savePath = Paths.get(saveName);
             file.transferTo(savePath);
             String encodeUrl = URLEncoder.encode(folderPath + File.separator + uuid + "_" + fileName, "UTF-8");
-            new File(uploadPath + URLDecoder.decode(user.getImageUrl(), "UTF-8")).delete();
+            if (!URLDecoder.decode(user.getImageUrl(), "UTF-8").equals(defaultImage)) {
+                new File(uploadPath + URLDecoder.decode(user.getImageUrl(), "UTF-8")).delete();
+            }
             user.changeImageUrl(encodeUrl);
             return encodeUrl;
         } catch (Exception e) {
@@ -262,11 +265,13 @@ public class UserServiceImpl implements UserService{
     public String deleteImage(String imageUrl, Long userId) {
         try {
             UserEntity user = userRepository.findById(userId).orElseThrow();
-            String uploadPath = env.getProperty("user.profile.image.path");
-            String savePath = uploadPath + "default.png";
-            user.changeImageUrl(savePath);
-            new File(uploadPath + URLDecoder.decode(imageUrl, "UTF-8")).delete();
-            return savePath;
+            if (!imageUrl.equals(defaultImage)) {
+                user.changeImageUrl(defaultImage);
+                new File(uploadPath + URLDecoder.decode(imageUrl, "UTF-8")).delete();
+                return defaultImage;
+            } else{
+                return "";
+            }
         } catch (Exception e) {
             return "";
         }
