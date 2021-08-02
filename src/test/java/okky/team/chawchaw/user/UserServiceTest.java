@@ -324,18 +324,27 @@ class UserServiceTest {
         Assertions.assertThat(result).extracting("follows")
                 .usingRecursiveComparison()
                 .ignoringCollectionOrder()
-                .isEqualTo(Arrays.asList(0L, 1L, 2L));
+                .isEqualTo(Arrays.asList(0, 1, 2));
         //given & when
-        createVo.setEmail("mangchhe3@naver.com");
-        userService.createUser(createVo);
-        List<UserEntity> users2 = userRepository.findAll();
-        List<UserCardDto> result2 = userRepository.findAllByElement(FindUserVo.builder()
+        for (int i = 3; i < 7; i++) {
+            createVo.setEmail("mangchhe" + String.valueOf(i) + "@naver.com");
+            userService.createUser(createVo);
+        }
+        List<UserEntity> result2 = userRepository.findAll();
+        List<UserCardDto> result3 = userRepository.findAllByElement(FindUserVo.builder()
                 .language("yi")
                 .hopeLanguage("ab")
+                .pageNo(1)
+                .build());
+        List<UserCardDto> result4 = userRepository.findAllByElement(FindUserVo.builder()
+                .language("yi")
+                .hopeLanguage("ab")
+                .pageNo(2)
                 .build());
         //then
-        Assertions.assertThat(users2.size()).isEqualTo(4);
-        Assertions.assertThat(result2.size()).isEqualTo(3);
+        Assertions.assertThat(result2.size()).isEqualTo(7);
+        Assertions.assertThat(result3.size()).isEqualTo(6);
+        Assertions.assertThat(result4.size()).isEqualTo(1);
 
     }
 

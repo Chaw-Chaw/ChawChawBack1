@@ -28,7 +28,6 @@ public class UserEntity {
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false)
     private String name;
     @Column(nullable = false)
     private String web_email;
@@ -75,7 +74,7 @@ public class UserEntity {
         this.content = content;
         this.facebookUrl = facebookUrl;
         this.instagramUrl = instagramUrl;
-        this.role = role == null ? Role.USER : role;
+        this.role = role == null ? Role.GUEST : role;
         this.repCountry = repCountry;
         this.repLanguage = repLanguage;
         this.repHopeLanguage= repHopeLanguage;
@@ -102,6 +101,7 @@ public class UserEntity {
     public void changeRepHopeLanguage(String repHopeLanguage) {
         this.repHopeLanguage = repHopeLanguage != null ? repHopeLanguage : this.repHopeLanguage;
     }
+    public void changeRole(Role role) { this.role = role; }
     public void plusViews() {
         this.views += 1;
     }

@@ -176,6 +176,9 @@ public class UserServiceImpl implements UserService{
 
         UserEntity user = userRepository.findById(requestUserVo.getId()).orElseThrow();
 
+        if (user.getRole().equals(Role.GUEST)) {
+            user.changeRole(Role.USER);
+        }
         user.changeContent(requestUserVo.getContent());
         user.changeFacebookUrl(requestUserVo.getFacebookUrl());
         user.changeInstagramUrl(requestUserVo.getInstagramUrl());

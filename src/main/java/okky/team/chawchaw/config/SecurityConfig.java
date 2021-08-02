@@ -41,7 +41,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/email/duplicate/*").permitAll()
                 .antMatchers("/mail/**").permitAll()
                 .anyRequest()
-                .access("hasRole('ROLE_USER')");
+                .access("hasRole('ROLE_GUEST') or hasRole('ROLE_USER')");
     }
 
     @Bean

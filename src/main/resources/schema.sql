@@ -19,7 +19,7 @@ create table users
     facebook_url  varchar(255)  null,
     image_url     varchar(1000) null,
     instagram_url varchar(255)  null,
-    name          varchar(255)  not null,
+    name          varchar(255)  null,
     password      varchar(255)  not null,
     reg_date      DATETIME default CURRENT_TIMESTAMP,
     role          varchar(255)  not null,

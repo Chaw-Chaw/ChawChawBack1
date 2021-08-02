@@ -89,7 +89,6 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         findUserVo.getExclude() != null && !findUserVo.getExclude().isEmpty() ?
                                 user.id.notIn(findUserVo.getExclude().toArray(Integer[]::new)) : null
                 )
-                .groupBy(user)
                 .orderBy(getSortedColumn(findUserVo.getOrder()))
                 .offset(offset)
                 .limit(limit)
