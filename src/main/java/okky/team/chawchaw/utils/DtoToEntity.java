@@ -1,57 +1,18 @@
 package okky.team.chawchaw.utils;
 
 import okky.team.chawchaw.user.UserEntity;
-import okky.team.chawchaw.user.dto.RequestUserVo;
-import okky.team.chawchaw.user.dto.UserDto;
+import okky.team.chawchaw.user.dto.CreateUserDto;
 
 public class DtoToEntity {
 
-    public static UserEntity userDtoToEntity(UserDto userDto){
-        return UserEntity
-                .builder()
-                .email(userDto.getEmail())
-                .password(userDto.getPassword())
-                .name(userDto.getName())
-                .web_email(userDto.getWeb_email())
-                .school(userDto.getSchool())
-                .imageUrl(userDto.getImageUrl())
-                .content(userDto.getContent())
-                .facebookUrl(userDto.getFacebookUrl())
-                .instagramUrl(userDto.getInstagramUrl())
-                .build();
-    }
-
-    public static UserEntity RequestUserVoToEntity(RequestUserVo requestUserVo) {
+    public static UserEntity createUserDtoToEntity(CreateUserDto createUserDto) {
         return UserEntity.builder()
-                .email(requestUserVo.getEmail())
-                .password(requestUserVo.getPassword())
-                .name(requestUserVo.getName())
-                .web_email(requestUserVo.getWeb_email())
-                .school(requestUserVo.getSchool())
-                .imageUrl(requestUserVo.getImageUrl())
-                .content(requestUserVo.getContent())
-                .facebookUrl(requestUserVo.getFacebookUrl())
-                .instagramUrl(requestUserVo.getInstagramUrl())
-                .repCountry(requestUserVo.getRepCountry())
-                .repLanguage(requestUserVo.getRepLanguage())
-                .repHopeLanguage(requestUserVo.getRepHopeLanguage())
-                .build();
-    }
-
-    public static UserEntity CreateUserVoToEntity(RequestUserVo requestUserVo) {
-        return UserEntity.builder()
-                .email(requestUserVo.getEmail())
-                .password(requestUserVo.getPassword())
-                .name(requestUserVo.getName())
-                .web_email(requestUserVo.getWeb_email())
-                .school(requestUserVo.getSchool())
-                .imageUrl(requestUserVo.getImageUrl())
-                .content(requestUserVo.getContent())
-                .facebookUrl(requestUserVo.getFacebookUrl())
-                .instagramUrl(requestUserVo.getInstagramUrl())
-                .repCountry(requestUserVo.getRepCountry())
-                .repLanguage(requestUserVo.getRepLanguage())
-                .repHopeLanguage(requestUserVo.getRepHopeLanguage())
+                .email(createUserDto.getEmail())
+                .password(createUserDto.getPassword())
+                .name(createUserDto.getName())
+                .web_email(createUserDto.getWeb_email())
+                .school(createUserDto.getSchool())
+                .imageUrl(createUserDto.getImageUrl())
                 .build();
     }
 

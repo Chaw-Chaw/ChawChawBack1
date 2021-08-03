@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.social.dto.RequestSocialVo;
 import okky.team.chawchaw.social.dto.SocialDto;
 import okky.team.chawchaw.user.UserService;
-import okky.team.chawchaw.user.dto.RequestUserVo;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
@@ -75,28 +74,6 @@ public class SocialController {
             ), HttpStatus.OK);
         }
 
-    }
-
-    @PostMapping("/users/signup/{provider}")
-    public ResponseEntity socialSignup(@PathVariable String provider,
-                                       @RequestBody RequestUserVo requestUserVo,
-                                       HttpServletResponse response) {
-
-        requestUserVo.setPassword(UUID.randomUUID().toString());
-        Boolean result = userService.createUser(requestUserVo);
-
-        if (result) {
-            String token = JWT.create()
-                    .withSubject("JwtToken")
-                    .withExpiresAt(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
-                    .withClaim("email", requestUserVo.getEmail())
-                    .sign(Algorithm.HMAC512(env.getProperty("token.secret")));
-            response.addHeader(env.getProperty("token.header"), env.getProperty("token.prefix") + token);
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
-        }
-        else{
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CREATE_FAIL, false), HttpStatus.OK);
-        }
     }
 
 }

@@ -5,19 +5,23 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
+@Getter @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserProfileDto {
 
-    String imageUrl;
-    String content;
-    List<String> country;
-    List<String> language;
-    List<String> hopeLanguage;
-    String facebookUrl;
-    String instagramUrl;
+    private String name;
+    private String school;
+    private String imageUrl;
+    private String content;
+    private String repCountry;
+    private String repLanguage;
+    private String repHopeLanguage;
+    private List<String> country;
+    private List<String> language;
+    private List<String> hopeLanguage;
+    private String facebookUrl;
+    private String instagramUrl;
 
 }

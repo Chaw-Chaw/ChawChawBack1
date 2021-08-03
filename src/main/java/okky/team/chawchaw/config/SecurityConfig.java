@@ -5,6 +5,7 @@ import okky.team.chawchaw.config.jwt.JwtAuthenticationFilter;
 import okky.team.chawchaw.config.jwt.JwtAuthorizationFilter;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
+import okky.team.chawchaw.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -24,6 +25,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final Environment env;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -31,7 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(corsFilter())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), env))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), env, userService))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), env, userRepository))
                 .formLogin().disable()
                 .httpBasic().disable()
@@ -44,10 +46,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .access("hasRole('ROLE_GUEST') or hasRole('ROLE_USER')");
     }
 
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public CorsFilter corsFilter(){

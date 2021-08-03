@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.follow.QFollowEntity;
 import okky.team.chawchaw.user.country.QUserCountryEntity;
 import okky.team.chawchaw.user.dto.FindUserVo;
-import okky.team.chawchaw.user.dto.RequestUserVo;
 import okky.team.chawchaw.user.dto.UserCardDto;
 import okky.team.chawchaw.user.language.QLanguageEntity;
 import okky.team.chawchaw.user.language.QUserHopeLanguageEntity;
@@ -87,7 +86,9 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         StringUtils.hasText(findUserVo.getName()) ? user.name.eq(findUserVo.getName()) : null,
                         /* 제외 목록 */
                         findUserVo.getExclude() != null && !findUserVo.getExclude().isEmpty() ?
-                                user.id.notIn(findUserVo.getExclude().toArray(Integer[]::new)) : null
+                                user.id.notIn(findUserVo.getExclude().toArray(Integer[]::new)) : null,
+                        /* 유저 */
+                        user.role.eq(Role.USER)
                 )
                 .orderBy(getSortedColumn(findUserVo.getOrder()))
                 .offset(offset)
@@ -102,6 +103,9 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
             }
             else if (order.equals("view")) {
                 return user.views.desc();
+            }
+            else if (order.equals("date")) {
+                return user.regDate.desc();
             }
         }
         return NumberExpression.random().asc();

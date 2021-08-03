@@ -18,7 +18,6 @@ import java.util.List;
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@DynamicInsert
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -71,9 +70,9 @@ public class UserEntity {
         this.web_email = web_email;
         this.school = school;
         this.imageUrl = imageUrl;
-        this.content = content;
-        this.facebookUrl = facebookUrl;
-        this.instagramUrl = instagramUrl;
+        this.content = content == null ? "" : content;
+        this.facebookUrl = facebookUrl == null ? "" : facebookUrl;
+        this.instagramUrl = instagramUrl == null ? "" : instagramUrl;
         this.role = role == null ? Role.GUEST : role;
         this.repCountry = repCountry;
         this.repLanguage = repLanguage;

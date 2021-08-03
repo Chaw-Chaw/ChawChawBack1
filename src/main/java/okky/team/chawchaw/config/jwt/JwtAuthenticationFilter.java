@@ -3,8 +3,11 @@ package okky.team.chawchaw.config.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.minidev.json.JSONObject;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.UserEntity;
+import okky.team.chawchaw.user.UserService;
+import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,15 +29,19 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     private AuthenticationManager authenticationManager;
     private Environment env;
+    private UserService userService;
+    private JSONObject jsonObject = new JSONObject();
+    private ObjectMapper mapper = new ObjectMapper();
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, Environment env) {
+
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, Environment env, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.env = env;
+        this.userService = userService;
     }
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        ObjectMapper mapper = new ObjectMapper();
         PrintWriter writer = null;
         Authentication authenticate = null;
 
@@ -54,17 +61,13 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             authenticate = authenticationManager.authenticate(authenticationToken);
 
         } catch (UsernameNotFoundException usernameNotFoundException) {
-            String json = "{ \"responseMessage\" : \"" + ResponseUserMessage.ID_NOT_EXIST + "\"," +
-                    "\"isSuccess\" : false" +
-                    "}";
-            writer.print(json);
-
+            jsonObject.put("responseMessage", ResponseUserMessage.ID_NOT_EXIST);
+            jsonObject.put("isSuccess", false);
+            writer.print(jsonObject);
         } catch (Exception e) {
-            String json = "{ \"responseMessage\" : \"" + ResponseUserMessage.LOGIN_FAIL + "\"," +
-                    "\"isSuccess\" : false" +
-                    "}";
-            writer.print(json);
-
+            jsonObject.put("responseMessage", ResponseUserMessage.LOGIN_FAIL);
+            jsonObject.put("isSuccess", false);
+            writer.print(jsonObject);
         } finally {
             return authenticate;
         }
@@ -85,9 +88,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter writer = response.getWriter();
-        String json = "{ \"responseMessage\" : \"" + ResponseUserMessage.LOGIN_SUCCESS + "\"," +
-                        "\"isSuccess\" : true" +
-                        "}";
-        writer.print(json);
+        jsonObject.put("responseMessage", ResponseUserMessage.LOGIN_SUCCESS);
+        jsonObject.put("isSuccess", true);
+        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, userService.findUserProfile(principal.getId()))));
     }
 }

@@ -10,6 +10,7 @@ import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.user.view.ViewEntity;
 import okky.team.chawchaw.user.view.ViewRepository;
 import okky.team.chawchaw.utils.DtoToEntity;
+import okky.team.chawchaw.utils.EntityToDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -53,42 +54,15 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean createUser(RequestUserVo requestUserVo) {
-        requestUserVo.setPassword(passwordEncoder.encode(requestUserVo.getPassword()));
-        UserEntity user = DtoToEntity.CreateUserVoToEntity(requestUserVo);
-        if (!StringUtils.hasText(user.getImageUrl())) {
-                user.changeImageUrl(defaultImage);
+    public Boolean createUser(CreateUserDto createUserDto) {
+        createUserDto.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
+        if (!StringUtils.hasText(createUserDto.getImageUrl())) {
+                createUserDto.setImageUrl(defaultImage);
         }
+        UserEntity user = DtoToEntity.createUserDtoToEntity(createUserDto);
         userRepository.save(user);
 
-        if (requestUserVo.getCountry() != null && requestUserVo.getLanguage() != null && requestUserVo.getHopeLanguage() != null) {
-            for (String country : requestUserVo.getCountry()) {
-                UserCountryEntity userCountryEntity = userCountryRepository.save(
-                        new UserCountryEntity(
-                                user, countryRepository.findByName(country)
-                        )
-                );
-                userCountryEntity.changeUser(user);
-            }
-            for (String language : requestUserVo.getLanguage()) {
-                UserLanguageEntity userLanguageEntity = userLanguageRepository.save(
-                        new UserLanguageEntity(
-                                user, languageRepository.findByAbbr(language)
-                        )
-                );
-                userLanguageEntity.changeUser(user);
-            }
-            for (String language : requestUserVo.getHopeLanguage()) {
-                UserHopeLanguageEntity userHopeLanguageEntity = userHopeLanguageRepository.save(
-                        new UserHopeLanguageEntity(
-                                user, languageRepository.findByAbbr(language)
-                        )
-                );
-                userHopeLanguageEntity.changeUser(user);
-            }
-            return true;
-        }
-        return false;
+        return true;
     }
 
     @Override
@@ -158,13 +132,18 @@ public class UserServiceImpl implements UserService{
         List<UserHopeLanguageEntity> hopeLanguages = userHopeLanguageRepository.findByUser(user);
 
         UserProfileDto result = UserProfileDto.builder()
+                .name(user.getName())
+                .school(user.getSchool())
                 .imageUrl(user.getImageUrl())
                 .content(user.getContent())
-                .facebookUrl(user.getFacebookUrl())
-                .instagramUrl(user.getInstagramUrl())
+                .repCountry(user.getRepCountry())
+                .repLanguage(user.getRepLanguage())
+                .repHopeLanguage(user.getRepHopeLanguage())
                 .country(countrys.stream().map(x -> x.getCountry().getName()).collect(Collectors.toList()))
                 .language(languages.stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList()))
                 .hopeLanguage(hopeLanguages.stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toList()))
+                .facebookUrl(user.getFacebookUrl())
+                .instagramUrl(user.getInstagramUrl())
                 .build();
 
         return result;
@@ -172,32 +151,31 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean updateProfile(RequestUserVo requestUserVo) {
+    public Boolean updateProfile(UpdateUserDto updateUserDto) {
 
-        UserEntity user = userRepository.findById(requestUserVo.getId()).orElseThrow();
+        UserEntity user = userRepository.findById(updateUserDto.getId()).orElseThrow();
 
         if (user.getRole().equals(Role.GUEST)) {
             user.changeRole(Role.USER);
         }
-        user.changeContent(requestUserVo.getContent());
-        user.changeFacebookUrl(requestUserVo.getFacebookUrl());
-        user.changeInstagramUrl(requestUserVo.getInstagramUrl());
-        user.changeImageUrl(requestUserVo.getImageUrl());
-        user.changeRepCountry(requestUserVo.getRepCountry());
-        user.changeRepLanguage(requestUserVo.getRepLanguage());
-        user.changeRepHopeLanguage(requestUserVo.getRepHopeLanguage());
+        user.changeContent(updateUserDto.getContent());
+        user.changeFacebookUrl(updateUserDto.getFacebookUrl());
+        user.changeInstagramUrl(updateUserDto.getInstagramUrl());
+        user.changeRepCountry(updateUserDto.getRepCountry());
+        user.changeRepLanguage(updateUserDto.getRepLanguage());
+        user.changeRepHopeLanguage(updateUserDto.getRepHopeLanguage());
 
         List<UserCountryEntity> userCountrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> userLanguages = userLanguageRepository.findByUser(user);
         List<UserHopeLanguageEntity> userHopeLanguages = userHopeLanguageRepository.findByUser(user);
 
-        Set<String> addCountrys = requestUserVo.getCountry();
+        Set<String> addCountrys = updateUserDto.getCountry();
         Set<String> removeCountrys = userCountrys.stream().map(x -> x.getCountry().getName()).collect(Collectors.toSet());
 
-        Set<String> addLanguages = requestUserVo.getLanguage();
+        Set<String> addLanguages = updateUserDto.getLanguage();
         Set<String> removeLanguages = userLanguages.stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toSet());
 
-        Set<String> addHopeLanguages = requestUserVo.getHopeLanguage();
+        Set<String> addHopeLanguages = updateUserDto.getHopeLanguage();
         Set<String> removeHopeLanguages = userHopeLanguages.stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toSet());
 
         removeCountrys.removeAll(addCountrys);

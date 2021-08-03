@@ -51,6 +51,10 @@ class UserRepositorySupportImplTest {
         System.out.println("언어, 희망 언어 검색, 조회수 순");
         userRepository.findAllByElement(
                 FindUserVo.builder().language("yi").hopeLanguage("af").order("view").pageNo(1).build());
+        /* 언어, 희망 언어 검색, 날짜 순 */
+        System.out.println("언어, 희망 언어 검색, 날짜 순");
+        userRepository.findAllByElement(
+                FindUserVo.builder().language("yi").hopeLanguage("af").order("date").pageNo(1).build());
         /* 언어, 희망 언어, 이름 검색, 랜덤순 */
         System.out.println("언어, 희망 언어, 이름 검색, 랜덤순");
         userRepository.findAllByElement(

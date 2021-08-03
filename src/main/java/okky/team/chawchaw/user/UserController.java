@@ -1,5 +1,7 @@
 package okky.team.chawchaw.user;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
@@ -16,13 +18,16 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,14 +37,25 @@ public class UserController {
     private final Environment env;
 
     @PostMapping("users/signup")
-    public ResponseEntity createUser(@RequestBody RequestUserVo requestUserVo){
-        Boolean result = userService.createUser(requestUserVo);
+    public ResponseEntity createUser(@RequestBody CreateUserDto createUserDto,
+                                     HttpServletResponse response){
 
-        if (result)
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
-        else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CREATE_FAIL, false), HttpStatus.CREATED);
 
+        String provider = createUserDto.getProvider();
+
+        if (provider.equals("kakao") || provider.equals("facebook")) {
+            createUserDto.setPassword(UUID.randomUUID().toString());
+            String token = JWT.create()
+                    .withSubject("JwtToken")
+                    .withExpiresAt(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
+                    .withClaim("email", createUserDto.getEmail())
+                    .sign(Algorithm.HMAC512(env.getProperty("token.secret")));
+            response.addHeader(env.getProperty("token.header"), env.getProperty("token.prefix") + token);
+        }
+
+        userService.createUser(createUserDto);
+
+        return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
     }
 
     @GetMapping("users/email/duplicate/{email}")
@@ -89,19 +105,6 @@ public class UserController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
     }
 
-    @GetMapping("users/profile")
-    public ResponseEntity<UserProfileDto> getUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        UserProfileDto result = userService.findUserProfile(principalDetails.getId());
-        if (result != null)
-            return new ResponseEntity(DefaultResponseVo.res(
-                    ResponseUserMessage.FIND_SUCCESS,
-                    true,
-                    result
-            ), HttpStatus.OK);
-        else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
-    }
-
     @DeleteMapping("users")
     public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
         userService.deleteUser(principalDetails.getUsername());
@@ -111,10 +114,10 @@ public class UserController {
 
     @PostMapping("users/profile")
     public ResponseEntity updateUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                            @RequestBody RequestUserVo requestUserVo) {
-        requestUserVo.setId(principalDetails.getId());
+                                            @RequestBody UpdateUserDto updateUserDto) {
+        updateUserDto.setId(principalDetails.getId());
 
-        Boolean result = userService.updateProfile(requestUserVo);
+        Boolean result = userService.updateProfile(updateUserDto);
 
         if (result)
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_SUCCESS, true), HttpStatus.OK);
