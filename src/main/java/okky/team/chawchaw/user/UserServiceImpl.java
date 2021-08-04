@@ -124,8 +124,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserProfileDto findUserProfile(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow();
+    public UserProfileDto findUserProfile(String email) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow();
 
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);

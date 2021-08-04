@@ -13,7 +13,7 @@ public interface UserService {
 
     public List<UserCardDto> findUserCards(FindUserVo findUserVo);
     public UserDetailsDto findUserDetails(Long userId, Long userId2);
-    public UserProfileDto findUserProfile(Long userId);
+    public UserProfileDto findUserProfile(String email);
 
     public Boolean updateProfile(UpdateUserDto updateUserDto);
     public String uploadImage(MultipartFile file, Long userId);
