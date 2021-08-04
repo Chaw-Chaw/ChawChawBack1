@@ -45,12 +45,6 @@ public class UserController {
 
         if (provider.equals("kakao") || provider.equals("facebook")) {
             createUserDto.setPassword(UUID.randomUUID().toString());
-            String token = JWT.create()
-                    .withSubject("JwtToken")
-                    .withExpiresAt(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
-                    .withClaim("email", createUserDto.getEmail())
-                    .sign(Algorithm.HMAC512(env.getProperty("token.secret")));
-            response.addHeader(env.getProperty("token.header"), env.getProperty("token.prefix") + token);
         }
 
         userService.createUser(createUserDto);
