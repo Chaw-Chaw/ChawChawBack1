@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface UserService {
 
-    public Boolean createUser(CreateUserDto createUserDto);
+    public Long createUser(CreateUserDto createUserDto);
     public Boolean duplicateEmail(String email);
     public void deleteUser(String email);
 
@@ -16,6 +16,7 @@ public interface UserService {
     public UserProfileDto findUserProfile(String email);
 
     public Boolean updateProfile(UpdateUserDto updateUserDto);
+    public String uploadImage(String imageUrl, Long userId);
     public String uploadImage(MultipartFile file, Long userId);
     public String deleteImage(String imageUrl, Long userId);
 

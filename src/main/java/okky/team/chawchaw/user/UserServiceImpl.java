@@ -19,7 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.file.Path;
@@ -54,15 +57,14 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean createUser(CreateUserDto createUserDto) {
+    public Long createUser(CreateUserDto createUserDto) {
         createUserDto.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         if (!StringUtils.hasText(createUserDto.getImageUrl())) {
                 createUserDto.setImageUrl(defaultImage);
         }
         UserEntity user = DtoToEntity.createUserDtoToEntity(createUserDto);
-        userRepository.save(user);
 
-        return true;
+        return userRepository.save(user).getId();
     }
 
     @Override
@@ -209,6 +211,40 @@ public class UserServiceImpl implements UserService{
         }
 
         return true;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public String uploadImage(String imageUrl, Long userId) {
+        try {
+
+            URL url = new URL(imageUrl);
+            BufferedImage img = ImageIO.read(url);
+            UserEntity user = userRepository.findById(userId).orElseThrow();
+            String uuid = UUID.randomUUID().toString();
+            String fileName = ".jpg";
+
+            /* 폴더 생성 */
+            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
+            String folderPath = date.replace("//", File.separator);
+            File uploadPathFolder = new File(uploadPath, folderPath);
+            if (!uploadPathFolder.exists()) {
+                uploadPathFolder.mkdirs();
+            }
+
+            String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
+            Path savePath = Paths.get(saveName);
+            File file = new File(String.valueOf(savePath));
+            ImageIO.write(img, "jpg", file);
+            String encodeUrl = URLEncoder.encode(folderPath + File.separator + uuid + "_" + fileName, "UTF-8");
+            if (!URLDecoder.decode(user.getImageUrl(), "UTF-8").equals(defaultImage)) {
+                new File(uploadPath + URLDecoder.decode(user.getImageUrl(), "UTF-8")).delete();
+            }
+            user.changeImageUrl(encodeUrl);
+            return encodeUrl;
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     @Override
