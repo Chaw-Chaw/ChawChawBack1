@@ -15,10 +15,9 @@ public class ChatPubController {
 
     @MessageMapping("/message")
     public void message(@RequestBody ChatMessageDto message) {
-        if (ChatMessageDto.MessageType.ENTER.equals(message.getType())) {
-            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
-        }
+
         messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);
+
     }
 
 }

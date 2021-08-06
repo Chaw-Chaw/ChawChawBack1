@@ -17,7 +17,9 @@ spring:
         format_sql: true
     generate-ddl: true
     open-in-view: false
-
+  redis:
+    host: <>
+    port: 6379
   mail:
     host: smtp.gmail.com
     port: 587

@@ -1,14 +1,12 @@
 package okky.team.chawchaw.chat.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter @Setter
-@AllArgsConstructor
-public class ChatRoomDto {
+public class CreateChatRoomDto {
 
-    private Long roomId;
+    private Long userId;
     private String name;
 
 }
