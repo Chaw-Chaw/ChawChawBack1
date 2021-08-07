@@ -4,6 +4,7 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -108,7 +109,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                 return user.regDate.desc();
             }
         }
-        return NumberExpression.random().asc();
+        return Expressions.numberTemplate(Double.class, "function('rand')").asc();
     }
 
 }
