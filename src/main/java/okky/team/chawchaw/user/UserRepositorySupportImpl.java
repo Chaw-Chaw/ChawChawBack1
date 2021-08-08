@@ -31,7 +31,6 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
     QUserLanguageEntity userLanguage = QUserLanguageEntity.userLanguageEntity;
     QUserHopeLanguageEntity userHopeLanguage = QUserHopeLanguageEntity.userHopeLanguageEntity;
     QLanguageEntity language = QLanguageEntity.languageEntity;
-    QFollowEntity follow = QFollowEntity.followEntity;
 
     @Override
     public List<UserCardDto> findAllByElement(FindUserVo findUserVo) {
@@ -87,7 +86,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         StringUtils.hasText(findUserVo.getName()) ? user.name.eq(findUserVo.getName()) : null,
                         /* 제외 목록 */
                         findUserVo.getExclude() != null && !findUserVo.getExclude().isEmpty() ?
-                                user.id.notIn(findUserVo.getExclude().toArray(Integer[]::new)) : null,
+                                user.id.notIn(findUserVo.getExclude()) : null,
                         /* 유저 */
                         user.role.eq(Role.USER)
                 )

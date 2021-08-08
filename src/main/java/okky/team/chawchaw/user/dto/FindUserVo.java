@@ -2,6 +2,7 @@ package okky.team.chawchaw.user.dto;
 
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter @Setter
@@ -17,6 +18,6 @@ public class FindUserVo {
     String order;
     String school;
     Integer pageNo;
-    List<Integer> exclude;
+    List<Long> exclude = new ArrayList<>();
 
 }

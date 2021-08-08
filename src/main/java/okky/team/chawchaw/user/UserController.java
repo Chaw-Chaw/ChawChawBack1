@@ -18,6 +18,8 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;
@@ -69,7 +71,18 @@ public class UserController {
 
     @GetMapping("users")
     public ResponseEntity<List<UserCardDto>> getUserCards(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                          @ModelAttribute FindUserVo findUserVo) {
+                                                          @ModelAttribute FindUserVo findUserVo,
+                                                          HttpServletRequest request) {
+
+        findUserVo.getExclude().add(principalDetails.getId());
+
+        for (Cookie cookie : request.getCookies()) {
+            if (cookie.getName().equals("exclude")) {
+                for (String s : cookie.getValue().split("/")) {
+                    findUserVo.getExclude().add(Long.parseLong(s));
+                }
+            }
+        }
 
         findUserVo.setSchool(principalDetails.getSchool());
 
