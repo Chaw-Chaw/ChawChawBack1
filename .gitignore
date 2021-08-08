@@ -38,3 +38,4 @@ out/
 
 ### custom ###
 application-dev.yml
+src/main/generated

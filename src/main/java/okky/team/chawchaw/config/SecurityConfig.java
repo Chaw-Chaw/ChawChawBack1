@@ -10,6 +10,7 @@ import okky.team.chawchaw.user.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -44,10 +45,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/login/**").permitAll()
                 .antMatchers("/users/email/duplicate/*").permitAll()
                 .antMatchers("/mail/**").permitAll()
+                .antMatchers(HttpMethod.GET, "/users/image").permitAll()
                 .anyRequest()
                 .access("hasRole('ROLE_GUEST') or hasRole('ROLE_USER')");
     }
-
 
     @Bean
     public CorsFilter corsFilter(){
