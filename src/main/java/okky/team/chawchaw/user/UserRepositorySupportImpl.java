@@ -4,6 +4,7 @@ import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.JPQLQuery;
@@ -30,7 +31,6 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
     QUserLanguageEntity userLanguage = QUserLanguageEntity.userLanguageEntity;
     QUserHopeLanguageEntity userHopeLanguage = QUserHopeLanguageEntity.userHopeLanguageEntity;
     QLanguageEntity language = QLanguageEntity.languageEntity;
-    QFollowEntity follow = QFollowEntity.followEntity;
 
     @Override
     public List<UserCardDto> findAllByElement(FindUserVo findUserVo) {
@@ -86,7 +86,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         StringUtils.hasText(findUserVo.getName()) ? user.name.eq(findUserVo.getName()) : null,
                         /* 제외 목록 */
                         findUserVo.getExclude() != null && !findUserVo.getExclude().isEmpty() ?
-                                user.id.notIn(findUserVo.getExclude().toArray(Integer[]::new)) : null,
+                                user.id.notIn(findUserVo.getExclude()) : null,
                         /* 유저 */
                         user.role.eq(Role.USER)
                 )
@@ -108,7 +108,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                 return user.regDate.desc();
             }
         }
-        return NumberExpression.random().asc();
+        return Expressions.numberTemplate(Double.class, "function('rand')").asc();
     }
 
 }
