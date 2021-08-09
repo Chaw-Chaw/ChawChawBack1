@@ -2,6 +2,7 @@ package okky.team.chawchaw.user.dto;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -9,7 +10,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDetailsDto {
+public class UserDetailsDto implements Serializable {
 
     Long id;
     String name;

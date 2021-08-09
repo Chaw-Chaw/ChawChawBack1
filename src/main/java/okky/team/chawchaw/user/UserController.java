@@ -105,7 +105,7 @@ public class UserController {
     @GetMapping("users/{userId}")
     public ResponseEntity<UserDetailsDto> getUserDetails(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                          @PathVariable Long userId) {
-        UserDetailsDto result = userService.findUserDetails(userId, principalDetails.getId());
+        UserDetailsDto result = userService.findUserDetails(principalDetails.getId(), userId);
         if (result != null)
             return new ResponseEntity(DefaultResponseVo.res(
                     ResponseUserMessage.FIND_SUCCESS,
@@ -118,7 +118,7 @@ public class UserController {
 
     @DeleteMapping("users")
     public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
-        userService.deleteUser(principalDetails.getUsername());
+        userService.deleteUser(principalDetails.getId());
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.DELETE_SUCCESS, true), HttpStatus.OK);
     }
@@ -128,12 +128,9 @@ public class UserController {
                                             @RequestBody UpdateUserDto updateUserDto) {
         updateUserDto.setId(principalDetails.getId());
 
-        Boolean result = userService.updateProfile(updateUserDto);
+        userService.updateProfile(updateUserDto);
 
-        if (result)
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_SUCCESS, true), HttpStatus.OK);
-        else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_FAIL, false), HttpStatus.OK);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_SUCCESS, true), HttpStatus.OK);
 
     }
 

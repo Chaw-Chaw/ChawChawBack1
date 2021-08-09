@@ -89,7 +89,7 @@ class UserServiceTest {
                 .school("학교")
                 .build());
         //when
-        userService.deleteUser(user.getEmail());
+        userService.deleteUser(user.getId());
         //then
         List<UserEntity> users = userRepository.findAll();
 

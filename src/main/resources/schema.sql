@@ -42,17 +42,6 @@ create table follow
     foreign key (user_from) references users (user_id)
 );
 
-create table views
-(
-    view_id   bigint auto_increment primary key,
-    user_from bigint,
-    user_to   bigint,
-    foreign key (user_to) references users (user_id),
-    foreign key (user_from) references users (user_id)
-);
-
-
-
 create table user_country
 (
     user_country_id bigint auto_increment primary key,

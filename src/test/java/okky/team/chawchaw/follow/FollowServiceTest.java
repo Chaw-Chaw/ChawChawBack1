@@ -73,7 +73,7 @@ class FollowServiceTest {
         followService.addFollow(userFrom, userTo.getId());
         followService.addFollow(userTo, userFrom.getId());
         //when
-        userService.deleteUser(userTo.getEmail());
+        userService.deleteUser(userTo.getId());
         //then
         Assertions.assertThat(followRepository.findAll().size()).isEqualTo(0);
     }
