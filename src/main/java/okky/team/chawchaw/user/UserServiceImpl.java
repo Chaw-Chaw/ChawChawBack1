@@ -14,6 +14,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,11 +30,9 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,6 +49,7 @@ public class UserServiceImpl implements UserService{
     private final UserLanguageRepository userLanguageRepository;
     private final UserHopeLanguageRepository userHopeLanguageRepository;
     private final Environment env;
+    private final RedisTemplate redisTemplate;
     @Value("${user.profile.image.path}")
     private String uploadPath;
     @Value("${user.profile.image.default}")
@@ -91,10 +91,10 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    @Cacheable(value = "userDetail", key = "#userTo")
-    public UserDetailsDto findUserDetails(Long userFrom, Long userTo) {
+    @Cacheable(value = "userDetail", key = "#userId")
+    public UserDetailsDto findUserDetails(Long userId) {
 
-        UserEntity user = userRepository.findById(userTo).orElseThrow();
+        UserEntity user = userRepository.findById(userId).orElseThrow();
 
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
@@ -310,4 +310,15 @@ public class UserServiceImpl implements UserService{
         return userRepository.findByEmail(email).isPresent();
     }
 
+    @Override
+    @Transactional(readOnly = false)
+    public void checkView(Long userFrom, Long userTo) {
+        System.out.println(redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo));
+        if (redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo) == null) {
+            UserEntity user = userRepository.findById(userTo).orElseThrow();
+            user.plusViews();
+            redisTemplate.opsForValue().set("view::" + userFrom + "_" + userTo, 1);
+            redisTemplate.expireAt("view::" + userFrom + "_" + userTo, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
+        }
+    }
 }

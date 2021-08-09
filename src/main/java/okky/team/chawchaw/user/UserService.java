@@ -12,7 +12,7 @@ public interface UserService {
     public void deleteUser(Long userId);
 
     public List<UserCardDto> findUserCards(FindUserVo findUserVo);
-    public UserDetailsDto findUserDetails(Long userFrom, Long userTo);
+    public UserDetailsDto findUserDetails(Long userId);
     public UserProfileDto findUserProfile(String email);
 
     public UserDetailsDto updateProfile(UpdateUserDto updateUserDto);
@@ -21,4 +21,5 @@ public interface UserService {
     public String deleteImage(String imageUrl, Long userId);
 
     public Boolean isUser(String email);
+    public void checkView(Long userFrom, Long userTo);
 }
