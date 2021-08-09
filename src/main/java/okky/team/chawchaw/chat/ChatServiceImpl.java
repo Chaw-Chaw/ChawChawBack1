@@ -37,4 +37,10 @@ public class ChatServiceImpl implements ChatService {
         chatMessageRepository.save(new ChatMessageDto(room.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now()));
         return EntityToDto.entityToChatRoomDto(room);
     }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void sendMessage(ChatMessageDto chatMessageDto) {
+        chatMessageRepository.save(chatMessageDto);
+    }
 }

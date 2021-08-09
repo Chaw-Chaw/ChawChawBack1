@@ -12,10 +12,12 @@ import org.springframework.web.bind.annotation.*;
 public class ChatPubController {
 
     private final SimpMessageSendingOperations messagingTemplate;
+    private final ChatService chatService;
 
     @MessageMapping("/message")
     public void message(@RequestBody ChatMessageDto message) {
 
+        chatService.sendMessage(message);
         messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);
 
     }

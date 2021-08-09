@@ -19,7 +19,7 @@ public class ChatSubController {
 
     private final ChatService chatService;
 
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @RequestBody CreateChatRoomDto createChatRoomDto) {
 
