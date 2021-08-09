@@ -69,5 +69,18 @@ create table user_hope_language
     foreign key (language_id) references language (language_id)
 );
 
+create table chat_room
+(
+    id   bigint auto_increment primary key,
+    name varchar (255),
+    reg_date      DATETIME default CURRENT_TIMESTAMP
+);
 
-
+create table chat_room_user
+(
+    id      bigint auto_increment primary key,
+    room_id bigint,
+    user_id bigint,
+    foreign key (room_id) references chat_room (id),
+    foreign key (user_id) references users (user_id)
+);
