@@ -7,12 +7,14 @@ import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.*;
-import okky.team.chawchaw.user.view.ViewEntity;
-import okky.team.chawchaw.user.view.ViewRepository;
 import okky.team.chawchaw.utils.DtoToEntity;
 import okky.team.chawchaw.utils.EntityToDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,11 +30,9 @@ import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,8 +48,8 @@ public class UserServiceImpl implements UserService{
     private final LanguageRepository languageRepository;
     private final UserLanguageRepository userLanguageRepository;
     private final UserHopeLanguageRepository userHopeLanguageRepository;
-    private final ViewRepository viewRepository;
     private final Environment env;
+    private final RedisTemplate redisTemplate;
     @Value("${user.profile.image.path}")
     private String uploadPath;
     @Value("${user.profile.image.default}")
@@ -75,8 +75,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public void deleteUser(String email) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow();
+    @CacheEvict(value = "userDetail", key = "#userId")
+    public void deleteUser(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow();
         followRepository.deleteByUserFromOrUserTo(user, user);
         if (user != null)
             userRepository.delete(user);
@@ -90,17 +91,10 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public UserDetailsDto findUserDetails(Long userId, Long userId2) {
+    @Cacheable(value = "userDetail", key = "#userId")
+    public UserDetailsDto findUserDetails(Long userId) {
 
         UserEntity user = userRepository.findById(userId).orElseThrow();
-        UserEntity user2 = userRepository.findById(userId2).orElseThrow();
-
-        ViewEntity view = viewRepository.findByUserFromIdAndUserToId(userId2, userId);
-
-        if (view == null && !userId.equals(userId2)) {
-            user.plusViews();
-            viewRepository.save(new ViewEntity(user2, user));
-        }
 
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
@@ -153,9 +147,11 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean updateProfile(UpdateUserDto updateUserDto) {
+    @CachePut(value = "userDetail", key = "#updateUserDto.id")
+    public UserDetailsDto updateProfile(UpdateUserDto updateUserDto) {
 
         UserEntity user = userRepository.findById(updateUserDto.getId()).orElseThrow();
+        Long follows = followRepository.countByUserToId(user.getId());
 
         if (user.getRole().equals(Role.GUEST)) {
             user.changeRole(Role.USER);
@@ -210,7 +206,22 @@ public class UserServiceImpl implements UserService{
             userHopeLanguageRepository.save(new UserHopeLanguageEntity(user, languageRepository.findByAbbr(addHopeLanguage)));
         }
 
-        return true;
+        UserDetailsDto result = UserDetailsDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .imageUrl(user.getImageUrl())
+                .content(user.getContent())
+                .facebookUrl(user.getFacebookUrl())
+                .instagramUrl(user.getInstagramUrl())
+                .days(user.getRegDate())
+                .views(user.getViews())
+                .follows(follows)
+                .country(userCountryRepository.findByUser(user).stream().map(x -> x.getCountry().getName()).collect(Collectors.toList()))
+                .language(userLanguageRepository.findByUser(user).stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList()))
+                .hopeLanguage(userHopeLanguageRepository.findByUser(user).stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toList()))
+                .build();
+
+        return result;
     }
 
     @Override
@@ -299,4 +310,15 @@ public class UserServiceImpl implements UserService{
         return userRepository.findByEmail(email).isPresent();
     }
 
+    @Override
+    @Transactional(readOnly = false)
+    public void checkView(Long userFrom, Long userTo) {
+        System.out.println(redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo));
+        if (redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo) == null) {
+            UserEntity user = userRepository.findById(userTo).orElseThrow();
+            user.plusViews();
+            redisTemplate.opsForValue().set("view::" + userFrom + "_" + userTo, 1);
+            redisTemplate.expireAt("view::" + userFrom + "_" + userTo, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
+        }
+    }
 }

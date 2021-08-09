@@ -9,16 +9,17 @@ public interface UserService {
 
     public Long createUser(CreateUserDto createUserDto);
     public Boolean duplicateEmail(String email);
-    public void deleteUser(String email);
+    public void deleteUser(Long userId);
 
     public List<UserCardDto> findUserCards(FindUserVo findUserVo);
-    public UserDetailsDto findUserDetails(Long userId, Long userId2);
+    public UserDetailsDto findUserDetails(Long userId);
     public UserProfileDto findUserProfile(String email);
 
-    public Boolean updateProfile(UpdateUserDto updateUserDto);
+    public UserDetailsDto updateProfile(UpdateUserDto updateUserDto);
     public String uploadImage(String imageUrl, Long userId);
     public String uploadImage(MultipartFile file, Long userId);
     public String deleteImage(String imageUrl, Long userId);
 
     public Boolean isUser(String email);
+    public void checkView(Long userFrom, Long userTo);
 }

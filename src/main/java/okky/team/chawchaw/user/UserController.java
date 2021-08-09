@@ -76,10 +76,14 @@ public class UserController {
 
         findUserVo.getExclude().add(principalDetails.getId());
 
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("exclude")) {
-                for (String s : cookie.getValue().split("/")) {
-                    findUserVo.getExclude().add(Long.parseLong(s));
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("exclude") && !cookie.getValue().isEmpty()) {
+                    for (String s : cookie.getValue().split("/")) {
+                        findUserVo.getExclude().add(Long.parseLong(s));
+                    }
                 }
             }
         }
@@ -105,7 +109,8 @@ public class UserController {
     @GetMapping("users/{userId}")
     public ResponseEntity<UserDetailsDto> getUserDetails(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                          @PathVariable Long userId) {
-        UserDetailsDto result = userService.findUserDetails(userId, principalDetails.getId());
+        userService.checkView(principalDetails.getId(), userId);
+        UserDetailsDto result = userService.findUserDetails(userId);
         if (result != null)
             return new ResponseEntity(DefaultResponseVo.res(
                     ResponseUserMessage.FIND_SUCCESS,
@@ -118,7 +123,7 @@ public class UserController {
 
     @DeleteMapping("users")
     public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
-        userService.deleteUser(principalDetails.getUsername());
+        userService.deleteUser(principalDetails.getId());
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.DELETE_SUCCESS, true), HttpStatus.OK);
     }
@@ -128,12 +133,9 @@ public class UserController {
                                             @RequestBody UpdateUserDto updateUserDto) {
         updateUserDto.setId(principalDetails.getId());
 
-        Boolean result = userService.updateProfile(updateUserDto);
+        userService.updateProfile(updateUserDto);
 
-        if (result)
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_SUCCESS, true), HttpStatus.OK);
-        else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_FAIL, false), HttpStatus.OK);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_SUCCESS, true), HttpStatus.OK);
 
     }
 

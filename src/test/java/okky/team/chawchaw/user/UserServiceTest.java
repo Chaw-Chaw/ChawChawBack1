@@ -89,7 +89,7 @@ class UserServiceTest {
                 .school("학교")
                 .build());
         //when
-        userService.deleteUser(user.getEmail());
+        userService.deleteUser(user.getId());
         //then
         List<UserEntity> users = userRepository.findAll();
 
@@ -255,7 +255,7 @@ class UserServiceTest {
                 )))
                 .build());
         //when
-        UserDetailsDto result = userService.findUserDetails(user.getId(), user.getId());
+        UserDetailsDto result = userService.findUserDetails(user.getId());
         //then
         Assertions.assertThat(result.getName()).isEqualTo("이름");
         Assertions.assertThat(result.getContent()).isEqualTo("내용");
