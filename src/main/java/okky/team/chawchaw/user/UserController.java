@@ -76,10 +76,14 @@ public class UserController {
 
         findUserVo.getExclude().add(principalDetails.getId());
 
-        for (Cookie cookie : request.getCookies()) {
-            if (cookie.getName().equals("exclude")) {
-                for (String s : cookie.getValue().split("/")) {
-                    findUserVo.getExclude().add(Long.parseLong(s));
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("exclude") && !cookie.getValue().isEmpty()) {
+                    for (String s : cookie.getValue().split("/")) {
+                        findUserVo.getExclude().add(Long.parseLong(s));
+                    }
                 }
             }
         }
