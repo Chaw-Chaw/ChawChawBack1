@@ -57,7 +57,7 @@ class ChatServiceImplTest {
         //then
         List<ChatRoomEntity> rooms = chatRoomRepository.findAll();
         List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAll();
-        List<ChatMessageDto> messages = chatMessageRepository.findAll(rooms.get(0).getId());
+        List<ChatMessageDto> messages = chatMessageRepository.findAllByRoomId(rooms.get(0).getId());
         Assertions.assertThat(rooms.size()).isEqualTo(1);
         Assertions.assertThat(roomUsers.size()).isEqualTo(2);
         Assertions.assertThat(messages.get(0)).extracting("roomId", "sender", "message").isEqualTo(
