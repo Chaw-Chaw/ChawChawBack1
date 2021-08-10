@@ -1,12 +1,10 @@
 package okky.team.chawchaw.user;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
@@ -21,13 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
-import java.io.IOException;
-import java.net.URLDecoder;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,12 +53,13 @@ public class UserController {
 
     @GetMapping("users/email/duplicate/{email}")
     public ResponseEntity<Boolean> duplicateEmail(@PathVariable String email){
-        Boolean result = userService.duplicateEmail(email);
 
-        if (result)
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.EMAIL_EXIST, true), HttpStatus.OK);
-        else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.EMAIL_NOT_EXIST, false), HttpStatus.OK);
+        if (userService.duplicateEmail(email)) {
+            throw new DuplicationUserEmailException();
+        }
+
+        return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.EMAIL_NOT_EXIST, false), HttpStatus.OK);
+
 
     }
 
@@ -90,18 +84,12 @@ public class UserController {
 
         findUserVo.setSchool(principalDetails.getSchool());
 
-        try {
+        List<UserCardDto> result = userService.findUserCards(findUserVo);
 
-            List<UserCardDto> result = userService.findUserCards(findUserVo);
-
-            if (result.isEmpty())
-                return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_NOT_EXIST, false), HttpStatus.OK);
-            else
-                return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
-
-        } catch (Exception e) {
-            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
-        }
+        if (result.isEmpty())
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_NOT_EXIST, false), HttpStatus.OK);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
 
 
     }

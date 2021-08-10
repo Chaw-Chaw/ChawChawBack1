@@ -94,7 +94,6 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         } catch (UsernameNotFoundException usernameNotFoundException) {
             writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.ID_NOT_EXIST, false)));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_FAIL, false)));
         } finally {
             return authenticate;

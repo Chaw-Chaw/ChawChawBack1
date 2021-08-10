@@ -8,13 +8,14 @@ import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.utils.DtoToEntity;
-import okky.team.chawchaw.utils.EntityToDto;
+import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,6 +59,11 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional(readOnly = false)
     public Long createUser(CreateUserDto createUserDto) {
+
+        if (duplicateEmail(createUserDto.getEmail())) {
+            throw new DuplicationUserEmailException();
+        }
+
         createUserDto.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         if (!StringUtils.hasText(createUserDto.getImageUrl())) {
                 createUserDto.setImageUrl(defaultImage);
@@ -77,7 +83,7 @@ public class UserServiceImpl implements UserService{
     @Transactional(readOnly = false)
     @CacheEvict(value = "userDetail", key = "#userId")
     public void deleteUser(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow();
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         followRepository.deleteByUserFromOrUserTo(user, user);
         if (user != null)
             userRepository.delete(user);
@@ -94,7 +100,7 @@ public class UserServiceImpl implements UserService{
     @Cacheable(value = "userDetail", key = "#userId")
     public UserDetailsDto findUserDetails(Long userId) {
 
-        UserEntity user = userRepository.findById(userId).orElseThrow();
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
@@ -121,7 +127,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserProfileDto findUserProfile(String email) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow();
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
@@ -150,7 +156,7 @@ public class UserServiceImpl implements UserService{
     @CachePut(value = "userDetail", key = "#updateUserDto.id")
     public UserDetailsDto updateProfile(UpdateUserDto updateUserDto) {
 
-        UserEntity user = userRepository.findById(updateUserDto.getId()).orElseThrow();
+        UserEntity user = userRepository.findById(updateUserDto.getId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         Long follows = followRepository.countByUserToId(user.getId());
 
         if (user.getRole().equals(Role.GUEST)) {
@@ -231,7 +237,7 @@ public class UserServiceImpl implements UserService{
 
             URL url = new URL(imageUrl);
             BufferedImage img = ImageIO.read(url);
-            UserEntity user = userRepository.findById(userId).orElseThrow();
+            UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             String uuid = UUID.randomUUID().toString();
             String fileName = ".jpg";
 
@@ -262,7 +268,7 @@ public class UserServiceImpl implements UserService{
     @Transactional(readOnly = false)
     public String uploadImage(MultipartFile file, Long userId) {
         try {
-            UserEntity user = userRepository.findById(userId).orElseThrow();
+            UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             String uuid = UUID.randomUUID().toString();
             String fileName = file.getOriginalFilename();
 
@@ -292,7 +298,7 @@ public class UserServiceImpl implements UserService{
     @Transactional(readOnly = false)
     public String deleteImage(String imageUrl, Long userId) {
         try {
-            UserEntity user = userRepository.findById(userId).orElseThrow();
+            UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             if (!imageUrl.equals(defaultImage)) {
                 user.changeImageUrl(defaultImage);
                 new File(uploadPath + URLDecoder.decode(imageUrl, "UTF-8")).delete();
@@ -315,7 +321,7 @@ public class UserServiceImpl implements UserService{
     public void checkView(Long userFrom, Long userTo) {
         System.out.println(redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo));
         if (redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo) == null) {
-            UserEntity user = userRepository.findById(userTo).orElseThrow();
+            UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             user.plusViews();
             redisTemplate.opsForValue().set("view::" + userFrom + "_" + userTo, 1);
             redisTemplate.expireAt("view::" + userFrom + "_" + userTo, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));

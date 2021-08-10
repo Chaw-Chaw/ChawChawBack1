@@ -22,24 +22,18 @@ public class FollowController {
     public ResponseEntity createFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                 @PathVariable Long userId) {
 
-        Boolean result = followService.addFollow(principalDetails.getUserEntity(), userId);
+        followService.addFollow(principalDetails.getUserEntity(), userId);
 
-        if (result)
-            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
-        else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_FAIL, false), HttpStatus.CREATED);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
     }
 
     @DeleteMapping("follow/{userId}")
     public ResponseEntity<Boolean> deleteFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                 @PathVariable Long userId) {
 
-        Boolean result = followService.deleteFollow(principalDetails.getUserEntity(), userId);
+        followService.deleteFollow(principalDetails.getUserEntity(), userId);
 
-        if (result)
-            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_SUCCESS, true), HttpStatus.OK);
-        else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_FAIL, false), HttpStatus.OK);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_SUCCESS, true), HttpStatus.OK);
 
     }
 

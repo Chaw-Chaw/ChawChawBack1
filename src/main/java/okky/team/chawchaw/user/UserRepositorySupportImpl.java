@@ -40,9 +40,11 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
 
         if (findUserVo.getPageNo() == 1) {
             limit = 6;
-        } else {
+        } else if (findUserVo.getPageNo() > 1){
             limit = 3;
             offset = 6 + 3 * (findUserVo.getPageNo() - 2);
+        } else {
+            throw new IllegalArgumentException();
         }
 
         return jpaQueryFactory

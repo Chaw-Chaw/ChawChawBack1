@@ -3,10 +3,13 @@ package okky.team.chawchaw.config.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
+import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseAuthMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
@@ -28,6 +31,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private Environment env;
     private UserRepository userRepository;
+    private ObjectMapper mapper = new ObjectMapper();
 
     public JwtAuthorizationFilter(AuthenticationManager authenticationManager, Environment env, UserRepository userRepository) {
         super(authenticationManager);
@@ -41,6 +45,10 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         PrintWriter writer = null;
 
         try {
+
+            response.setContentType("application/json");
+            response.setCharacterEncoding("utf-8");
+
             String jwtHeader = request.getHeader("Authorization");
 
             if (jwtHeader == null || !jwtHeader.startsWith("Bearer")) {
@@ -66,34 +74,20 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             chain.doFilter(request, response);
 
         } catch (TokenExpiredException tokenExpiredException) {
-            response.setContentType("application/json");
-            response.setCharacterEncoding("utf-8");
             response.setStatus(403);
             writer = response.getWriter();
-            String json = "{ \"responseMessage\" : \"" + ResponseAuthMessage.EXPIRE_TOKEN + "\"," +
-                    "\"isSuccess\" : false" +
-                    "}";
-            writer.print(json);
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.EXPIRE_TOKEN, false)));
 
-        } catch (JWTDecodeException jwtDecodeException) {
-            response.setContentType("application/json");
-            response.setCharacterEncoding("utf-8");
+        } catch (JWTDecodeException | SignatureVerificationException verificationException) {
             response.setStatus(403);
             writer = response.getWriter();
-            String json = "{ \"responseMessage\" : \"" + ResponseAuthMessage.WRONG_TOKEN_FORM + "\"," +
-                    "\"isSuccess\" : false" +
-                    "}";
-            writer.print(json);
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.WRONG_TOKEN_FORM, false)));
 
         } catch (UsernameNotFoundException usernameNotFoundException) {
-            response.setContentType("application/json");
-            response.setCharacterEncoding("utf-8");
             response.setStatus(403);
             writer = response.getWriter();
-            String json = "{ \"responseMessage\" : \"" + ResponseUserMessage.ID_NOT_EXIST + "\"," +
-                    "\"isSuccess\" : false" +
-                    "}";
-            writer.print(json);
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.ID_NOT_EXIST, false)));
+
         }
     }
 }

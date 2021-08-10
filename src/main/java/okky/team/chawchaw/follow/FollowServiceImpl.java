@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,29 +18,22 @@ public class FollowServiceImpl implements FollowService{
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean addFollow(UserEntity userFrom, Long userTo) {
+    public Long addFollow(UserEntity userFrom, Long userTo) {
 
-        UserEntity user = userRepository.findById(userTo).orElseGet(null);
+        UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
-        if (user != null) {
-            followRepository.save(new FollowEntity(userFrom, user));
-            return true;
-        }else
-            return false;
+        FollowEntity result = followRepository.save(new FollowEntity(userFrom, user));
 
+        return result.getId();
     }
 
     @Override
     @Transactional(readOnly = false)
-    public Boolean deleteFollow(UserEntity userFrom, Long userTo) {
+    public void deleteFollow(UserEntity userFrom, Long userTo) {
 
-        UserEntity user = userRepository.findById(userTo).orElseGet(null);
+        UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
-        if (user != null) {
-            followRepository.removeByUserFromAndUserTo(userFrom, user);
-            return true;
-        }else
-            return false;
+        followRepository.removeByUserFromAndUserTo(userFrom, user);
 
     }
 }
