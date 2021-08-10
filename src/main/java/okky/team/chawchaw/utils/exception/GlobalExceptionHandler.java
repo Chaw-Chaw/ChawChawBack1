@@ -3,12 +3,14 @@ package okky.team.chawchaw.utils.exception;
 import lombok.extern.slf4j.Slf4j;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseDataMessage;
+import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.multipart.MultipartException;
 
 import java.sql.SQLIntegrityConstraintViolationException;
 
@@ -27,17 +29,22 @@ public class GlobalExceptionHandler {
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.EMAIL_EXIST, true), HttpStatus.OK);
     }
 
+    @ExceptionHandler(MultipartException.class)
+    protected ResponseEntity multipartException(MultipartException e) {
+        log.warn("파일 타입이 잘못 됨", e);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.WRONG_TYPE, false), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     protected ResponseEntity sqlIntegrityConstrainViolation(SQLIntegrityConstraintViolationException e) {
-        log.error("무결성 제약 조건 위배", e.getMessage());
+        log.error("무결성 제약 조건 위배", e);
         return new ResponseEntity(DefaultResponseVo.res(ResponseDataMessage.SQL_ERROR, false), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity illegalArgument(IllegalArgumentException e) {
-        log.error("페이지 넘버 잘못된 요청", e.getMessage());
+        log.error("DB 잘못된 파라미터", e);
         return new ResponseEntity(DefaultResponseVo.res(ResponseDataMessage.SQL_ERROR, false), HttpStatus.BAD_REQUEST);
     }
-
 
 }

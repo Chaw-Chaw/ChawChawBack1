@@ -44,6 +44,11 @@ spring:
 server:
   port: 8080
 
+logging:
+  slack:
+    webhook-uri: <>
+  config: classpath:logback-spring.xml
+
 token:
   secret: <>
   expiration_time: 1800000

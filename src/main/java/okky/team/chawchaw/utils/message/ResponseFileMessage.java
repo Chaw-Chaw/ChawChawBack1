@@ -8,5 +8,6 @@ public class ResponseFileMessage {
     public static final String DELETE_FAIL = "파일 삭제 실패";
     public static final String FIND_SUCCESS = "파일 찾기 성공";
     public static final String FIND_FAIL = "파일 찾기 실패";
+    public static final String WRONG_TYPE = "파일 타입이 잘못됨";
 
 }

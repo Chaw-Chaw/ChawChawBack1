@@ -8,9 +8,7 @@ import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
@@ -26,12 +24,13 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
     private final Environment env;
 
-    @PostMapping("users/signup")
+    @PostMapping("/signup")
     public ResponseEntity createUser(@RequestBody CreateUserDto createUserDto,
                                      HttpServletResponse response){
 
@@ -51,7 +50,7 @@ public class UserController {
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
     }
 
-    @GetMapping("users/email/duplicate/{email}")
+    @GetMapping("/email/duplicate/{email}")
     public ResponseEntity<Boolean> duplicateEmail(@PathVariable String email){
 
         if (userService.duplicateEmail(email)) {
@@ -63,7 +62,7 @@ public class UserController {
 
     }
 
-    @GetMapping("users")
+    @GetMapping("/")
     public ResponseEntity<List<UserCardDto>> getUserCards(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                           @ModelAttribute FindUserVo findUserVo,
                                                           HttpServletRequest request) {
@@ -94,7 +93,7 @@ public class UserController {
 
     }
 
-    @GetMapping("users/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<UserDetailsDto> getUserDetails(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                          @PathVariable Long userId) {
         userService.checkView(principalDetails.getId(), userId);
@@ -109,14 +108,14 @@ public class UserController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
     }
 
-    @DeleteMapping("users")
+    @DeleteMapping("/users")
     public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
         userService.deleteUser(principalDetails.getId());
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.DELETE_SUCCESS, true), HttpStatus.OK);
     }
 
-    @PostMapping("users/profile")
+    @PostMapping("/profile")
     public ResponseEntity updateUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                             @RequestBody UpdateUserDto updateUserDto) {
         updateUserDto.setId(principalDetails.getId());
@@ -127,7 +126,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/users/image")
+    @GetMapping("/image")
     public ResponseEntity findUserImage(@RequestParam String imageUrl) {
         byte[] result = null;
         HttpHeaders header = new HttpHeaders();
@@ -143,7 +142,7 @@ public class UserController {
         return new ResponseEntity(result, header, HttpStatus.OK);
     }
 
-    @PostMapping("/users/image")
+    @PostMapping("/image")
     public ResponseEntity uploadUserImage(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                           @RequestParam MultipartFile file) {
             String result = userService.uploadImage(file, principalDetails.getId());
@@ -153,7 +152,7 @@ public class UserController {
                 return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_FAIL, false), HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/image")
+    @DeleteMapping("/image")
     public ResponseEntity deleteUserImage(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         String result = userService.deleteImage(principalDetails.getImageUrl(), principalDetails.getId());
         if (!result.isEmpty())
