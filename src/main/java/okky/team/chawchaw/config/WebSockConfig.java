@@ -13,6 +13,8 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Value("${front.domain}")
     private String frontDomain;
+    @Value("${front.domain-local}")
+    private String frontDomainLocal;
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -22,6 +24,6 @@ public class WebSockConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins(frontDomain).withSockJS();
+        registry.addEndpoint("/ws").setAllowedOrigins(frontDomain, frontDomainLocal).withSockJS();
     }
 }

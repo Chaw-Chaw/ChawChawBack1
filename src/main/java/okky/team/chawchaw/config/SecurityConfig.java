@@ -32,6 +32,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final SocialService socialService;
     @Value("${front.domain}")
     private String frontDomain;
+    @Value("${front.domain-local}")
+    private String frontDomainLocal;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -61,6 +63,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
         configuration.addAllowedOrigin(frontDomain);
+        configuration.addAllowedOrigin(frontDomainLocal);
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", configuration);
