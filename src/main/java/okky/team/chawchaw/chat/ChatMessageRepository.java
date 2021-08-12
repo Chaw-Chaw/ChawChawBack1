@@ -1,34 +1,40 @@
 package okky.team.chawchaw.chat;
 
+import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
 import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.Comparator;
-import java.util.List;
+import java.time.ZonedDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
+@RequiredArgsConstructor
 public class ChatMessageRepository {
 
-    @Resource(name = "redisTemplate")
-    private ListOperations<Long, ChatMessageDto> listOperations;
+    private final RedisTemplate redisTemplate;
 
     public void save(ChatMessageDto message) {
-        listOperations.rightPush(message.getRoomId(), message);
+        String key = "message::" + message.getRoomId().toString() + "_" + UUID.randomUUID().toString();
+        redisTemplate.opsForValue().set(key, message);
+        redisTemplate.expireAt(key, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
     }
 
-    public List<ChatMessageDto> findAll(Long roomId) {
-        return listOperations.range(roomId, 0, -1);
+    public List<ChatMessageDto> findAllByRoomId(Long roomId) {
+        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+        List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
+        return result;
     }
 
-    public List<ChatMessageDto> findAllOrderByRegDateDesc(Long roomId) {
-        return listOperations.range(roomId, 0, -1).stream()
-                .sorted(Comparator.comparing(ChatMessageDto::getRegDate).reversed())
-                .collect(Collectors.toList());
+    public List<ChatMessageDto> findAllByRoomIdOrderByRegDateDesc(Long roomId) {
+        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+        List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x))
+                .sorted(Comparator.comparing(ChatMessageDto::getRegDate)
+                .reversed()).collect(Collectors.toList());
+        return result;
     }
-
-    public void remove(Long roomId) { listOperations.trim(roomId, -1, 0); }
 
 }

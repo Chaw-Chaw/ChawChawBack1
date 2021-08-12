@@ -7,6 +7,8 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+
 @Controller
 @RequiredArgsConstructor
 public class ChatPubController {
@@ -16,7 +18,9 @@ public class ChatPubController {
 
     @MessageMapping("/message")
     public void message(@RequestBody ChatMessageDto message) {
-
+        if (message.getRegDate() == null) {
+            message.setRegDate(LocalDateTime.now());
+        }
         chatService.sendMessage(message);
         messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);
 

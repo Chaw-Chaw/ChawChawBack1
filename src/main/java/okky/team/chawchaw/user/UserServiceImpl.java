@@ -319,7 +319,6 @@ public class UserServiceImpl implements UserService{
     @Override
     @Transactional(readOnly = false)
     public void checkView(Long userFrom, Long userTo) {
-        System.out.println(redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo));
         if (redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo) == null) {
             UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             user.plusViews();
