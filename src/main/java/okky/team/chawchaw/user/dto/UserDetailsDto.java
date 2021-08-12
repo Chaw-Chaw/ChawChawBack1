@@ -16,6 +16,9 @@ public class UserDetailsDto implements Serializable {
     String name;
     String imageUrl;
     String content;
+    String repCountry;
+    String repLanguage;
+    String repHopeLanguage;
     List<String> country;
     List<String> language;
     List<String> hopeLanguage;

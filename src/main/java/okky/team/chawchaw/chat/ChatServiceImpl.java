@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,6 +37,11 @@ public class ChatServiceImpl implements ChatService {
         chatRoomUserRepository.save(new ChatRoomUserEntity(user2, room));
         chatMessageRepository.save(new ChatMessageDto(room.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now()));
         return EntityToDto.entityToChatRoomDto(room);
+    }
+
+    @Override
+    public List<ChatMessageDto> findMessagesByUserId(Long userId) {
+        return chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(userId);
     }
 
     @Override

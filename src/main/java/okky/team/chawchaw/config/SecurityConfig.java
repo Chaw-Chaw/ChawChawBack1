@@ -7,6 +7,7 @@ import okky.team.chawchaw.social.SocialService;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -29,6 +30,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserRepository userRepository;
     private final UserService userService;
     private final SocialService socialService;
+    @Value("${front.domain}")
+    private String frontDomain;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -56,8 +59,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsFilter corsFilter(){
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(false);
-        configuration.addAllowedOrigin("*");
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin(frontDomain);
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         source.registerCorsConfiguration("/**", configuration);

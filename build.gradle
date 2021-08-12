@@ -32,6 +32,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'com.github.maricn:logback-slack-appender:1.4.0'
     implementation 'org.webjars:stomp-websocket:2.3.4'
     implementation 'com.auth0:java-jwt:3.18.1'
     implementation 'mysql:mysql-connector-java:8.0.23'
