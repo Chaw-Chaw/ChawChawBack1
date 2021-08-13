@@ -80,7 +80,9 @@ create table chat_room_user
 (
     id      bigint auto_increment primary key,
     room_id bigint,
-    user_id bigint,
+    user_from bigint      null,
+    user_to   bigint      null,
     foreign key (room_id) references chat_room (id),
-    foreign key (user_id) references users (user_id)
+    foreign key (user_to) references users (user_id),
+    foreign key (user_from) references users (user_id)
 );

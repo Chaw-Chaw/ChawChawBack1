@@ -18,14 +18,18 @@ public class ChatRoomUserEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private UserEntity user;
+    @JoinColumn(name = "user_from")
+    private UserEntity userFrom;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_to")
+    private UserEntity userTo;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private ChatRoomEntity chatRoom;
 
-    public ChatRoomUserEntity(UserEntity user, ChatRoomEntity chatRoom) {
-        this.user = user;
+    public ChatRoomUserEntity(UserEntity userFrom, UserEntity userTo, ChatRoomEntity chatRoom) {
+        this.userFrom = userFrom;
+        this.userTo = userTo;
         this.chatRoom = chatRoom;
     }
 }
