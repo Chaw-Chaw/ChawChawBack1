@@ -62,7 +62,7 @@ public class UserController {
 
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<List<UserCardDto>> getUserCards(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                           @ModelAttribute FindUserVo findUserVo,
                                                           HttpServletRequest request) {
