@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class UserCardDto {
 
     Long id;
+    String name;
     String imageUrl;
     String content;
     String repCountry;

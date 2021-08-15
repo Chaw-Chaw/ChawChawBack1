@@ -51,6 +51,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                 .select(Projections.constructor(
                         UserCardDto.class,
                         user.id,
+                        user.name,
                         user.imageUrl,
                         user.content,
                         user.repCountry,
