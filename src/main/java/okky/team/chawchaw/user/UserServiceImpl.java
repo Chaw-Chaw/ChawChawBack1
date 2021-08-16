@@ -137,6 +137,7 @@ public class UserServiceImpl implements UserService{
         List<UserHopeLanguageEntity> hopeLanguages = userHopeLanguageRepository.findByUser(user);
 
         UserProfileDto result = UserProfileDto.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .school(user.getSchool())
                 .imageUrl(user.getImageUrl())
