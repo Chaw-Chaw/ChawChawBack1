@@ -29,14 +29,25 @@ public class ChatSubController {
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @RequestBody CreateChatRoomDto createChatRoomDto) {
 
-        ChatRoomDto room = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, room), HttpStatus.CREATED);
+        List<ChatDto> result = null;
+        Boolean isRoom = chatService.isRoom(principalDetails.getId(), createChatRoomDto.getUserId());
+        Boolean isRoom2 = chatService.isRoom(createChatRoomDto.getUserId(), principalDetails.getId());
+
+        if (isRoom || isRoom2) {
+            chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
+            result = chatService.findMessagesByUserId(principalDetails.getId());
+            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
+        }
+
+        result = chatService.findMessagesByUserId(principalDetails.getId());
+
+        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, result), HttpStatus.OK);
     }
 
-    @GetMapping("/message/{userId}")
-    public ResponseEntity findMessagesByUserId(@PathVariable Long userId) {
-        List<ChatDto> result = chatService.findMessagesByUserId(userId);
+    @GetMapping("")
+    public ResponseEntity findMessagesByUserId(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<ChatDto> result = chatService.findMessagesByUserId(principalDetails.getId());
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
     }

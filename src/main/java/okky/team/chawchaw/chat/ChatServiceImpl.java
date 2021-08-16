@@ -36,7 +36,7 @@ public class ChatServiceImpl implements ChatService {
         UserEntity user = userRepository.findById(userFrom).orElseThrow();
         UserEntity user2 = userRepository.findById(userTo).orElseThrow();
         chatRoomUserRepository.save(new ChatRoomUserEntity(user, user2, room));
-        chatMessageRepository.save(new ChatMessageDto(room.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now()));
+        chatMessageRepository.save(new ChatMessageDto(room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now().withNano(0)));
         return EntityToDto.entityToChatRoomDto(room);
     }
 
@@ -48,6 +48,7 @@ public class ChatServiceImpl implements ChatService {
         for (ChatRoomUserEntity roomUser : roomUsers) {
             result.add(new ChatDto(
                     roomUser.getChatRoom().getId(),
+                    roomUser.getUserTo().getId(),
                     roomUser.getUserTo().getName(),
                     roomUser.getUserTo().getImageUrl(),
                     chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomUser.getChatRoom().getId())));
@@ -59,5 +60,16 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(readOnly = false)
     public void sendMessage(ChatMessageDto chatMessageDto) {
         chatMessageRepository.save(chatMessageDto);
+    }
+
+    @Override
+    public Boolean isRoom(Long userFrom, Long userTo) {
+        ChatRoomUserEntity result = chatRoomUserRepository.findByUserFromIdAndUserToId(userFrom, userTo);
+
+        if (result != null) {
+            return false;
+        }else {
+            return true;
+        }
     }
 }

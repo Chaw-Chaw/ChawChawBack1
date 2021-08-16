@@ -13,4 +13,5 @@ public interface ChatService {
     List<ChatDto> findMessagesByUserId(Long userId);
 
     void sendMessage(ChatMessageDto chatMessageDto);
+    Boolean isRoom(Long userFrom, Long userTo);
 }

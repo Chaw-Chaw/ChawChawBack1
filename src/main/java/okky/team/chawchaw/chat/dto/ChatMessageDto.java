@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 public class ChatMessageDto implements Serializable {
 
     private Long roomId;
+    private Long senderId;
     private String sender;
     private String message;
     private LocalDateTime regDate;
