@@ -23,6 +23,7 @@ import java.util.List;
 public class ChatSubController {
 
     private final ChatService chatService;
+    private final SimpMessageSendingOperations messagingTemplate;
 
 
     @PostMapping("/room")
@@ -35,14 +36,14 @@ public class ChatSubController {
         Boolean isRoom2 = chatService.isRoom(createChatRoomDto.getUserId(), principalDetails.getId());
 
         if (isRoom || isRoom2) {
-            chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
             result = chatService.findMessagesByUserId(principalDetails.getId());
-            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
+            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, result), HttpStatus.OK);
         }
 
+        ChatMessageDto message = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
         result = chatService.findMessagesByUserId(principalDetails.getId());
-
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, result), HttpStatus.OK);
+        messagingTemplate.convertAndSend("/queue/chat/room/wait/" + createChatRoomDto.getUserId(), message);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
     }
 
     @GetMapping("")

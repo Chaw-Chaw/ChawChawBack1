@@ -31,13 +31,14 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional(readOnly = false)
-    public ChatRoomDto createRoom(Long userFrom, Long userTo) {
+    public ChatMessageDto createRoom(Long userFrom, Long userTo) {
         ChatRoomEntity room = chatRoomRepository.save(new ChatRoomEntity(UUID.randomUUID().toString()));
         UserEntity user = userRepository.findById(userFrom).orElseThrow();
         UserEntity user2 = userRepository.findById(userTo).orElseThrow();
         chatRoomUserRepository.save(new ChatRoomUserEntity(user, user2, room));
-        chatMessageRepository.save(new ChatMessageDto(room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now().withNano(0)));
-        return EntityToDto.entityToChatRoomDto(room);
+        ChatMessageDto message = new ChatMessageDto(room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now().withNano(0));
+        chatMessageRepository.save(message);
+        return message;
     }
 
     @Override
@@ -66,7 +67,7 @@ public class ChatServiceImpl implements ChatService {
     public Boolean isRoom(Long userFrom, Long userTo) {
         ChatRoomUserEntity result = chatRoomUserRepository.findByUserFromIdAndUserToId(userFrom, userTo);
 
-        if (result != null) {
+        if (result == null) {
             return false;
         }else {
             return true;
