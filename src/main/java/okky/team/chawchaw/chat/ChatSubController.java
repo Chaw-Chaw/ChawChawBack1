@@ -33,9 +33,8 @@ public class ChatSubController {
 
         List<ChatDto> result = null;
         Boolean isRoom = chatService.isRoom(principalDetails.getId(), createChatRoomDto.getUserId());
-        Boolean isRoom2 = chatService.isRoom(createChatRoomDto.getUserId(), principalDetails.getId());
 
-        if (isRoom || isRoom2) {
+        if (isRoom) {
             result = chatService.findMessagesByUserId(principalDetails.getId());
             return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, result), HttpStatus.OK);
         }

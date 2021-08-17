@@ -11,6 +11,7 @@ import okky.team.chawchaw.chat.room.ChatRoomUserRepository;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.utils.EntityToDto;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +34,10 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(readOnly = false)
     public ChatMessageDto createRoom(Long userFrom, Long userTo) {
         ChatRoomEntity room = chatRoomRepository.save(new ChatRoomEntity(UUID.randomUUID().toString()));
-        UserEntity user = userRepository.findById(userFrom).orElseThrow();
-        UserEntity user2 = userRepository.findById(userTo).orElseThrow();
-        chatRoomUserRepository.save(new ChatRoomUserEntity(user, user2, room));
+        UserEntity user = userRepository.findById(userFrom).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        UserEntity user2 = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        chatRoomUserRepository.save(new ChatRoomUserEntity(room, user));
+        chatRoomUserRepository.save(new ChatRoomUserEntity(room, user2));
         ChatMessageDto message = new ChatMessageDto(room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now().withNano(0));
         chatMessageRepository.save(message);
         return message;
@@ -44,15 +46,20 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional(readOnly = false)
     public List<ChatDto> findMessagesByUserId(Long userId) {
-        List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByUserFromId(userId);
         List<ChatDto> result = new ArrayList<>();
-        for (ChatRoomUserEntity roomUser : roomUsers) {
-            result.add(new ChatDto(
-                    roomUser.getChatRoom().getId(),
-                    roomUser.getUserTo().getId(),
-                    roomUser.getUserTo().getName(),
-                    roomUser.getUserTo().getImageUrl(),
-                    chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomUser.getChatRoom().getId())));
+        List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
+        for (ChatRoomUserEntity user : users) {
+            for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
+                if (!roomUsers.getUser().getId().equals(userId)) {
+                    result.add(new ChatDto(
+                            user.getChatRoom().getId(),
+                            roomUsers.getUser().getId(),
+                            roomUsers.getUser().getName(),
+                            roomUsers.getUser().getImageUrl(),
+                            chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(user.getChatRoom().getId())
+                    ));
+                }
+            }
         }
         return result;
     }
@@ -64,13 +71,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Boolean isRoom(Long userFrom, Long userTo) {
-        ChatRoomUserEntity result = chatRoomUserRepository.findByUserFromIdAndUserToId(userFrom, userTo);
-
-        if (result == null) {
-            return false;
-        }else {
-            return true;
-        }
+    public Boolean isRoom(Long userId, Long userId2) {
+        return chatRoomUserRepository.isChatRoom(userId, userId2);
     }
 }
