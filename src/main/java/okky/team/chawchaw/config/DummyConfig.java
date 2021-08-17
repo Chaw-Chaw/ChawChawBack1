@@ -52,7 +52,7 @@ public class DummyConfig implements CommandLineRunner {
                 /* 아이디 생성 */
                 UserEntity user = userRepository.save(UserEntity.builder()
                     .email("test" + i +"@naver.com")
-                    .password(passwordEncoder.encode("1234"))
+                    .password(passwordEncoder.encode("sssssssS1!"))
                     .name(randomHangulName())
                     .web_email("school@school.ac.kr")
                     .school("서울시립대학교")
