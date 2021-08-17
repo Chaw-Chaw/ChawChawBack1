@@ -19,7 +19,7 @@ public class ChatPubController {
     @MessageMapping("/message")
     public void message(@RequestBody ChatMessageDto message) {
         if (message.getRegDate() == null) {
-            message.setRegDate(LocalDateTime.now());
+            message.setRegDate(LocalDateTime.now().withNano(0));
         }
         chatService.sendMessage(message);
         messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);

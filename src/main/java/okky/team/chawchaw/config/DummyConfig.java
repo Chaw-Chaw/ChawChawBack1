@@ -11,6 +11,7 @@ import okky.team.chawchaw.user.dto.UpdateUserDto;
 import okky.team.chawchaw.user.language.LanguageEntity;
 import okky.team.chawchaw.user.language.LanguageRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -23,6 +24,7 @@ public class DummyConfig implements CommandLineRunner {
     private final UserService userService;
     private final CountryRepository countryRepository;
     private final LanguageRepository languageRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public void run(String... args) throws Exception {
@@ -50,7 +52,7 @@ public class DummyConfig implements CommandLineRunner {
                 /* 아이디 생성 */
                 UserEntity user = userRepository.save(UserEntity.builder()
                     .email("test" + i +"@naver.com")
-                    .password("1234")
+                    .password(passwordEncoder.encode("1234"))
                     .name(randomHangulName())
                     .web_email("school@school.ac.kr")
                     .school("서울시립대학교")

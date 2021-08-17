@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserProfileDto implements Serializable {
 
+    private Long id;
     private String name;
     private String school;
     private String imageUrl;
