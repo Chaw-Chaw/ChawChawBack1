@@ -8,14 +8,14 @@ import java.util.List;
 @Getter @Setter
 public class ChatDto {
 
-    private Long roodId;
+    private Long roomId;
     private Long senderId;
     private String sender;
     private String imageUrl;
     private List<ChatMessageDto> messages;
 
     public ChatDto(Long roodId, Long senderId, String sender, String imageUrl, List<ChatMessageDto> messages) {
-        this.roodId = roodId;
+        this.roomId = roodId;
         this.senderId = senderId;
         this.sender = sender;
         this.imageUrl = imageUrl;
