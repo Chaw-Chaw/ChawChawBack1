@@ -36,16 +36,11 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
     public List<UserCardDto> findAllByElement(FindUserVo findUserVo) {
 
         int limit = 0;
-        int offset = 0;
 
-        if (findUserVo.getPageNo() == 1) {
+        if (findUserVo.getIsStart())
             limit = 6;
-        } else if (findUserVo.getPageNo() > 1){
+        else
             limit = 3;
-            offset = 6 + 3 * (findUserVo.getPageNo() - 2);
-        } else {
-            throw new IllegalArgumentException();
-        }
 
         return jpaQueryFactory
                 .select(Projections.constructor(
@@ -94,7 +89,6 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         user.role.eq(Role.USER)
                 )
                 .orderBy(getSortedColumn(findUserVo.getOrder()))
-                .offset(offset)
                 .limit(limit)
                 .fetch();
     }
