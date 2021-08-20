@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -137,6 +138,42 @@ class ChatServiceImplTest {
                             userFrom.getName() + "님이 입장하셨습니다."
                     );
         }
+    }
+
+    @Test
+    public void 채팅방_삭제() throws Exception {
+        //given
+        UserEntity userFrom = userRepository.save(UserEntity.builder()
+                .email("mangchhe@naver.com")
+                .password("1234")
+                .name("테스트1")
+                .web_email("웹메일")
+                .school("학교")
+                .build());
+        UserEntity userTo = userRepository.save(UserEntity.builder()
+                .email("mangchhe2@naver.com")
+                .password("1234")
+                .name("테스트2")
+                .web_email("웹메일")
+                .school("학교")
+                .build());
+        ChatMessageDto room = chatService.createRoom(userFrom.getId(), userTo.getId());
+        chatService.sendMessage(new ChatMessageDto(
+                room.getRoomId(), userFrom.getId(), userFrom.getName(), "마이크오바1", LocalDateTime.now()
+        ));
+        chatService.sendMessage(new ChatMessageDto(
+                room.getRoomId(), userTo.getId(), userTo.getName(), "마이크오바2", LocalDateTime.now()
+        ));
+        //when
+        chatService.deleteRoom(room.getRoomId());
+        //then
+        List<ChatMessageDto> resultMessage = chatMessageRepository.findAllByRoomId(room.getRoomId());
+        Optional<ChatRoomEntity> resultRoom = chatRoomRepository.findById(room.getRoomId());
+        List<ChatRoomUserEntity> resultRoomUser = chatRoomUserRepository.findAllByChatRoomId(room.getRoomId());
+
+        Assertions.assertThat(resultMessage.size()).isEqualTo(0);
+        Assertions.assertThat(resultRoom.isEmpty()).isEqualTo(true);
+        Assertions.assertThat(resultRoomUser.size()).isEqualTo(0);
     }
 
 }

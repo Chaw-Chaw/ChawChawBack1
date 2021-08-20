@@ -55,4 +55,11 @@ public class ChatSubController {
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
     }
 
+    @DeleteMapping("{roomId}")
+    public ResponseEntity deleteChatRoom(@PathVariable Long roomId) {
+        chatService.deleteRoom(roomId);
+
+        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.DELETE_SUCCESS, true), HttpStatus.OK);
+    }
+
 }

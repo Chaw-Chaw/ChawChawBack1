@@ -45,6 +45,13 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional(readOnly = false)
+    public void deleteRoom(Long roomId) {
+        chatRoomRepository.deleteById(roomId);
+        chatMessageRepository.deleteByRoomId(roomId);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public List<ChatDto> findMessagesByUserId(Long userId) {
         List<ChatDto> result = new ArrayList<>();
         List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
