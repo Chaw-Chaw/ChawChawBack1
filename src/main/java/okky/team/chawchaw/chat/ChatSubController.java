@@ -7,6 +7,7 @@ import okky.team.chawchaw.chat.dto.ChatRoomDto;
 import okky.team.chawchaw.chat.dto.CreateChatRoomDto;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.exception.PointMyselfException;
 import okky.team.chawchaw.utils.message.ResponseChatMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,8 @@ public class ChatSubController {
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @RequestBody CreateChatRoomDto createChatRoomDto) {
 
+        if (principalDetails.getId().equals(createChatRoomDto.getUserId()))
+            throw new PointMyselfException();
 
         List<ChatDto> result = null;
         Boolean isRoom = chatService.isRoom(principalDetails.getId(), createChatRoomDto.getUserId());

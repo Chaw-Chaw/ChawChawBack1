@@ -47,4 +47,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity(DefaultResponseVo.res(ResponseDataMessage.SQL_ERROR, false), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(PointMyselfException.class)
+    protected ResponseEntity pointMyself(PointMyselfException e) {
+        log.warn("자기 자신 선택");
+        return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.POINT_MYSELF, false), HttpStatus.BAD_REQUEST);
+    }
+
 }
