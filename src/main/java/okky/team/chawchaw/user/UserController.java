@@ -112,7 +112,7 @@ public class UserController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
     }
 
-    @DeleteMapping("/users")
+    @DeleteMapping("")
     public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
         userService.deleteUser(principalDetails.getId());
 
