@@ -3,6 +3,7 @@ package okky.team.chawchaw.follow;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.exception.PointMyselfException;
 import okky.team.chawchaw.utils.message.ResponseFollowMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,20 +21,29 @@ public class FollowController {
 
     @PostMapping("follow/{userId}")
     public ResponseEntity createFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                @PathVariable Long userId) {
+                                       @PathVariable Long userId) {
 
-        followService.addFollow(principalDetails.getUserEntity(), userId);
+        if (principalDetails.getId().equals(userId))
+            throw new PointMyselfException();
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
+        Boolean result = followService.addFollow(principalDetails.getUserEntity(), userId);
+
+        if (result)
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.EXIST_FOLLOW, false), HttpStatus.OK);
     }
 
     @DeleteMapping("follow/{userId}")
     public ResponseEntity<Boolean> deleteFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                 @PathVariable Long userId) {
 
-        followService.deleteFollow(principalDetails.getUserEntity(), userId);
+        Boolean result = followService.deleteFollow(principalDetails.getUserEntity(), userId);
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_SUCCESS, true), HttpStatus.OK);
+        if (result)
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_SUCCESS, true), HttpStatus.OK);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.NOT_EXIST_FOLLOW, false), HttpStatus.OK);
 
     }
 

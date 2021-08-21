@@ -9,5 +9,6 @@ public class ResponseChatMessage {
     public static final String DELETE_SUCCESS = "채팅방 삭제 성공";
     public static final String DELETE_FAIL = "채팅방 삭제 실패";
     public static final String EXIST_ROOM = "채팅방 존재함";
+    public static final String NOT_EXIST_ROOM = "채팅방 존재하지 않음";
 
 }

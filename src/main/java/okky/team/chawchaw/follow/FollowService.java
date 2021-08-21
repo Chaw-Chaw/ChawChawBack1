@@ -8,15 +8,16 @@ public interface FollowService {
      * 팔로우
      * @param userFrom
      * @param userTo
-     * @return followId(Long)
+     * @return Boolean
      */
-    public Long addFollow(UserEntity userFrom, Long userTo);
+    public Boolean addFollow(UserEntity userFrom, Long userTo);
 
     /**
      * 언팔로우
      * @param userFrom
      * @param userTo
+     * @return Boolean
      */
-    public void deleteFollow(UserEntity userFrom, Long userTo);
+    public Boolean deleteFollow(UserEntity userFrom, Long userTo);
 
 }

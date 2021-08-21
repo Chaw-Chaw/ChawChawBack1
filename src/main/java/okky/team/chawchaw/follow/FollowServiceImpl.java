@@ -18,22 +18,27 @@ public class FollowServiceImpl implements FollowService{
 
     @Override
     @Transactional(readOnly = false)
-    public Long addFollow(UserEntity userFrom, Long userTo) {
+    public Boolean addFollow(UserEntity userFrom, Long userTo) {
 
         UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
-        FollowEntity result = followRepository.save(new FollowEntity(userFrom, user));
-
-        return result.getId();
+        if (!followRepository.isFollow(userFrom.getId(), userTo)) {
+            followRepository.save(new FollowEntity(userFrom, user));
+            return true;
+        }
+        return false;
     }
 
     @Override
     @Transactional(readOnly = false)
-    public void deleteFollow(UserEntity userFrom, Long userTo) {
+    public Boolean deleteFollow(UserEntity userFrom, Long userTo) {
 
         UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
-        followRepository.removeByUserFromAndUserTo(userFrom, user);
-
+        if (followRepository.isFollow(userFrom.getId(), userTo)) {
+            followRepository.removeByUserFromAndUserTo(userFrom, user);
+            return true;
+        }
+        return false;
     }
 }

@@ -7,6 +7,7 @@ import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.PointMyselfException;
 import okky.team.chawchaw.utils.message.ResponseChatMessage;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -62,7 +63,11 @@ public class ChatSubController {
     @DeleteMapping("{roomId}")
     public ResponseEntity deleteChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @PathVariable Long roomId) {
-        chatService.deleteRoom(roomId);
+        try {
+            chatService.deleteRoom(roomId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.NOT_EXIST_ROOM, false), HttpStatus.OK);
+        }
         ChatStatusMessageDto statusMessage = new ChatStatusMessageDto(
                 MessageType.EXIT, roomId, principalDetails.getId(), principalDetails.getName(),
                 principalDetails.getName() + "님이 퇴장하셨습니다.", LocalDateTime.now().withNano(0));
