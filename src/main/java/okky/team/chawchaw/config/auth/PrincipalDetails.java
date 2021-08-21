@@ -37,6 +37,7 @@ public class PrincipalDetails implements UserDetails {
 
     public UserEntity getUserEntity() { return userEntity; }
     public Long getId() { return userEntity.getId(); }
+    public String getName() { return userEntity.getName(); }
     public String getSchool() { return userEntity.getSchool(); }
     public String getImageUrl() {return userEntity.getImageUrl(); }
 
