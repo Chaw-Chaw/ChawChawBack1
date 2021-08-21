@@ -60,7 +60,7 @@ public class ChatSubController {
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
     }
 
-    @DeleteMapping("{roomId}")
+    @DeleteMapping("/room/{roomId}")
     public ResponseEntity deleteChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @PathVariable Long roomId) {
         try {
