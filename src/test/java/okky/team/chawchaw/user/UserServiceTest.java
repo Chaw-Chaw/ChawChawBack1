@@ -332,4 +332,28 @@ class UserServiceTest {
         Assertions.assertThat(redisTemplate.opsForValue().get("viewDuplex::" + user.getId() + "_" + user2.getId())).isEqualTo(1);
         Assertions.assertThat(redisTemplate.opsForValue().get("views::" + user2.getId())).isEqualTo(1L);
     }
+
+    @Test
+    public void 조회수_업데이트() throws Exception {
+        //given
+        UserEntity[] users = new UserEntity[3];
+        for (int i = 0; i < 3; i++) {
+            users[i] = userRepository.save(UserEntity.builder()
+                    .email("mangchhe" + i +"@naver.com")
+                    .password("1234")
+                    .name("이름")
+                    .web_email("웹메일")
+                    .school("학교")
+                    .build());
+        }
+        userService.checkView(users[1].getId(), users[0].getId());
+        userService.checkView(users[0].getId(), users[1].getId());
+        userService.checkView(users[2].getId(), users[1].getId());
+        //when
+        userService.updateViews();
+        //then
+        Assertions.assertThat(userRepository.findById(users[0].getId()).get().getViews()).isEqualTo(1);
+        Assertions.assertThat(userRepository.findById(users[1].getId()).get().getViews()).isEqualTo(2);
+        Assertions.assertThat(userRepository.findById(users[2].getId()).get().getViews()).isEqualTo(0);
+    }
 }

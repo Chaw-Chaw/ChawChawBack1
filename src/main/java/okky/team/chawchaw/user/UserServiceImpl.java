@@ -340,6 +340,23 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
+    public void updateViews() {
+        Set<String> keys = redisTemplate.keys("views::*");
+        userRepository.findAll();
+
+        List<UserEntity> users = keys.stream().map(x -> x.split("::")[1]).map(x -> userRepository.findById(Long.parseLong(x)).get())
+                .collect(Collectors.toList());
+
+        for (UserEntity user : users) {
+            Long views = (Long) redisTemplate.opsForValue().get("views::" + user.getId());
+            if (!user.getViews().equals(views)) {
+                user.changeViews(views);
+            }
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public void checkView(Long userFrom, Long userTo) {
 
         Object views = redisTemplate.opsForValue().get("views::" + userTo);

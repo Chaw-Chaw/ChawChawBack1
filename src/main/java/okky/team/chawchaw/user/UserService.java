@@ -22,5 +22,6 @@ public interface UserService {
 
     public Boolean isUser(String email);
     public Long getViews(Long userId);
+    public void updateViews();
     public void checkView(Long userFrom, Long userTo);
 }

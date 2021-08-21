@@ -101,6 +101,7 @@ public class UserEntity {
         this.repHopeLanguage = repHopeLanguage != null ? repHopeLanguage : this.repHopeLanguage;
     }
     public void changeRole(Role role) { this.role = role; }
+    public void changeViews(Long views) { this.views = views; }
     public void plusViews() {
         this.views += 1;
     }
