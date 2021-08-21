@@ -7,6 +7,8 @@ import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "chat_room")
@@ -23,6 +25,9 @@ public class ChatRoomEntity {
     @Column(nullable = false, insertable = false, updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private LocalDateTime regDate;
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.REMOVE)
+    private List<ChatRoomUserEntity> chatRooms = new ArrayList<>();
 
     public ChatRoomEntity(String name) {
         this.name = name;

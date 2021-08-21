@@ -9,6 +9,7 @@ import java.util.List;
 public interface ChatService {
 
     ChatMessageDto createRoom(Long userFrom, Long userTo);
+    void deleteRoom(Long roomId);
 
     List<ChatDto> findMessagesByUserId(Long userId);
 

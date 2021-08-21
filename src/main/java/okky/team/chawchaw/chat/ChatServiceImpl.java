@@ -45,6 +45,13 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional(readOnly = false)
+    public void deleteRoom(Long roomId) {
+        chatRoomRepository.deleteById(roomId);
+        chatMessageRepository.deleteByRoomId(roomId);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
     public List<ChatDto> findMessagesByUserId(Long userId) {
         List<ChatDto> result = new ArrayList<>();
         List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
@@ -71,7 +78,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+
     public Boolean isRoom(Long userId, Long userId2) {
-        return chatRoomUserRepository.isChatRoom(userId, userId2);
+        Boolean result = chatRoomUserRepository.isChatRoom(userId, userId2);
+        return result != null && result;
     }
 }

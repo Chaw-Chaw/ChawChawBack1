@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.Resource;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Repository
@@ -35,6 +36,11 @@ public class ChatMessageRepository {
                 .sorted(Comparator.comparing(ChatMessageDto::getRegDate)
                 .reversed()).collect(Collectors.toList());
         return result;
+    }
+
+    public void deleteByRoomId(Long roomId) {
+        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+        keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, "", 1, TimeUnit.MILLISECONDS));
     }
 
 }
