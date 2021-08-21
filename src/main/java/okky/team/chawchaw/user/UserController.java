@@ -96,8 +96,12 @@ public class UserController {
     @GetMapping("/{userId}")
     public ResponseEntity<UserDetailsDto> getUserDetails(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                          @PathVariable Long userId) {
+
         userService.checkView(principalDetails.getId(), userId);
+
         UserDetailsDto result = userService.findUserDetails(userId);
+        result.setViews(userService.getViews(userId));
+
         if (result != null)
             return new ResponseEntity(DefaultResponseVo.res(
                     ResponseUserMessage.FIND_SUCCESS,

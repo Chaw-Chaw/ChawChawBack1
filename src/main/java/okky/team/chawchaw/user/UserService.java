@@ -21,5 +21,6 @@ public interface UserService {
     public String deleteImage(String imageUrl, Long userId);
 
     public Boolean isUser(String email);
+    public Long getViews(Long userId);
     public void checkView(Long userFrom, Long userTo);
 }

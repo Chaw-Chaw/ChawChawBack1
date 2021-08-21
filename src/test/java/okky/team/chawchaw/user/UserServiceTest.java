@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,8 @@ class UserServiceTest {
     private UserLanguageRepository userLanguageRepository;
     @Autowired
     private UserHopeLanguageRepository userHopeLanguageRepository;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Test
     public void 회원가입() throws Exception {
@@ -207,7 +210,6 @@ class UserServiceTest {
         List<UserCardDto> result = userRepository.findAllByElement(FindUserVo.builder()
                 .language("yi")
                 .hopeLanguage("ab")
-                .pageNo(1)
                 .build());
         //then
         Assertions.assertThat(result).extracting("content")
@@ -275,5 +277,59 @@ class UserServiceTest {
                 .ignoringCollectionOrder()
                 .isEqualTo(Arrays.asList("ab", "aa", "af", "ak"));
 
+    }
+
+    @Test
+    public void 조회수_조회() throws Exception {
+        //given
+        UserEntity user = userRepository.save(UserEntity.builder()
+                .email("mangchhe@naver.com")
+                .password("1234")
+                .name("이름")
+                .web_email("웹메일")
+                .school("학교")
+                .build());
+        long cache = 0;
+        long noneCache = 0;
+        //when
+        long beforeTime = System.currentTimeMillis();
+        for (int i = 0; i < 5000; i++) {
+            userRepository.findViewsByUserId(1L);
+        }
+        noneCache = (System.currentTimeMillis() - beforeTime) / 1000;
+        beforeTime = System.currentTimeMillis();
+        for (int i = 0; i < 5000; i++) {
+            userService.getViews(1L);
+        }
+        cache = (System.currentTimeMillis() - beforeTime) / 1000;
+        // then
+        Assertions.assertThat(noneCache > cache).isTrue();
+    }
+
+    @Test
+    public void 중복_조회() throws Exception {
+        //given
+        UserEntity user = userRepository.save(UserEntity.builder()
+                .email("mangchhe@naver.com")
+                .password("1234")
+                .name("이름")
+                .web_email("웹메일")
+                .school("학교")
+                .build());
+        UserEntity user2 = userRepository.save(UserEntity.builder()
+                .email("mangchhe2@naver.com")
+                .password("1234")
+                .name("이름")
+                .web_email("웹메일")
+                .school("학교")
+                .build());
+        //when
+        userService.checkView(user.getId(), user2.getId());
+        userService.checkView(user.getId(), user2.getId());
+        userService.checkView(user.getId(), user2.getId());
+        //then
+        Assertions.assertThat(userService.getViews(user2.getId())).isEqualTo(1L);
+        Assertions.assertThat(redisTemplate.opsForValue().get("viewDuplex::" + user.getId() + "_" + user2.getId())).isEqualTo(1);
+        Assertions.assertThat(redisTemplate.opsForValue().get("views::" + user2.getId())).isEqualTo(1L);
     }
 }

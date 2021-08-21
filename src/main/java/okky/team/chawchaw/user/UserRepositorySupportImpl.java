@@ -53,7 +53,6 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         user.repLanguage,
                         user.repHopeLanguage,
                         user.regDate,
-                        user.views,
                         user.followTo.size()
                 ))
                 .from(user)

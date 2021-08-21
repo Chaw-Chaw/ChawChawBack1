@@ -34,6 +34,7 @@ import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,7 +93,11 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public List<UserCardDto> findUserCards(FindUserVo findUserVo) {
-        return userRepository.findAllByElement(findUserVo);
+        List<UserCardDto> result = userRepository.findAllByElement(findUserVo);
+        for (UserCardDto userCardDto : result) {
+            userCardDto.setViews(getViews(userCardDto.getId()));
+        }
+        return result;
     }
 
     @Override
@@ -115,7 +120,6 @@ public class UserServiceImpl implements UserService{
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
                 .days(user.getRegDate())
-                .views(user.getViews())
                 .follows(follows)
                 .repCountry(user.getRepCountry())
                 .repLanguage(user.getRepLanguage())
@@ -224,7 +228,6 @@ public class UserServiceImpl implements UserService{
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
                 .days(user.getRegDate())
-                .views(user.getViews())
                 .follows(follows)
                 .repCountry(user.getRepCountry())
                 .repLanguage(user.getRepLanguage())
@@ -324,13 +327,30 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public Long getViews(Long userId) {
+        Object views = redisTemplate.opsForValue().get("views::" + userId);
+
+        if (views == null) {
+            views = userRepository.findViewsByUserId(userId);
+            redisTemplate.opsForValue().set("views::" + userId, views, 1, TimeUnit.DAYS);
+        }
+
+        return (Long) views;
+    }
+
+    @Override
     @Transactional(readOnly = false)
     public void checkView(Long userFrom, Long userTo) {
-        if (redisTemplate.opsForValue().get("view::" + userFrom + "_" + userTo) == null) {
+
+        Object views = redisTemplate.opsForValue().get("views::" + userTo);
+
+        if (redisTemplate.opsForValue().get("viewDuplex::" + userFrom + "_" + userTo) == null) {
             UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-            user.plusViews();
-            redisTemplate.opsForValue().set("view::" + userFrom + "_" + userTo, 1);
-            redisTemplate.expireAt("view::" + userFrom + "_" + userTo, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
+            redisTemplate.opsForValue().set("viewDuplex::" + userFrom + "_" + userTo, 1, 1, TimeUnit.DAYS);
+            if (views == null) {
+                views = userRepository.findViewsByUserId(userTo);
+            }
+            redisTemplate.opsForValue().set("views::" + userTo, (Long) views + 1, 1, TimeUnit.DAYS);
         }
     }
 }

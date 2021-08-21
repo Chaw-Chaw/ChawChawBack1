@@ -26,43 +26,43 @@ class UserRepositorySupportImplTest {
         /* 기본, 랜덤순 */
         System.out.println("기본, 랜덤순");
         userRepository.findAllByElement(
-                FindUserVo.builder().pageNo(1).build());
+                FindUserVo.builder().build());
         /* 2페이지, 랜덤순 */
         System.out.println("2페이지, 랜덤순");
         userRepository.findAllByElement(
-                FindUserVo.builder().pageNo(2).build());
+                FindUserVo.builder().build());
         /* 언어 검색, 랜덤순 */
         System.out.println("언어 검색, 랜덤순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").pageNo(1).build());
+                FindUserVo.builder().language("yi").build());
         /* 희망 언어 검색, 랜덤순 */
         System.out.println("희망 언어 검색, 랜덤순");
         userRepository.findAllByElement(
-                FindUserVo.builder().hopeLanguage("af").pageNo(1).build());
+                FindUserVo.builder().hopeLanguage("af").build());
         /* 언어, 희망 언어 검색, 랜덤순 */
         System.out.println("언어, 희망 언어 검색, 랜덤순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").pageNo(1).build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").build());
         /* 언어, 희망 언어 검색, 팔로우 순 */
         System.out.println("언어, 희망 언어 검색, 팔로우 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").order("like").pageNo(1).build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").order("like").build());
         /* 언어, 희망 언어 검색, 조회수 순 */
         System.out.println("언어, 희망 언어 검색, 조회수 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").order("view").pageNo(1).build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").order("view").build());
         /* 언어, 희망 언어 검색, 날짜 순 */
         System.out.println("언어, 희망 언어 검색, 날짜 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").order("date").pageNo(1).build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").order("date").build());
         /* 언어, 희망 언어, 이름 검색, 랜덤순 */
         System.out.println("언어, 희망 언어, 이름 검색, 랜덤순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").name("하주현").pageNo(1).build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").name("하주현").build());
         /* 언어, 희망 언어, 이름 검색, 팔로우 순 */
         System.out.println("언어, 희망 언어, 이름 검색, 팔로우 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").name("하주현").order("like").pageNo(1).build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").name("하주현").order("like").build());
     }
 
 }
