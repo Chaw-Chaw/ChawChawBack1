@@ -21,9 +21,11 @@ public class ChatPubController {
         if (message.getRegDate() == null) {
             message.setRegDate(LocalDateTime.now().withNano(0));
         }
+        if (message.getMessageType().equals(MessageType.ENTER)) {
+            message.setMessage(message.getSender() + "님이 입장하셨습니다.");
+        }
         chatService.sendMessage(message);
         messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);
-
     }
 
 }

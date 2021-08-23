@@ -74,17 +74,17 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             chain.doFilter(request, response);
 
         } catch (TokenExpiredException tokenExpiredException) {
-            response.setStatus(403);
+            response.setStatus(401);
             writer = response.getWriter();
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.EXPIRE_TOKEN, false)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.EXPIRE_ACCESS_TOKEN, false)));
 
         } catch (JWTDecodeException | SignatureVerificationException verificationException) {
-            response.setStatus(403);
+            response.setStatus(401);
             writer = response.getWriter();
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.WRONG_TOKEN_FORM, false)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.WRONG_ACCESS_TOKEN_FORM, false)));
 
         } catch (UsernameNotFoundException usernameNotFoundException) {
-            response.setStatus(403);
+            response.setStatus(401);
             writer = response.getWriter();
             writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.ID_NOT_EXIST, false)));
 

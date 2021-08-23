@@ -49,6 +49,20 @@ logging:
     webhook-uri: <>
   config: classpath:logback-spring.xml
 
+cloud:
+  aws:
+    credentials:
+      accessKey: <>
+      secretKey: <>
+    s3:
+      bucket: <>
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
+  front:
+    domain: <>
+
 token:
   secret: <>
   expiration_time: 1800000
@@ -64,6 +78,7 @@ user:
     image:
       path: <>
       default: <>
+      default-url: <>
 
 front:
   domain: <>
