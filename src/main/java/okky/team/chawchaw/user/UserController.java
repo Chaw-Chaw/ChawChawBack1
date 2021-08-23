@@ -17,8 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
@@ -124,22 +122,6 @@ public class UserController {
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.UPDATE_SUCCESS, true), HttpStatus.OK);
 
-    }
-
-    @GetMapping("/image")
-    public ResponseEntity findUserImage(@RequestParam String imageUrl) {
-        byte[] result = null;
-        HttpHeaders header = new HttpHeaders();
-
-        try {
-            File file = new File(env.getProperty("user.profile.image.path") + File.separator + imageUrl);
-            header.add("Content-Type", Files.probeContentType(file.toPath()));
-            result = FileCopyUtils.copyToByteArray(file);
-
-        } catch (Exception e) {
-            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.FIND_FAIL, false), HttpStatus.OK);
-        }
-        return new ResponseEntity(result, header, HttpStatus.OK);
     }
 
     @PostMapping("/image")

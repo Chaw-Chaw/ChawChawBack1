@@ -58,7 +58,10 @@ public class DummyConfig implements CommandLineRunner {
                     .name(randomHangulName())
                     .web_email("school@school.ac.kr")
                     .school("서울시립대학교")
-                    .imageUrl(env.getProperty("user.profile.image.default-url"))
+                    .imageUrl(
+                            env.getProperty("cloud.front.domain") +
+                            env.getProperty("user.profile.image.default")
+                    )
                     .build());
                 /* 프로필 생성 */
                 userService.updateProfile(UpdateUserDto.builder()

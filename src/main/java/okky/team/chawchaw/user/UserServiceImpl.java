@@ -52,10 +52,10 @@ public class UserServiceImpl implements UserService{
     private String uploadPath;
     @Value("${user.profile.image.default}")
     private String defaultImage;
-    @Value("${user.profile.image.default-url}")
-    private String defaultImageUrl;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+    @Value("${cloud.front.domain}")
+    private String cloudFrontDomain;
 
     @Override
     @Transactional(readOnly = false)
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
 
         createUserDto.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         if (!StringUtils.hasText(createUserDto.getImageUrl())) {
-                createUserDto.setImageUrl(defaultImageUrl);
+                createUserDto.setImageUrl(cloudFrontDomain + defaultImage);
         }
         UserEntity user = DtoToEntity.createUserDtoToEntity(createUserDto);
 
@@ -248,10 +248,9 @@ public class UserServiceImpl implements UserService{
             UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             String uuid = UUID.randomUUID().toString();
             String fileName = file.getOriginalFilename();
+            String saveFileName = uuid + "_" + fileName;
 
-            ObjectMetadata objMeta = new ObjectMetadata();
-            objMeta.setContentType(Mimetypes.getInstance().getMimetype(file.getName()));
-            amazonS3.putObject(new PutObjectRequest(bucket, uuid + "_" + fileName, file.getInputStream(), null).withCannedAcl(
+            amazonS3.putObject(new PutObjectRequest(bucket, saveFileName, file.getInputStream(), null).withCannedAcl(
                     CannedAccessControlList.PublicRead
             ));
 
@@ -262,10 +261,9 @@ public class UserServiceImpl implements UserService{
                 amazonS3.deleteObject(new DeleteObjectRequest(bucket, userImageUrl));
             }
 
-            String url = amazonS3.getUrl(bucket, uuid + "_" + fileName).toString();
-            user.changeImageUrl(url);
+            user.changeImageUrl(cloudFrontDomain + saveFileName);
 
-            return url;
+            return user.getImageUrl();
 
         } catch (Exception e) {
             return "";
@@ -281,10 +279,10 @@ public class UserServiceImpl implements UserService{
             String[] splitUrl = user.getImageUrl().split("/");
             String userImageUrl = splitUrl[splitUrl.length - 1];
 
-            if (!imageUrl.equals(defaultImageUrl)) {
-                user.changeImageUrl(defaultImageUrl);
+            if (!userImageUrl.equals(defaultImage)) {
+                user.changeImageUrl(cloudFrontDomain + defaultImage);
                 amazonS3.deleteObject(new DeleteObjectRequest(bucket, userImageUrl));
-                return defaultImageUrl;
+                return user.getImageUrl();
             } else{
                 return "";
             }
