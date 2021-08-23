@@ -63,7 +63,7 @@ public class ChatServiceImpl implements ChatService {
                             roomUsers.getUser().getId(),
                             roomUsers.getUser().getName(),
                             roomUsers.getUser().getImageUrl(),
-                            chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(user.getChatRoom().getId())
+                            chatMessageRepository.findAllByRoomIdOrderByRegDateAsc(user.getChatRoom().getId())
                     ));
                 }
             }

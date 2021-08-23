@@ -30,11 +30,11 @@ public class ChatMessageRepository {
         return result;
     }
 
-    public List<ChatMessageDto> findAllByRoomIdOrderByRegDateDesc(Long roomId) {
+    public List<ChatMessageDto> findAllByRoomIdOrderByRegDateAsc(Long roomId) {
         Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
         List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x))
-                .sorted(Comparator.comparing(ChatMessageDto::getRegDate)
-                .reversed()).collect(Collectors.toList());
+                .sorted(Comparator.comparing(ChatMessageDto::getRegDate))
+                .collect(Collectors.toList());
         return result;
     }
 
