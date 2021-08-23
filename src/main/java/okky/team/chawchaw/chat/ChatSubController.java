@@ -25,7 +25,6 @@ public class ChatSubController {
 
     private final ChatService chatService;
     private final SimpMessageSendingOperations messagingTemplate;
-    private final ModelMapper mapper;
 
     @PostMapping("/room")
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -43,12 +42,11 @@ public class ChatSubController {
         }
 
         ChatMessageDto message = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
-        ChatStatusMessageDto statusMessage = mapper.map(message, ChatStatusMessageDto.class);
-        statusMessage.setMessageType(MessageType.ENTER);
+        message.setMessageType(MessageType.ENTER);
 
         result = chatService.findMessagesByUserId(principalDetails.getId());
 
-        messagingTemplate.convertAndSend("/queue/chat/room/wait/" + createChatRoomDto.getUserId(), statusMessage);
+        messagingTemplate.convertAndSend("/queue/chat/room/wait/" + createChatRoomDto.getUserId(), message);
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
     }
@@ -68,11 +66,11 @@ public class ChatSubController {
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.NOT_EXIST_ROOM, false), HttpStatus.OK);
         }
-        ChatStatusMessageDto statusMessage = new ChatStatusMessageDto(
+        ChatMessageDto message = new ChatMessageDto(
                 MessageType.EXIT, roomId, principalDetails.getId(), principalDetails.getName(),
                 principalDetails.getName() + "님이 퇴장하셨습니다.", LocalDateTime.now().withNano(0));
 
-        messagingTemplate.convertAndSend("/queue/chat/room/" + roomId, statusMessage);
+        messagingTemplate.convertAndSend("/queue/chat/room/" + roomId, message);
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.DELETE_SUCCESS, true), HttpStatus.OK);
     }
