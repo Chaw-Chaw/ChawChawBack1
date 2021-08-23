@@ -1,5 +1,11 @@
 package okky.team.chawchaw.user;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.internal.Mimetypes;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.follow.FollowRepository;
 import okky.team.chawchaw.user.country.CountryRepository;
@@ -22,17 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.time.LocalDate;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -52,10 +47,15 @@ public class UserServiceImpl implements UserService{
     private final UserHopeLanguageRepository userHopeLanguageRepository;
     private final Environment env;
     private final RedisTemplate redisTemplate;
+    private final AmazonS3 amazonS3;
     @Value("${user.profile.image.path}")
     private String uploadPath;
     @Value("${user.profile.image.default}")
     private String defaultImage;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+    @Value("${cloud.front.domain}")
+    private String cloudFrontDomain;
 
     @Override
     @Transactional(readOnly = false)
@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService{
 
         createUserDto.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         if (!StringUtils.hasText(createUserDto.getImageUrl())) {
-                createUserDto.setImageUrl(defaultImage);
+                createUserDto.setImageUrl(cloudFrontDomain + defaultImage);
         }
         UserEntity user = DtoToEntity.createUserDtoToEntity(createUserDto);
 
@@ -242,63 +242,29 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public String uploadImage(String imageUrl, Long userId) {
-        try {
-
-            URL url = new URL(imageUrl);
-            BufferedImage img = ImageIO.read(url);
-            UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-            String uuid = UUID.randomUUID().toString();
-            String fileName = ".jpg";
-
-            /* 폴더 생성 */
-            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-            String folderPath = date.replace("//", File.separator);
-            File uploadPathFolder = new File(uploadPath, folderPath);
-            if (!uploadPathFolder.exists()) {
-                uploadPathFolder.mkdirs();
-            }
-
-            String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
-            Path savePath = Paths.get(saveName);
-            File file = new File(String.valueOf(savePath));
-            ImageIO.write(img, "jpg", file);
-            String encodeUrl = URLEncoder.encode(folderPath + File.separator + uuid + "_" + fileName, "UTF-8");
-            if (!URLDecoder.decode(user.getImageUrl(), "UTF-8").equals(defaultImage)) {
-                new File(uploadPath + URLDecoder.decode(user.getImageUrl(), "UTF-8")).delete();
-            }
-            user.changeImageUrl(encodeUrl);
-            return encodeUrl;
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = false)
     public String uploadImage(MultipartFile file, Long userId) {
         try {
+
             UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             String uuid = UUID.randomUUID().toString();
             String fileName = file.getOriginalFilename();
+            String saveFileName = uuid + "_" + fileName;
 
-            /* 폴더 생성 */
-            String date = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy/MM/dd"));
-            String folderPath = date.replace("//", File.separator);
-            File uploadPathFolder = new File(uploadPath, folderPath);
-            if (!uploadPathFolder.exists()) {
-                uploadPathFolder.mkdirs();
+            amazonS3.putObject(new PutObjectRequest(bucket, saveFileName, file.getInputStream(), null).withCannedAcl(
+                    CannedAccessControlList.PublicRead
+            ));
+
+            String[] splitUrl = user.getImageUrl().split("/");
+            String userImageUrl = splitUrl[splitUrl.length - 1];
+
+            if (!userImageUrl.equals(defaultImage)) {
+                amazonS3.deleteObject(new DeleteObjectRequest(bucket, userImageUrl));
             }
 
-            String saveName = uploadPath + File.separator + folderPath + File.separator + uuid + "_" + fileName;
-            Path savePath = Paths.get(saveName);
-            file.transferTo(savePath);
-            String encodeUrl = URLEncoder.encode(folderPath + File.separator + uuid + "_" + fileName, "UTF-8");
-            if (!URLDecoder.decode(user.getImageUrl(), "UTF-8").equals(defaultImage)) {
-                new File(uploadPath + URLDecoder.decode(user.getImageUrl(), "UTF-8")).delete();
-            }
-            user.changeImageUrl(encodeUrl);
-            return encodeUrl;
+            user.changeImageUrl(cloudFrontDomain + saveFileName);
+
+            return user.getImageUrl();
+
         } catch (Exception e) {
             return "";
         }
@@ -309,10 +275,14 @@ public class UserServiceImpl implements UserService{
     public String deleteImage(String imageUrl, Long userId) {
         try {
             UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-            if (!imageUrl.equals(defaultImage)) {
-                user.changeImageUrl(defaultImage);
-                new File(uploadPath + URLDecoder.decode(imageUrl, "UTF-8")).delete();
-                return defaultImage;
+
+            String[] splitUrl = user.getImageUrl().split("/");
+            String userImageUrl = splitUrl[splitUrl.length - 1];
+
+            if (!userImageUrl.equals(defaultImage)) {
+                user.changeImageUrl(cloudFrontDomain + defaultImage);
+                amazonS3.deleteObject(new DeleteObjectRequest(bucket, userImageUrl));
+                return user.getImageUrl();
             } else{
                 return "";
             }
