@@ -16,7 +16,6 @@ public interface UserService {
     public UserProfileDto findUserProfile(String email);
 
     public UserDetailsDto updateProfile(UpdateUserDto updateUserDto);
-    public String uploadImage(String imageUrl, Long userId);
     public String uploadImage(MultipartFile file, Long userId);
     public String deleteImage(String imageUrl, Long userId);
 

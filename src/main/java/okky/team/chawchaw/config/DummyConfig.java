@@ -11,6 +11,7 @@ import okky.team.chawchaw.user.dto.UpdateUserDto;
 import okky.team.chawchaw.user.language.LanguageEntity;
 import okky.team.chawchaw.user.language.LanguageRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ public class DummyConfig implements CommandLineRunner {
     private final CountryRepository countryRepository;
     private final LanguageRepository languageRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final Environment env;
 
     @Override
     public void run(String... args) throws Exception {
@@ -56,7 +58,7 @@ public class DummyConfig implements CommandLineRunner {
                     .name(randomHangulName())
                     .web_email("school@school.ac.kr")
                     .school("서울시립대학교")
-                    .imageUrl("default.png")
+                    .imageUrl(env.getProperty("user.profile.image.default-url"))
                     .build());
                 /* 프로필 생성 */
                 userService.updateProfile(UpdateUserDto.builder()

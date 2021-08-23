@@ -41,11 +41,7 @@ public class UserController {
             createUserDto.setPassword(UUID.randomUUID().toString());
         }
 
-        Long userId = userService.createUser(createUserDto);
-
-        if (provider.equals("kakao") || provider.equals("facebook")) {
-            userService.uploadImage(createUserDto.getImageUrl(), userId);
-        }
+        userService.createUser(createUserDto);
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
     }
