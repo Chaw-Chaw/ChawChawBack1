@@ -37,7 +37,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
 
         int limit = 0;
 
-        if (findUserVo.getIsStart())
+        if (findUserVo.getIsFirst())
             limit = 6;
         else
             limit = 3;

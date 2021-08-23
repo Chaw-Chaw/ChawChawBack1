@@ -17,7 +17,7 @@ public class FindUserVo {
     String hopeLanguage;
     String order;
     String school;
-    Boolean isStart;
+    Boolean isFirst;
     List<Long> exclude = new ArrayList<>();
 
 }
