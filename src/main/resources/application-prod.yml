@@ -65,9 +65,16 @@ cloud:
 
 token:
   secret: <>
-  expiration_time: 1800000
   prefix: "Bearer "
-  header: "Authorization"
+  access:
+    header: "Authorization"
+    expiration_time: 1800000
+  refresh:
+    header: "RefreshToken"
+    expiration_time: 604800000
+
+social:
+  secret: <>
 
 kakao:
   client-id: <>

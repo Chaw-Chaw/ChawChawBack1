@@ -133,8 +133,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserProfileDto findUserProfile(String email) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+    public UserProfileDto findUserProfile(UserEntity user) {
 
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
@@ -293,6 +292,14 @@ public class UserServiceImpl implements UserService{
         } catch (Exception e) {
             return "";
         }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void saveRefreshToken(Long userId, String refreshToken) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+
+        user.changeRefreshToken(refreshToken);
     }
 
     @Override

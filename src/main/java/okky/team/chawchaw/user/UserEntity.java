@@ -41,6 +41,7 @@ public class UserEntity {
     private String repCountry;
     private String repLanguage;
     private String repHopeLanguage;
+    private String refreshToken;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<UserCountryEntity> userCountrys = new ArrayList<>();
@@ -101,6 +102,7 @@ public class UserEntity {
         this.repHopeLanguage = repHopeLanguage != null ? repHopeLanguage : this.repHopeLanguage;
     }
     public void changeRole(Role role) { this.role = role; }
+    public void changeRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     public void changeViews(Long views) { this.views = views; }
     public void plusViews() {
         this.views += 1;

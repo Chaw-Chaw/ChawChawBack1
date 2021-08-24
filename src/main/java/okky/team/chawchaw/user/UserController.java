@@ -36,7 +36,7 @@ public class UserController {
         String provider = createUserDto.getProvider();
 
         if (provider.equals("kakao") || provider.equals("facebook")) {
-            createUserDto.setPassword(UUID.randomUUID().toString());
+            createUserDto.setPassword(createUserDto.getEmail() + env.getProperty("social.secret"));
         }
 
         userService.createUser(createUserDto);

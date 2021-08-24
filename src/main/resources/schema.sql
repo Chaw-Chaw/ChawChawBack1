@@ -29,6 +29,7 @@ create table users
     rep_country       varchar(255) null,
     rep_language      varchar(255) null,
     rep_hope_language varchar(255) null,
+    refresh_token varchar(255) null,
     unique (email)
 );
 

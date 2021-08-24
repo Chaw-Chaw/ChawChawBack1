@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.minidev.json.JSONObject;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
+import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.social.SocialService;
 import okky.team.chawchaw.social.dto.SocialDto;
 import okky.team.chawchaw.user.UserEntity;
@@ -27,21 +28,23 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
+import java.util.UUID;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
     private UserService userService;
     private SocialService socialService;
-    private Environment env;
     private ObjectMapper mapper = new ObjectMapper();
+    private TokenProperties tokenProperties;
+    private Environment env;
 
-
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, Environment env, UserService userService, SocialService socialService) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, Environment env, UserService userService, SocialService socialService, TokenProperties tokenProperties) {
         this.authenticationManager = authenticationManager;
         this.env = env;
         this.userService = userService;
         this.socialService = socialService;
+        this.tokenProperties = tokenProperties;
     }
 
     @Override
@@ -66,30 +69,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             else if (user.getProvider().equals("facebook")) {
                 socialDto = socialService.verificationFacebook(user.getEmail(), user.getAccessToken());
             }
-            /* 일반 로그인 시 */
-            else {
-                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-                        user.getEmail(),
-                        user.getPassword()
-                );
-                authenticate = authenticationManager.authenticate(authenticationToken);
+
+            if (socialDto != null) {
+                user.setEmail(socialDto.getEmail());
+                user.setPassword(socialDto.getEmail() + env.getProperty("social.secret"));
             }
 
-            /* 소셜 로그인 시 */
-            if (user.getProvider().equals("kakao") || user.getProvider().equals("facebook")) {
-                if (userService.isUser(socialDto.getEmail())) {
-                    String token = JWT.create()
-                            .withSubject("JwtToken")
-                            .withExpiresAt(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
-                            .withClaim("email", socialDto.getEmail())
-                            .sign(Algorithm.HMAC512(env.getProperty("token.secret")));
-                    response.addHeader(env.getProperty("token.header"), env.getProperty("token.prefix") + token);
-                    writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, userService.findUserProfile(socialDto.getEmail()))));
-                }
-                else {
-                    writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.NEED_SIGNUP, false, socialDto)));
-                }
-                }
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    user.getEmail(),
+                    user.getPassword()
+            );
+
+            authenticate = authenticationManager.authenticate(authenticationToken);
 
         } catch (UsernameNotFoundException usernameNotFoundException) {
             writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.ID_NOT_EXIST, false)));
@@ -102,19 +93,30 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
         PrincipalDetails principal = (PrincipalDetails) authResult.getPrincipal();
+        String refreshKey = UUID.randomUUID().toString();
+        userService.saveRefreshToken(principal.getId(), refreshKey);
 
-        String token = JWT.create()
-                .withSubject("JwtToken")
-                .withExpiresAt(new Date(System.currentTimeMillis() + Long.parseLong(env.getProperty("token.expiration_time"))))
+        String accessToken = JWT.create()
+                .withSubject("AccessToken")
+                .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getAccess().getExpirationTime()))
                 .withClaim("email", principal.getUsername())
-                .sign(Algorithm.HMAC512(env.getProperty("token.secret")));
+                .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
 
-        response.addHeader(env.getProperty("token.header"), env.getProperty("token.prefix") + token);
+        String refreshToken = JWT.create()
+                .withSubject("RefreshToken")
+                .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getRefresh().getExpirationTime()))
+                .withClaim("email", principal.getUsername())
+                .withClaim("key", refreshKey)
+                .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
+
+        response.addHeader(tokenProperties.getAccess().getHeader(), tokenProperties.getPrefix() + accessToken);
+        response.addHeader(tokenProperties.getRefresh().getHeader(), tokenProperties.getPrefix() + refreshToken);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter writer = response.getWriter();
-        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, userService.findUserProfile(principal.getUsername()))));
+        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, userService.findUserProfile(principal.getUserEntity()))));
     }
+
 }
