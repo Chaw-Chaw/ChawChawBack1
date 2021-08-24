@@ -249,8 +249,12 @@ public class UserServiceImpl implements UserService{
             String uuid = UUID.randomUUID().toString();
             String fileName = file.getOriginalFilename();
             String saveFileName = uuid + "_" + fileName;
+            String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
 
-            amazonS3.putObject(new PutObjectRequest(bucket, saveFileName, file.getInputStream(), null).withCannedAcl(
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("image/" + extension);
+
+            amazonS3.putObject(new PutObjectRequest(bucket, saveFileName, file.getInputStream(), metadata).withCannedAcl(
                     CannedAccessControlList.PublicRead
             ));
 
