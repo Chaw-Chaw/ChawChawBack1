@@ -36,7 +36,12 @@ public class UserController {
 
         String provider = createUserDto.getProvider();
 
+        /**
+         * 소셜 로그인일 경우
+         * email _ -> &, 소셜 아이디로 로그인을 방지하기 위해서
+         */
         if (provider.equals("kakao") || provider.equals("facebook")) {
+            createUserDto.setEmail(createUserDto.getEmail().replace("_", "&"));
             createUserDto.setPassword(createUserDto.getEmail() + env.getProperty("social.secret"));
         }
 

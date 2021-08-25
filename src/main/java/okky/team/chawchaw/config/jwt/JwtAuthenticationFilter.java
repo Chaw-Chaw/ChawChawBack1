@@ -61,6 +61,14 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             LoginUserDto user = mapper.readValue(request.getInputStream(), LoginUserDto.class);
 
+            /**
+             * 소셜 로그인 시 토큰이 아닌 방식으로 접근하는 것을 제한
+             */
+            if (user.getEmail().startsWith("facebook&") || user.getEmail().startsWith("kakao&")) {
+                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.WRONG_LOGIN_ACCESS, false)));
+                return null;
+            }
+
             /* 카카오 로그인 시 */
             if (user.getProvider().equals("kakao")) {
                 socialDto = socialService.verificationKakao(user.getKakaoToken());
@@ -71,8 +79,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             }
 
             if (socialDto != null) {
-                user.setEmail(socialDto.getEmail());
-                user.setPassword(socialDto.getEmail() + env.getProperty("social.secret"));
+                user.setEmail(socialDto.getEmail().replace("_", "&"));
+                user.setPassword(user.getEmail() + env.getProperty("social.secret"));
+                if (!userService.isUser(user.getEmail())) {
+                    writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.NEED_SIGNUP, false, socialDto)));
+                    return null;
+                }
             }
 
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
