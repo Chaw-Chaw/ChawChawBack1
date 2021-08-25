@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -30,9 +31,7 @@ public class UserController {
     private final Environment env;
 
     @PostMapping("/signup")
-    public ResponseEntity createUser(@RequestBody CreateUserDto createUserDto,
-                                     HttpServletResponse response){
-
+    public ResponseEntity createUser(@Valid @RequestBody CreateUserDto createUserDto){
 
         String provider = createUserDto.getProvider();
 

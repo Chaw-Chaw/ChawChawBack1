@@ -26,7 +26,7 @@ public class SocialService {
 
         try {
             JsonNode jsonNode = objectMapper.readTree(userInfo);
-            socialDto.setEmail("kakao_" + jsonNode.get("id"));
+            socialDto.setEmail("k_" + jsonNode.get("id") + "@chawchaw.kr");
             String name = String.valueOf(jsonNode.get("kakao_account").get("profile").get("nickname"));
             socialDto.setName(name.substring(1, name.length() - 1));
             String imageUrl = String.valueOf(jsonNode.get("kakao_account").get("profile").get("profile_image_url"));
@@ -45,7 +45,7 @@ public class SocialService {
         String userInfo = facebookService.getUserInfoByAccessToken(userId, accessToken);
         try {
             JsonNode jsonNode = objectMapper.readTree(userInfo);
-            socialDto.setEmail("facebook_" + userId);
+            socialDto.setEmail("f_" + userId + "@chawchaw.kr");
             String name = String.valueOf(jsonNode.get("name"));
             socialDto.setName(name.substring(1, name.length() - 1));
             String imageUrl = String.valueOf(jsonNode.get("picture").get("data").get("url"));
