@@ -63,11 +63,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             /* 카카오 로그인 시 */
             if (user.getProvider().equals("kakao")) {
-                socialDto = socialService.verificationKakao(user.getCode());
+                socialDto = socialService.verificationKakao(user.getKakaoToken());
             }
             /* 페이스북 로그인 시 */
             else if (user.getProvider().equals("facebook")) {
-                socialDto = socialService.verificationFacebook(user.getEmail(), user.getAccessToken());
+                socialDto = socialService.verificationFacebook(user.getEmail(), user.getFacebookToken());
             }
 
             if (socialDto != null) {
@@ -107,8 +107,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String refreshToken = JWT.create()
                 .withSubject("RefreshToken")
                 .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getRefresh().getExpirationTime()))
-                .withClaim("email", principal.getUsername())
-                .withClaim("key", refreshKey)
+                .withClaim("key", principal.getId())
+                .withClaim("value", refreshKey)
                 .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
 
         response.addHeader(tokenProperties.getAccess().getHeader(), tokenProperties.getPrefix() + accessToken);

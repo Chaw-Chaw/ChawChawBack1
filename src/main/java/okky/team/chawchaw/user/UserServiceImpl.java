@@ -6,7 +6,10 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.follow.FollowRepository;
 import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
@@ -45,12 +48,10 @@ public class UserServiceImpl implements UserService{
     private final LanguageRepository languageRepository;
     private final UserLanguageRepository userLanguageRepository;
     private final UserHopeLanguageRepository userHopeLanguageRepository;
-    private final Environment env;
     private final RedisTemplate redisTemplate;
     private final AmazonS3 amazonS3;
+    private final TokenProperties tokenProperties;
     @Value("${user.profile.image.path}")
-    private String uploadPath;
-    @Value("${user.profile.image.default}")
     private String defaultImage;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -300,6 +301,28 @@ public class UserServiceImpl implements UserService{
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
         user.changeRefreshToken(refreshToken);
+    }
+
+    @Override
+    public String verificationRefreshToken(String refreshToken) {
+
+        Long key = JWT.require(Algorithm.HMAC512(tokenProperties.getSecret())).build().verify(refreshToken).getClaim("key").asLong();
+        String value = JWT.require(Algorithm.HMAC512(tokenProperties.getSecret())).build().verify(refreshToken).getClaim("value").asString();
+
+        if (key == null) {
+            return "";
+        }
+
+        UserEntity user = userRepository.findById(key).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+
+        if (user.getRefreshToken().equals(value)) {
+            return tokenProperties.getPrefix() + JWT.create()
+                    .withSubject("AccessToken")
+                    .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getAccess().getExpirationTime()))
+                    .withClaim("email", user.getEmail())
+                    .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
+        }
+        return "";
     }
 
     @Override

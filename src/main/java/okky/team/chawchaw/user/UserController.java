@@ -1,16 +1,18 @@
 package okky.team.chawchaw.user;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
+import okky.team.chawchaw.utils.message.ResponseAuthMessage;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +20,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -141,6 +142,28 @@ public class UserController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.DELETE_SUCCESS, true, result), HttpStatus.OK);
         else
             return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.DELETE_FAIL, false), HttpStatus.OK);
+    }
+
+    @PostMapping("/auth/refresh")
+    public ResponseEntity getAccessToken(HttpServletRequest request,
+                                         HttpServletResponse response) {
+
+        String refreshToken = request.getHeader("RefreshToken");
+        try {
+            String accessToken = userService.verificationRefreshToken(refreshToken);
+            if (!accessToken.isEmpty()) {
+                response.setHeader("Authorization", accessToken);
+                return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.VERIFICATION_SUCCESS, true), HttpStatus.OK);
+            }
+            else {
+                return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.UNAVAILABLE_REFRESH_TOKEN, false), HttpStatus.UNAUTHORIZED);
+            }
+        } catch (TokenExpiredException tokenExpiredException) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.EXPIRE_REFRESH_TOKEN, false), HttpStatus.UNAUTHORIZED);
+        } catch (JWTDecodeException jwtDecodeException) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.WRONG_REFRESH_TOKEN_FORM, false), HttpStatus.UNAUTHORIZED);
+        }
+
     }
 
 }

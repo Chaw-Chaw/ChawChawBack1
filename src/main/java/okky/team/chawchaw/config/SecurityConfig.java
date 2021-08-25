@@ -51,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/signup/**").permitAll()
                 .antMatchers("/users/login/**").permitAll()
                 .antMatchers("/users/email/duplicate/*").permitAll()
+                .antMatchers("/users/auth/**").permitAll()
                 .antMatchers("/mail/**").permitAll()
                 .antMatchers(HttpMethod.GET, "/users/image").permitAll()
                 .antMatchers("/chat/**").access("hasRole('ROLE_USER')")

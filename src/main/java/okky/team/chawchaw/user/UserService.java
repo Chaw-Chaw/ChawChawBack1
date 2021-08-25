@@ -20,6 +20,7 @@ public interface UserService {
     String deleteImage(String imageUrl, Long userId);
 
     void saveRefreshToken(Long userId, String refreshToken);
+    String verificationRefreshToken(String refreshToken);
 
     Boolean isUser(String email);
     Long getViews(Long userId);

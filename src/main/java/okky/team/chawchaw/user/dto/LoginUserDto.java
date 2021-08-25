@@ -13,7 +13,7 @@ public class LoginUserDto {
     String provider;
     String email;
     String password;
-    String code;
-    String accessToken;
+    String kakaoToken;
+    String facebookToken;
 
 }
