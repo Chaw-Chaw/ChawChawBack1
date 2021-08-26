@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService{
     private final RedisTemplate redisTemplate;
     private final AmazonS3 amazonS3;
     private final TokenProperties tokenProperties;
-    @Value("${user.profile.image.path}")
+    @Value("${user.profile.image.default}")
     private String defaultImage;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
