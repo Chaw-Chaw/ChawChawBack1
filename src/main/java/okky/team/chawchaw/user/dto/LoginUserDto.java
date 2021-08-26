@@ -1,9 +1,6 @@
 package okky.team.chawchaw.user.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -14,6 +11,7 @@ public class LoginUserDto {
     String email;
     String password;
     String kakaoToken;
+    String facebookId;
     String facebookToken;
 
 }

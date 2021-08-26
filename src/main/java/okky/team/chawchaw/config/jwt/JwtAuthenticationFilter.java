@@ -64,7 +64,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             /**
              * 소셜 로그인 시 토큰이 아닌 방식으로 접근하는 것을 제한
              */
-            if (user.getEmail().startsWith("f&") || user.getEmail().startsWith("k&")) {
+            if (user.getEmail() != null && (user.getEmail().startsWith("f&") || user.getEmail().startsWith("k&"))) {
                 writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.WRONG_LOGIN_ACCESS, false)));
                 return null;
             }
@@ -75,7 +75,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             }
             /* 페이스북 로그인 시 */
             else if (user.getProvider().equals("facebook")) {
-                socialDto = socialService.verificationFacebook(user.getEmail(), user.getFacebookToken());
+                socialDto = socialService.verificationFacebook(user.getFacebookId(), user.getFacebookToken());
             }
 
             if (socialDto != null) {
