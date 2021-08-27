@@ -22,7 +22,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -123,8 +123,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withClaim("value", refreshKey)
                 .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
 
+        Cookie refreshCookie = new Cookie(tokenProperties.getRefresh().getHeader(), refreshToken);
+
+        refreshCookie.setMaxAge(tokenProperties.getRefresh().getExpirationTime().intValue());
+        refreshCookie.setSecure(true);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+
+        response.addCookie(refreshCookie);
+
         response.addHeader(tokenProperties.getAccess().getHeader(), tokenProperties.getPrefix() + accessToken);
-        response.addHeader(tokenProperties.getRefresh().getHeader(), tokenProperties.getPrefix() + refreshToken);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter writer = response.getWriter();
