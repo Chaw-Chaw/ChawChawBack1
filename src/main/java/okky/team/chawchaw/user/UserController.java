@@ -4,6 +4,7 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
+import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
@@ -29,6 +30,7 @@ public class UserController {
 
     private final UserService userService;
     private final Environment env;
+    private final TokenProperties tokenProperties;
 
     @PostMapping("/signup")
     public ResponseEntity createUser(@Valid @RequestBody CreateUserDto createUserDto){
@@ -152,11 +154,25 @@ public class UserController {
     public ResponseEntity getAccessToken(HttpServletRequest request,
                                          HttpServletResponse response) {
 
-        String refreshToken = request.getHeader("RefreshToken");
+        String refreshToken = null;
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(tokenProperties.getRefresh().getHeader())) {
+                    refreshToken = cookie.getValue();
+                }
+            }
+        }
+
+        if (refreshToken == null) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.NOT_EXIST_REFRESH_TOKEN, false), HttpStatus.UNAUTHORIZED);
+        }
+
         try {
             String accessToken = userService.verificationRefreshToken(refreshToken);
             if (!accessToken.isEmpty()) {
-                response.setHeader("Authorization", accessToken);
+                response.setHeader(tokenProperties.getAccess().getHeader(), accessToken);
                 return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.VERIFICATION_SUCCESS, true), HttpStatus.OK);
             }
             else {
