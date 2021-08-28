@@ -17,7 +17,7 @@ create table users
     content       varchar(2000) null,
     email         varchar(255)  not null,
     facebook_url  varchar(255)  null,
-    image_url     varchar(1000) null,
+    image_url     varchar(255) null,
     instagram_url varchar(255)  null,
     name          varchar(255)  null,
     password      varchar(255)  not null,
@@ -27,8 +27,8 @@ create table users
     views         bigint        not null,
     web_email     varchar(255)  not null,
     rep_country       varchar(255) null,
-    rep_language      varchar(255) null,
-    rep_hope_language varchar(255) null,
+    rep_language      varchar(2) null,
+    rep_hope_language varchar(2) null,
     refresh_token varchar(255) null,
     unique (email)
 );

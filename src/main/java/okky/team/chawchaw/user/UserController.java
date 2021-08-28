@@ -65,7 +65,7 @@ public class UserController {
 
     @GetMapping("")
     public ResponseEntity<List<UserCardDto>> getUserCards(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                          @ModelAttribute FindUserVo findUserVo,
+                                                          @Valid @ModelAttribute FindUserVo findUserVo,
                                                           HttpServletRequest request) {
 
         findUserVo.getExclude().add(principalDetails.getId());
@@ -122,7 +122,7 @@ public class UserController {
 
     @PostMapping("/profile")
     public ResponseEntity updateUserProfile(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                            @RequestBody UpdateUserDto updateUserDto) {
+                                            @Valid @RequestBody UpdateUserDto updateUserDto) {
         updateUserDto.setId(principalDetails.getId());
 
         userService.updateProfile(updateUserDto);
