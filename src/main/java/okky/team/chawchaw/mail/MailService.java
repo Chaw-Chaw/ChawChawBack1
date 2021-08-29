@@ -1,12 +1,12 @@
 package okky.team.chawchaw.mail;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.mail.dto.MailDto;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor

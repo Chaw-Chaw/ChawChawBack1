@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 
 @Controller
@@ -17,7 +18,7 @@ public class ChatPubController {
     private final ChatService chatService;
 
     @MessageMapping("/message")
-    public void message(@RequestBody ChatMessageDto message) {
+    public void message(@Valid @RequestBody ChatMessageDto message) {
         if (message.getRegDate() == null) {
             message.setRegDate(LocalDateTime.now().withNano(0));
         }

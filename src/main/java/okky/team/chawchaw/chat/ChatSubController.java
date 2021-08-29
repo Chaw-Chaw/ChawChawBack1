@@ -14,6 +14,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class ChatSubController {
 
     @PostMapping("/room")
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                         @RequestBody CreateChatRoomDto createChatRoomDto) {
+                                         @Valid @RequestBody CreateChatRoomDto createChatRoomDto) {
 
         if (principalDetails.getId().equals(createChatRoomDto.getUserId()))
             throw new PointMyselfException();
