@@ -20,7 +20,7 @@ public class UpdateUserDto {
     private Set<String> language;
     @NotNull
     private Set<String> hopeLanguage;
-    @NotBlank
+    @NotNull
     @Length(max = 2000)
     private String content;
     @NotNull
