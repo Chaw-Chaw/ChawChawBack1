@@ -34,8 +34,6 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomUserRepository chatRoomUserRepository;
     private final UserRepository userRepository;
     private final AmazonS3 amazonS3;
-    @Value("${user.profile.image.default}")
-    private String defaultImage;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
     @Value("${cloud.front.domain}")
