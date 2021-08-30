@@ -242,7 +242,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public String uploadImage(MultipartFile file, Long userId) {
+    public String uploadProfileImage(MultipartFile file, Long userId) {
         try {
 
             UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
@@ -276,7 +276,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public String deleteImage(String imageUrl, Long userId) {
+    public String deleteProfileImage(String imageUrl, Long userId) {
         try {
             UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
