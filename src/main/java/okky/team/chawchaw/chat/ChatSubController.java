@@ -6,13 +6,14 @@ import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.PointMyselfException;
 import okky.team.chawchaw.utils.message.ResponseChatMessage;
-import org.modelmapper.ModelMapper;
+import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
@@ -74,6 +75,17 @@ public class ChatSubController {
         messagingTemplate.convertAndSend("/queue/chat/room/" + roomId, message);
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.DELETE_SUCCESS, true), HttpStatus.OK);
+    }
+
+    @PostMapping("/image")
+    public ResponseEntity updateChatImage(@RequestParam MultipartFile file) {
+
+        String result = chatService.uploadMessageImage(file);
+
+        if (!result.isEmpty())
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_SUCCESS, true, result), HttpStatus.OK);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_FAIL, false), HttpStatus.OK);
     }
 
 }

@@ -1,19 +1,23 @@
 package okky.team.chawchaw.chat;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.chat.dto.ChatDto;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
-import okky.team.chawchaw.chat.dto.ChatRoomDto;
 import okky.team.chawchaw.chat.room.ChatRoomEntity;
 import okky.team.chawchaw.chat.room.ChatRoomRepository;
 import okky.team.chawchaw.chat.room.ChatRoomUserEntity;
 import okky.team.chawchaw.chat.room.ChatRoomUserRepository;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
-import okky.team.chawchaw.utils.EntityToDto;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +33,12 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
     private final UserRepository userRepository;
+    private final AmazonS3 amazonS3;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+    @Value("${cloud.front.domain}")
+    private String cloudFrontDomain;
+
 
     @Override
     @Transactional(readOnly = false)
@@ -69,6 +79,28 @@ public class ChatServiceImpl implements ChatService {
             }
         }
         return result;
+    }
+
+    @Override
+    public String uploadMessageImage(MultipartFile file) {
+        try {
+
+            String fileName = file.getOriginalFilename();
+            String saveFileName = UUID.randomUUID().toString() + "_" + fileName;
+            String extension = fileName.substring(fileName.lastIndexOf(".") + 1);
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentType("image/" + extension);
+
+            amazonS3.putObject(new PutObjectRequest(bucket, saveFileName, file.getInputStream(), metadata).withCannedAcl(
+                    CannedAccessControlList.PublicRead
+            ));
+
+            return cloudFrontDomain + saveFileName;
+
+        } catch (Exception e) {
+            return "";
+        }
     }
 
     @Override

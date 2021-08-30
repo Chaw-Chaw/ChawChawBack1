@@ -134,7 +134,7 @@ public class UserController {
     @PostMapping("/image")
     public ResponseEntity uploadUserImage(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                           @RequestParam MultipartFile file) {
-            String result = userService.uploadImage(file, principalDetails.getId());
+            String result = userService.uploadProfileImage(file, principalDetails.getId());
             if (!result.isEmpty())
                 return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_SUCCESS, true, result), HttpStatus.OK);
             else
@@ -143,7 +143,7 @@ public class UserController {
 
     @DeleteMapping("/image")
     public ResponseEntity deleteUserImage(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        String result = userService.deleteImage(principalDetails.getImageUrl(), principalDetails.getId());
+        String result = userService.deleteProfileImage(principalDetails.getImageUrl(), principalDetails.getId());
         if (!result.isEmpty())
             return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.DELETE_SUCCESS, true, result), HttpStatus.OK);
         else

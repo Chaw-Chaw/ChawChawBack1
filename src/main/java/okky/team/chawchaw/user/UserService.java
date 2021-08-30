@@ -16,8 +16,8 @@ public interface UserService {
     UserProfileDto findUserProfile(UserEntity userEntity);
 
     UserDetailsDto updateProfile(UpdateUserDto updateUserDto);
-    String uploadImage(MultipartFile file, Long userId);
-    String deleteImage(String imageUrl, Long userId);
+    String uploadProfileImage(MultipartFile file, Long userId);
+    String deleteProfileImage(String imageUrl, Long userId);
 
     void saveRefreshToken(Long userId, String refreshToken);
     String verificationRefreshToken(String refreshToken);

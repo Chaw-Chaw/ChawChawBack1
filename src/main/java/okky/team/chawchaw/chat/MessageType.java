@@ -1,5 +1,5 @@
 package okky.team.chawchaw.chat;
 
 public enum MessageType {
-    ENTER, TALK, EXIT
+    ENTER, TALK, IMAGE, EXIT
 }
