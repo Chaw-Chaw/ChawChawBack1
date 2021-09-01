@@ -43,10 +43,10 @@ public class DummyConfig implements CommandLineRunner {
                 ArrayList<String> hopeLanguage = new ArrayList();
                 ArrayList<String> country = new ArrayList();
                 for (int j = 0; j < rd.nextInt(3) + 1; j++) {
-                    language.add(languages.get(rd.nextInt(181)).getAbbr());
+                    language.add(languages.get(rd.nextInt(104)).getAbbr());
                 }
                 for (int j = 0; j < rd.nextInt(3) + 1; j++) {
-                    hopeLanguage.add(languages.get(rd.nextInt(181)).getAbbr());
+                    hopeLanguage.add(languages.get(rd.nextInt(104)).getAbbr());
                 }
                 for (int j = 0; j < rd.nextInt(3) + 1; j++) {
                     country.add(countrys.get(rd.nextInt(249)).getName());

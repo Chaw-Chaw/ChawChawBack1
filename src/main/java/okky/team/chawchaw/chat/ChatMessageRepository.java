@@ -25,7 +25,8 @@ public class ChatMessageRepository {
     public void save(ChatMessageDto message) {
         String key = "message::" + message.getRoomId().toString() + "_" + UUID.randomUUID().toString();
         redisTemplate.opsForValue().set(key, message);
-        redisTemplate.expireAt(key, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
+        if (!message.getMessageType().equals(MessageType.ENTER))
+            redisTemplate.expireAt(key, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
     }
 
     public List<ChatMessageDto> findAllByRoomId(Long roomId) {
