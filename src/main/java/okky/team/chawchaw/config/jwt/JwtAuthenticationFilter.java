@@ -3,14 +3,14 @@ package okky.team.chawchaw.config.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.minidev.json.JSONObject;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.social.SocialService;
 import okky.team.chawchaw.social.dto.SocialDto;
-import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.user.dto.LoginUserDto;
+import okky.team.chawchaw.user.dto.TokenDto;
+import okky.team.chawchaw.user.dto.UserProfileTokenDto;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
@@ -132,11 +132,15 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.addCookie(refreshCookie);
 
-        response.addHeader(tokenProperties.getAccess().getHeader(), tokenProperties.getPrefix() + accessToken);
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         PrintWriter writer = response.getWriter();
-        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, userService.findUserProfile(principal.getUserEntity()))));
+
+        TokenDto tokenInfo = new TokenDto("JWT", accessToken, tokenProperties.getAccess().getExpirationTime(), tokenProperties.getRefresh().getExpirationTime());
+
+        UserProfileTokenDto responseBody = new UserProfileTokenDto(userService.findUserProfile(principal.getUserEntity()), tokenInfo);
+
+        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, responseBody)));
     }
 
 }

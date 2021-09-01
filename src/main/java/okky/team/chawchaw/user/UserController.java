@@ -172,8 +172,8 @@ public class UserController {
         try {
             String accessToken = userService.verificationRefreshToken(refreshToken);
             if (!accessToken.isEmpty()) {
-                response.setHeader(tokenProperties.getAccess().getHeader(), accessToken);
-                return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.VERIFICATION_SUCCESS, true), HttpStatus.OK);
+                TokenDto tokenInfo = new TokenDto("JWT", accessToken, tokenProperties.getAccess().getExpirationTime());
+                return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.VERIFICATION_SUCCESS, true, tokenInfo), HttpStatus.OK);
             }
             else {
                 return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.UNAVAILABLE_REFRESH_TOKEN, false), HttpStatus.UNAUTHORIZED);

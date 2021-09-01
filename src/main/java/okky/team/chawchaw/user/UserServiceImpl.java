@@ -316,7 +316,7 @@ public class UserServiceImpl implements UserService{
         UserEntity user = userRepository.findById(key).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
         if (user.getRefreshToken().equals(value)) {
-            return tokenProperties.getPrefix() + JWT.create()
+            return JWT.create()
                     .withSubject("AccessToken")
                     .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getAccess().getExpirationTime()))
                     .withClaim("email", user.getEmail())
