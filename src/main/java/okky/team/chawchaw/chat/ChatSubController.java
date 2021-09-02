@@ -70,7 +70,7 @@ public class ChatSubController {
         }
         ChatMessageDto message = new ChatMessageDto(
                 MessageType.EXIT, roomId, principalDetails.getId(), principalDetails.getName(),
-                principalDetails.getName() + "님이 퇴장하셨습니다.", LocalDateTime.now().withNano(0));
+                principalDetails.getName() + "님이 퇴장하셨습니다.", principalDetails.getImageUrl(), LocalDateTime.now().withNano(0));
 
         messagingTemplate.convertAndSend("/queue/chat/room/" + roomId, message);
 
@@ -78,7 +78,7 @@ public class ChatSubController {
     }
 
     @PostMapping("/image")
-    public ResponseEntity updateChatImage(@RequestParam MultipartFile file) {
+    public ResponseEntity uploadChatImage(@RequestParam MultipartFile file) {
 
         String result = chatService.uploadMessageImage(file);
 

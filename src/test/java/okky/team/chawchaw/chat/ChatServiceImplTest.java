@@ -77,15 +77,15 @@ class ChatServiceImplTest {
     public void 메시지_보내기() throws Exception {
         //when
         chatService.sendMessage(new ChatMessageDto(
-                1L, 1L, "테스터", "안녕하세요.", LocalDateTime.now()
+                MessageType.TALK, 1L, 1L, "테스터", "안녕하세요.", "default.png", LocalDateTime.now()
         ));
         Set<String> keys = redisTemplate.keys("*");
         List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
         //then
         Assertions.assertThat(result.size()).isEqualTo(1);
         Assertions.assertThat(result.get(0))
-                .extracting("roomId", "senderId", "sender", "message")
-                .contains(1L, 1L, "테스터", "안녕하세요.");
+                .extracting("messageType", "roomId", "senderId", "sender", "message")
+                .contains(MessageType.TALK, 1L, 1L, "테스터", "안녕하세요.");
     }
 
     @Test
@@ -107,7 +107,7 @@ class ChatServiceImplTest {
                 .build());
         ChatMessageDto room = chatService.createRoom(userFrom.getId(), userTo.getId());
         chatService.sendMessage(new ChatMessageDto(
-                room.getRoomId(), userTo.getId(), userTo.getName(), "마이크오바1", LocalDateTime.now()
+                MessageType.TALK, room.getRoomId(), userTo.getId(), userTo.getName(), "마이크오바1", userTo.getImageUrl(), LocalDateTime.now()
         ));
         //when
         List<ChatDto> result = chatService.findMessagesByUserId(userFrom.getId());
@@ -159,10 +159,10 @@ class ChatServiceImplTest {
                 .build());
         ChatMessageDto room = chatService.createRoom(userFrom.getId(), userTo.getId());
         chatService.sendMessage(new ChatMessageDto(
-                room.getRoomId(), userFrom.getId(), userFrom.getName(), "마이크오바1", LocalDateTime.now()
+                MessageType.TALK, room.getRoomId(), userFrom.getId(), userFrom.getName(), "마이크오바1", userTo.getImageUrl(), LocalDateTime.now()
         ));
         chatService.sendMessage(new ChatMessageDto(
-                room.getRoomId(), userTo.getId(), userTo.getName(), "마이크오바2", LocalDateTime.now()
+                MessageType.TALK, room.getRoomId(), userTo.getId(), userTo.getName(), "마이크오바2", userTo.getImageUrl(), LocalDateTime.now()
         ));
         //when
         chatService.deleteRoom(room.getRoomId());

@@ -48,7 +48,7 @@ public class ChatServiceImpl implements ChatService {
         UserEntity user2 = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         chatRoomUserRepository.save(new ChatRoomUserEntity(room, user));
         chatRoomUserRepository.save(new ChatRoomUserEntity(room, user2));
-        ChatMessageDto message = new ChatMessageDto(MessageType.ENTER, room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", LocalDateTime.now().withNano(0));
+        ChatMessageDto message = new ChatMessageDto(MessageType.ENTER, room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", user.getImageUrl(), LocalDateTime.now().withNano(0));
         chatMessageRepository.save(message);
         return message;
     }
@@ -72,7 +72,6 @@ public class ChatServiceImpl implements ChatService {
                             user.getChatRoom().getId(),
                             roomUsers.getUser().getId(),
                             roomUsers.getUser().getName(),
-                            roomUsers.getUser().getImageUrl(),
                             chatMessageRepository.findAllByRoomIdOrderByRegDateAsc(user.getChatRoom().getId())
                     ));
                 }

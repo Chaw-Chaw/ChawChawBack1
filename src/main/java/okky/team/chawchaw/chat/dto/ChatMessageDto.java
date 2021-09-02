@@ -26,6 +26,8 @@ public class ChatMessageDto implements Serializable {
     @NotBlank
     @Length(max = 2000)
     private String message;
+    @NotBlank
+    private String imageUrl;
     private LocalDateTime regDate;
 
 }
