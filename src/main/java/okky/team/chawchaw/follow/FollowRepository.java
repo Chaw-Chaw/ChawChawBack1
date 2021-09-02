@@ -18,6 +18,4 @@ public interface FollowRepository extends JpaRepository<FollowEntity, Long> {
     @Query("delete from FollowEntity f where f.userFrom = :userFrom or f.userTo = :userTo")
     void deleteByUserFromOrUserTo(@Param("userFrom") UserEntity userFrom, @Param("userTo") UserEntity userTo);
 
-    @Query("select f.userTo.id from FollowEntity f where f.userFrom.id = :userFrom and f.userTo.id in :userTos")
-    List<Long> isFollowTos(Long userFrom, List<Long> userTos);
 }

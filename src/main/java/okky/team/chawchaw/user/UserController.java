@@ -89,14 +89,6 @@ public class UserController {
 
         List<UserCardDto> result = userService.findUserCards(findUserVo);
 
-        /**
-         * 각 회원 카드 팔로우 여부 추가
-         */
-        List<Long> followTos = followService.isFollowTos(principalDetails.getId(), result.stream().map(UserCardDto::getId).collect(Collectors.toList()));
-        for (UserCardDto userCardDto : result) {
-            userCardDto.setIsFollow(followTos.contains(userCardDto.getId()));
-        }
-
         if (result.isEmpty())
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_NOT_EXIST, false), HttpStatus.OK);
         else
@@ -113,6 +105,7 @@ public class UserController {
 
         UserDetailsDto result = userService.findUserDetails(userId);
         result.setViews(userService.getViews(userId));
+        result.setIsFollow(followService.isFollow(principalDetails.getId(), userId));
 
         if (result != null)
             return new ResponseEntity(DefaultResponseVo.res(

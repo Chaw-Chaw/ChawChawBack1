@@ -79,9 +79,8 @@ class FollowServiceTest {
     }
 
     @Test
-    public void 팔로우_했던_상대들_인지_확인() throws Exception {
+    public void 팔로우_상대_확인() throws Exception {
         //given
-        List<Long> userIds = new ArrayList<>();
         UserEntity userFrom = userRepository.save(UserEntity.builder()
                 .email("mangchhe@naver.com")
                 .password("1234")
@@ -89,22 +88,27 @@ class FollowServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        for (int i = 0; i < 3; i++) {
-            UserEntity userTo = userRepository.save(UserEntity.builder()
-                    .email("mangchhe" + i + "@naver.com")
-                    .password("1234")
-                    .name("이름")
-                    .web_email("웹메일")
-                    .school("학교")
-                    .build());
-            userIds.add(userTo.getId());
-            if (i < 2)
-                followService.addFollow(userFrom, userTo.getId());
-        }
+        UserEntity userTo = userRepository.save(UserEntity.builder()
+                .email("mangchhe1@naver.com")
+                .password("1234")
+                .name("이름")
+                .web_email("웹메일")
+                .school("학교")
+                .build());
+        UserEntity userTo2 = userRepository.save(UserEntity.builder()
+                .email("mangchhe2@naver.com")
+                .password("1234")
+                .name("이름")
+                .web_email("웹메일")
+                .school("학교")
+                .build());
+        followService.addFollow(userFrom, userTo.getId());
         //when
-        List<Long> followTos = followService.isFollowTos(userFrom.getId(), userIds);
+        Boolean result = followService.isFollow(userFrom.getId(), userTo.getId());
+        Boolean result2 = followService.isFollow(userFrom.getId(), userTo2.getId());
         //then
-        Assertions.assertThat(followTos).containsOnly(userIds.get(0), userIds.get(1));
+        Assertions.assertThat(result).isEqualTo(true);
+        Assertions.assertThat(result2).isEqualTo(false);
     }
 
 }

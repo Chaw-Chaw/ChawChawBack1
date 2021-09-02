@@ -18,7 +18,6 @@ public class UserCardDto {
     LocalDateTime days;
     Long views;
     Integer follows;
-    Boolean isFollow;
 
     public UserCardDto(Long id, String name, String imageUrl, String content, String repCountry, String repLanguage, String repHopeLanguage, LocalDateTime days, Integer follows) {
         this.id = id;

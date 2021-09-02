@@ -22,6 +22,6 @@ public interface FollowService {
      */
     Boolean deleteFollow(UserEntity userFrom, Long userTo);
 
-    List<Long> isFollowTos(Long userFrom, List<Long> userTo);
+    Boolean isFollow(Long userFrom, Long userTo);
 
 }

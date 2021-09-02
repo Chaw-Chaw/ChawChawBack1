@@ -44,8 +44,8 @@ public class FollowServiceImpl implements FollowService{
     }
 
     @Override
-    public List<Long> isFollowTos(Long userFrom, List<Long> userTo) {
+    public Boolean isFollow(Long userFrom, Long userTo) {
 
-        return followRepository.isFollowTos(userFrom, userTo);
+        return followRepository.isFollow(userFrom, userTo);
     }
 }

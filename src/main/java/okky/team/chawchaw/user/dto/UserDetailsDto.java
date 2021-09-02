@@ -27,5 +27,6 @@ public class UserDetailsDto implements Serializable {
     LocalDateTime days;
     Long views;
     Long follows;
+    Boolean isFollow;
 
 }
