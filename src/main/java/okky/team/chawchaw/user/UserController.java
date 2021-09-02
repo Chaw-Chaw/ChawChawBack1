@@ -5,6 +5,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.properties.TokenProperties;
+import okky.team.chawchaw.follow.FollowService;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
@@ -22,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +31,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final FollowService followService;
     private final Environment env;
     private final TokenProperties tokenProperties;
 
@@ -85,6 +88,14 @@ public class UserController {
         findUserVo.setSchool(principalDetails.getSchool());
 
         List<UserCardDto> result = userService.findUserCards(findUserVo);
+
+        /**
+         * 각 회원 카드 팔로우 여부 추가
+         */
+        List<Long> followTos = followService.isFollowTos(principalDetails.getId(), result.stream().map(UserCardDto::getId).collect(Collectors.toList()));
+        for (UserCardDto userCardDto : result) {
+            userCardDto.setIsFollow(followTos.contains(userCardDto.getId()));
+        }
 
         if (result.isEmpty())
             return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_NOT_EXIST, false), HttpStatus.OK);

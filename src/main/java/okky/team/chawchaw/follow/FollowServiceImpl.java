@@ -3,10 +3,11 @@ package okky.team.chawchaw.follow;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -40,5 +41,11 @@ public class FollowServiceImpl implements FollowService{
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<Long> isFollowTos(Long userFrom, List<Long> userTo) {
+
+        return followRepository.isFollowTos(userFrom, userTo);
     }
 }

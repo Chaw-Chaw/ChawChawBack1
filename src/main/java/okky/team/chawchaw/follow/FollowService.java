@@ -2,6 +2,8 @@ package okky.team.chawchaw.follow;
 
 import okky.team.chawchaw.user.UserEntity;
 
+import java.util.List;
+
 public interface FollowService {
 
     /**
@@ -10,7 +12,7 @@ public interface FollowService {
      * @param userTo
      * @return Boolean
      */
-    public Boolean addFollow(UserEntity userFrom, Long userTo);
+    Boolean addFollow(UserEntity userFrom, Long userTo);
 
     /**
      * 언팔로우
@@ -18,6 +20,8 @@ public interface FollowService {
      * @param userTo
      * @return Boolean
      */
-    public Boolean deleteFollow(UserEntity userFrom, Long userTo);
+    Boolean deleteFollow(UserEntity userFrom, Long userTo);
+
+    List<Long> isFollowTos(Long userFrom, List<Long> userTo);
 
 }

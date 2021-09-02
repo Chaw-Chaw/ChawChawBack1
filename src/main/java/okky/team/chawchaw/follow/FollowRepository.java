@@ -1,12 +1,12 @@
 package okky.team.chawchaw.follow;
 
 import okky.team.chawchaw.user.UserEntity;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface FollowRepository extends JpaRepository<FollowEntity, Long> {
 
@@ -17,4 +17,7 @@ public interface FollowRepository extends JpaRepository<FollowEntity, Long> {
     @Modifying
     @Query("delete from FollowEntity f where f.userFrom = :userFrom or f.userTo = :userTo")
     void deleteByUserFromOrUserTo(@Param("userFrom") UserEntity userFrom, @Param("userTo") UserEntity userTo);
+
+    @Query("select f.userTo.id from FollowEntity f where f.userFrom.id = :userFrom and f.userTo.id in :userTos")
+    List<Long> isFollowTos(Long userFrom, List<Long> userTos);
 }
