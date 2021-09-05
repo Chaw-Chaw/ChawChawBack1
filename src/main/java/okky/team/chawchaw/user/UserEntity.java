@@ -7,6 +7,8 @@ import okky.team.chawchaw.user.language.UserHopeLanguageEntity;
 import okky.team.chawchaw.user.language.UserLanguageEntity;
 import okky.team.chawchaw.utils.RoleAttributeConverter;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import java.util.List;
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@DynamicInsert @DynamicUpdate
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +44,7 @@ public class UserEntity {
     private String repLanguage;
     private String repHopeLanguage;
     private String refreshToken;
+    @Column(nullable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private LocalDateTime lastLogout;
 
@@ -59,7 +63,8 @@ public class UserEntity {
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
     private LocalDateTime regDate;
     @Column(nullable = false)
-    private Long views = 0L;
+    @ColumnDefault("0")
+    private Long views;
     @Column(nullable = false)
     @Convert(converter = RoleAttributeConverter.class)
     private Role role;

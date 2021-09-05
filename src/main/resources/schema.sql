@@ -24,7 +24,7 @@ create table users
     reg_date      DATETIME default CURRENT_TIMESTAMP,
     role          varchar(255)  not null,
     school        varchar(255)  not null,
-    views         bigint        not null,
+    views         bigint default 0  not null,
     web_email     varchar(255)  not null,
     rep_country       varchar(255) null,
     rep_language      varchar(2) null,
