@@ -3,21 +3,19 @@ package okky.team.chawchaw.config;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.jwt.JwtAuthenticationFilter;
 import okky.team.chawchaw.config.jwt.JwtAuthorizationFilter;
+import okky.team.chawchaw.config.jwt.JwtLogoutSuccessHandler;
 import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.social.SocialService;
-import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -47,6 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), env, userRepository))
                 .formLogin().disable()
                 .httpBasic().disable()
+                .logout().logoutSuccessHandler(new JwtLogoutSuccessHandler(userService, env)).and()
                 .authorizeRequests()
                 .antMatchers("/users/signup/**").permitAll()
                 .antMatchers("/users/login/**").permitAll()

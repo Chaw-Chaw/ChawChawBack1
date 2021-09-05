@@ -7,7 +7,6 @@ import okky.team.chawchaw.user.language.UserHopeLanguageEntity;
 import okky.team.chawchaw.user.language.UserLanguageEntity;
 import okky.team.chawchaw.utils.RoleAttributeConverter;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.DynamicInsert;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -42,6 +41,8 @@ public class UserEntity {
     private String repLanguage;
     private String repHopeLanguage;
     private String refreshToken;
+    @ColumnDefault(value = "CURRENT_TIMESTAMP")
+    private LocalDateTime lastLogout;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<UserCountryEntity> userCountrys = new ArrayList<>();
@@ -104,6 +105,7 @@ public class UserEntity {
     public void changeRole(Role role) { this.role = role; }
     public void changeRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     public void changeViews(Long views) { this.views = views; }
+    public void changeLastLogout(LocalDateTime lastLogout) {  this.lastLogout = lastLogout; }
     public void plusViews() {
         this.views += 1;
     }

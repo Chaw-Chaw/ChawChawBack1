@@ -19,6 +19,7 @@ public interface UserService {
     String uploadProfileImage(MultipartFile file, Long userId);
     String deleteProfileImage(String imageUrl, Long userId);
 
+    void updateLastLogout(String email);
     void saveRefreshToken(Long userId, String refreshToken);
     String verificationRefreshToken(String refreshToken);
 

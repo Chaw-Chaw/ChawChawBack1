@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -293,6 +294,13 @@ public class UserServiceImpl implements UserService{
         } catch (Exception e) {
             return "";
         }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void updateLastLogout(String email) {
+        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("유저를 찾지 못함"));
+        user.changeLastLogout(LocalDateTime.now());
     }
 
     @Override

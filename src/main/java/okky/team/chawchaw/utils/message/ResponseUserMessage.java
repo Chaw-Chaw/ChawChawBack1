@@ -4,6 +4,8 @@ public class ResponseUserMessage {
 
     public static final String LOGIN_SUCCESS = "로그인 성공";
     public static final String LOGIN_FAIL = "로그인 실패";
+    public static final String LOGOUT_SUCCESS = "로그아웃 성공";
+    public static final String LOGOUT_FAIL = "로그아웃 실패";
     public static final String EMAIL_EXIST = "해당 이메일이 존재함";
     public static final String EMAIL_NOT_EXIST = "해당 이메일이 존재하지 않음";
     public static final String ID_NOT_EXIST = "해당 아이디가 존재하지 않음";
