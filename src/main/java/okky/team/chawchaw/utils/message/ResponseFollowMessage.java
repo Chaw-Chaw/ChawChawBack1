@@ -11,6 +11,6 @@ public class ResponseFollowMessage {
     public static final String DELETE_SUCCESS = "언팔로우 성공";
     public static final String DELETE_FAIL = "언팔로우 실패";
     public static final String EXIST_FOLLOW = "이미 팔로우한 대상";
-    public static final String NOT_EXIST_FOLLOW = "대상이 존재하지 않음";
+    public static final String NOT_EXIST_FOLLOW = "팔로우하지 않은 대상";
 
 }

@@ -49,6 +49,7 @@ public class ChatSubController {
         result = chatService.findMessagesByUserId(principalDetails.getId());
 
         messagingTemplate.convertAndSend("/queue/chat/room/wait/" + createChatRoomDto.getUserId(), message);
+        messagingTemplate.convertAndSend("/queue/alarm/chat/" + createChatRoomDto.getUserId(), message);
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
     }

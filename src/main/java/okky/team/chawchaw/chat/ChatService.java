@@ -2,9 +2,9 @@ package okky.team.chawchaw.chat;
 
 import okky.team.chawchaw.chat.dto.ChatDto;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
-import okky.team.chawchaw.chat.dto.ChatRoomDto;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatService {
@@ -13,6 +13,7 @@ public interface ChatService {
     void deleteRoom(Long roomId);
 
     List<ChatDto> findMessagesByUserId(Long userId);
+    List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId, LocalDateTime regDate);
 
     String uploadMessageImage(MultipartFile file);
 

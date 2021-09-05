@@ -4,6 +4,7 @@ import okky.team.chawchaw.user.UserEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -39,7 +40,8 @@ public class PrincipalDetails implements UserDetails {
     public Long getId() { return userEntity.getId(); }
     public String getName() { return userEntity.getName(); }
     public String getSchool() { return userEntity.getSchool(); }
-    public String getImageUrl() {return userEntity.getImageUrl(); }
+    public String getImageUrl() { return userEntity.getImageUrl(); }
+    public LocalDateTime getLastLogout() { return userEntity.getLastLogout(); }
 
     @Override
     public boolean isAccountNonExpired() {

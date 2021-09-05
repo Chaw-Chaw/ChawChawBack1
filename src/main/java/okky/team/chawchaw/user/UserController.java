@@ -3,9 +3,12 @@ package okky.team.chawchaw.user;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.chat.ChatService;
+import okky.team.chawchaw.chat.dto.ChatMessageDto;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.follow.FollowService;
+import okky.team.chawchaw.follow.dto.FollowMessageDto;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
@@ -22,6 +25,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +36,7 @@ public class UserController {
 
     private final UserService userService;
     private final FollowService followService;
+    private final ChatService chatService;
     private final Environment env;
     private final TokenProperties tokenProperties;
 
@@ -187,7 +192,13 @@ public class UserController {
         } catch (JWTDecodeException jwtDecodeException) {
             return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.WRONG_REFRESH_TOKEN_FORM, false), HttpStatus.UNAUTHORIZED);
         }
+    }
 
+    @GetMapping("/alarm")
+    public AlarmDto getAlarm(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+        List<ChatMessageDto> messages = chatService.findMessagesByUserIdAndRegDate(principalDetails.getId(), principalDetails.getLastLogout());
+        List<FollowMessageDto> follows = followService.findMessagesByUserId(principalDetails.getId());
+        return new AlarmDto(messages, follows);
     }
 
 }

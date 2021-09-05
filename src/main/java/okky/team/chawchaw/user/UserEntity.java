@@ -78,7 +78,7 @@ public class UserEntity {
         this.role = role == null ? Role.GUEST : role;
         this.repCountry = repCountry == null ? "" : repCountry;
         this.repLanguage = repLanguage == null ? "" : repLanguage;
-        this.repHopeLanguage= repHopeLanguage == null ? "" : repHopeLanguage;
+        this.repHopeLanguage = repHopeLanguage == null ? "" : repHopeLanguage;
     }
 
     public void changeImageUrl(String imageUrl) {

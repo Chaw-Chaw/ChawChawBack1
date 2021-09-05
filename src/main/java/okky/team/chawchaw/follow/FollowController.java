@@ -2,11 +2,13 @@ package okky.team.chawchaw.follow;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
+import okky.team.chawchaw.follow.dto.FollowMessageDto;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.PointMyselfException;
 import okky.team.chawchaw.utils.message.ResponseFollowMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class FollowController {
 
     private final FollowService followService;
+    private final SimpMessageSendingOperations messagingTemplate;
 
     @PostMapping("follow/{userId}")
     public ResponseEntity createFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -26,25 +29,30 @@ public class FollowController {
         if (principalDetails.getId().equals(userId))
             throw new PointMyselfException();
 
-        Boolean result = followService.addFollow(principalDetails.getUserEntity(), userId);
+        FollowMessageDto result = followService.addFollow(principalDetails.getUserEntity(), userId);
 
-        if (result)
+        if (result != null) {
+            messagingTemplate.convertAndSend("/queue/alarm/follow/" + userId, result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
-        else
+        }
+        else {
             return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.EXIST_FOLLOW, false), HttpStatus.OK);
+        }
     }
 
     @DeleteMapping("follow/{userId}")
-    public ResponseEntity<Boolean> deleteFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                @PathVariable Long userId) {
+    public ResponseEntity deleteFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                       @PathVariable Long userId) {
 
-        Boolean result = followService.deleteFollow(principalDetails.getUserEntity(), userId);
+        FollowMessageDto result = followService.deleteFollow(principalDetails.getUserEntity(), userId);
 
-        if (result)
+        if (result != null) {
+            messagingTemplate.convertAndSend("/queue/alarm/follow/" + userId, result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_SUCCESS, true), HttpStatus.OK);
-        else
+        }
+        else {
             return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.NOT_EXIST_FOLLOW, false), HttpStatus.OK);
-
+        }
     }
 
 }
