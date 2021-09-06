@@ -28,7 +28,7 @@ public class FollowServiceImpl implements FollowService{
 
         if (!followRepository.isFollow(userFrom.getId(), userTo)) {
             FollowEntity follow = followRepository.save(new FollowEntity(userFrom, user));
-            FollowMessageDto result = new FollowMessageDto(FollowType.FOLLOW, userFrom.getName(), follow.getRegDate());
+            FollowMessageDto result = new FollowMessageDto(FollowType.FOLLOW, userFrom.getName(), LocalDateTime.now().withNano(0));
             followMessageRepository.save(result, userTo);
             return result;
         }

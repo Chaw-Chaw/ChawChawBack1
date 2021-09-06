@@ -2,6 +2,7 @@ package okky.team.chawchaw.chat;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
+import okky.team.chawchaw.chat.room.ChatRoomUserService;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ public class ChatPubController {
 
     private final SimpMessageSendingOperations messagingTemplate;
     private final ChatService chatService;
+    private final ChatRoomUserService chatRoomUserService;
 
     @MessageMapping("/message")
     public void message(@Valid @RequestBody ChatMessageDto message) {
@@ -27,6 +29,12 @@ public class ChatPubController {
         }
         chatService.sendMessage(message);
         messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);
+        for (Long userId : chatRoomUserService.findUserIdsByChatRoomId(message.getRoomId())) {
+            if (!message.getSenderId().equals(userId)) {
+                messagingTemplate.convertAndSend("/queue/alarm/chat/" + userId, message);
+            }
+        }
+
     }
 
 }

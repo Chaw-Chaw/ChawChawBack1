@@ -1,5 +1,6 @@
 package okky.team.chawchaw.chat.room;
 
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -8,6 +9,7 @@ import java.util.List;
 public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUserEntity, Long> {
 
     List<ChatRoomUserEntity> findAllByUserId(Long userId);
+    @EntityGraph(attributePaths = {"chatRoom", "user"})
     List<ChatRoomUserEntity> findAllByChatRoomId(Long roomId);
 
     @Query( "select count(ru.chatRoom) > 0 " +
