@@ -298,13 +298,6 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public void updateLastLogout(String email) {
-        UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("유저를 찾지 못함"));
-        user.changeLastLogout(LocalDateTime.now());
-    }
-
-    @Override
-    @Transactional(readOnly = false)
     public void saveRefreshToken(Long userId, String refreshToken) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 

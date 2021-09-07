@@ -82,27 +82,27 @@ public class ChatServiceImpl implements ChatService {
         return result;
     }
 
-    /**
-     * 해당 유저가 가지고 있는 메시지 중에서 regDate 보다 이후에 들어온 메시지를 찾는다.
-     * @param userId
-     * @param regDate
-     * @return 조건에 맞는 메시지 집합
-     */
-    @Override
-    public List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId, LocalDateTime regDate) {
-        List<ChatMessageDto> result = new ArrayList<>();
-        List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
-        for (ChatRoomUserEntity user : users) {
-            for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
-                if (!roomUsers.getUser().getId().equals(userId)) {
-                    List<ChatMessageDto> messages = chatMessageRepository.findAllByRoomId(user.getChatRoom().getId());
-                    messages.stream().filter(x -> x.getRegDate().isAfter(regDate)).forEach(result::add);
-                }
-            }
-        }
-        result.sort(Comparator.comparing(ChatMessageDto::getRegDate).reversed());
-        return result;
-    }
+//    /**
+//     * 해당 유저가 가지고 있는 메시지 중에서 regDate 보다 이후에 들어온 메시지를 찾는다.
+//     * @param userId
+//     * @param regDate
+//     * @return 조건에 맞는 메시지 집합
+//     */
+//    @Override
+//    public List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId, LocalDateTime regDate) {
+//        List<ChatMessageDto> result = new ArrayList<>();
+//        List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
+//        for (ChatRoomUserEntity user : users) {
+//            for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
+//                if (!roomUsers.getUser().getId().equals(userId)) {
+//                    List<ChatMessageDto> messages = chatMessageRepository.findAllByRoomId(user.getChatRoom().getId());
+//                    messages.stream().filter(x -> x.getRegDate().isAfter(regDate)).forEach(result::add);
+//                }
+//            }
+//        }
+//        result.sort(Comparator.comparing(ChatMessageDto::getRegDate).reversed());
+//        return result;
+//    }
 
     @Override
     public String uploadMessageImage(MultipartFile file) {

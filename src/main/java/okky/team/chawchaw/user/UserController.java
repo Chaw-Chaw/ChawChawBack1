@@ -196,9 +196,10 @@ public class UserController {
 
     @GetMapping("/alarm")
     public AlarmDto getAlarm(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        List<ChatMessageDto> messages = chatService.findMessagesByUserIdAndRegDate(principalDetails.getId(), principalDetails.getLastLogout());
+//        List<ChatMessageDto> messages = chatService.findMessagesByUserIdAndRegDate(principalDetails.getId(), principalDetails.getLastLogout());
         List<FollowMessageDto> follows = followService.findMessagesByUserId(principalDetails.getId());
-        return new AlarmDto(messages, follows);
+//        return new AlarmDto(messages, follows);
+        return null;
     }
 
 }

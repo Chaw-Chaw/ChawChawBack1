@@ -13,7 +13,7 @@ public interface ChatService {
     void deleteRoom(Long roomId);
 
     List<ChatDto> findMessagesByUserId(Long userId);
-    List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId, LocalDateTime regDate);
+//    List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId, LocalDateTime regDate);
 
     String uploadMessageImage(MultipartFile file);
 

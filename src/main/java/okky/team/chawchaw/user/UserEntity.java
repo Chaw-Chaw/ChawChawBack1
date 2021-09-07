@@ -44,9 +44,6 @@ public class UserEntity {
     private String repLanguage;
     private String repHopeLanguage;
     private String refreshToken;
-    @Column(nullable = false)
-    @ColumnDefault(value = "CURRENT_TIMESTAMP")
-    private LocalDateTime lastLogout;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<UserCountryEntity> userCountrys = new ArrayList<>();
@@ -110,7 +107,6 @@ public class UserEntity {
     public void changeRole(Role role) { this.role = role; }
     public void changeRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
     public void changeViews(Long views) { this.views = views; }
-    public void changeLastLogout(LocalDateTime lastLogout) {  this.lastLogout = lastLogout; }
     public void plusViews() {
         this.views += 1;
     }

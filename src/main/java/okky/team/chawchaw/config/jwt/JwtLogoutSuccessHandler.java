@@ -50,8 +50,6 @@ public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
                     .getClaim("email")
                     .asString();
 
-            userService.updateLastLogout(email);
-
         } catch (Exception e) {
             writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGOUT_FAIL, false)));
             return;

@@ -30,7 +30,6 @@ create table users
     rep_language      varchar(2) null,
     rep_hope_language varchar(2) null,
     refresh_token varchar(255) null,
-    last_logout      DATETIME default CURRENT_TIMESTAMP,
     unique (email)
 );
 
