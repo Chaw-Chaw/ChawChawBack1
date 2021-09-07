@@ -1,7 +1,5 @@
 package okky.team.chawchaw.config.jwt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
@@ -12,12 +10,10 @@ import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseAuthMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
-import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.FilterChain;
@@ -29,14 +25,14 @@ import java.io.PrintWriter;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
-    private Environment env;
     private UserRepository userRepository;
+    private JwtTokenProvider jwtTokenProvider;
     private ObjectMapper mapper = new ObjectMapper();
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, Environment env, UserRepository userRepository) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
         super(authenticationManager);
-        this.env = env;
         this.userRepository = userRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -57,11 +53,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             }
 
             String token = jwtHeader.replace("Bearer ", "");
-            String email = JWT.require(Algorithm.HMAC512(env.getProperty("token.secret")))
-                    .build()
-                    .verify(token)
-                    .getClaim("email")
-                    .asString();
+            String email = jwtTokenProvider.getClaimByTokenAndKey(token, "email").asString();
 
             if (email == null) {
                 throw new JWTDecodeException("JWT 포맷 오류");

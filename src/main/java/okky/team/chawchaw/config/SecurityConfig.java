@@ -1,9 +1,7 @@
 package okky.team.chawchaw.config;
 
 import lombok.RequiredArgsConstructor;
-import okky.team.chawchaw.config.jwt.JwtAuthenticationFilter;
-import okky.team.chawchaw.config.jwt.JwtAuthorizationFilter;
-import okky.team.chawchaw.config.jwt.JwtLogoutSuccessHandler;
+import okky.team.chawchaw.config.jwt.*;
 import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.social.SocialService;
 import okky.team.chawchaw.user.UserRepository;
@@ -30,6 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserService userService;
     private final SocialService socialService;
     private final TokenProperties tokenProperties;
+    private final JwtTokenProvider jwtTokenProvider;
     @Value("${front.domain}")
     private String frontDomain;
     @Value("${front.domain-local}")
@@ -41,8 +40,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(corsFilter())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), env, userService, socialService, tokenProperties))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), env, userRepository))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userService, socialService, env, tokenProperties, jwtTokenProvider))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, jwtTokenProvider))
                 .formLogin().disable()
                 .httpBasic().disable()
                 .logout().logoutSuccessHandler(new JwtLogoutSuccessHandler(userService, env)).and()

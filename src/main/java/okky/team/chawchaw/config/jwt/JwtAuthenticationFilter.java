@@ -1,7 +1,5 @@
 package okky.team.chawchaw.config.jwt;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.properties.TokenProperties;
@@ -27,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.UUID;
 
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -35,16 +32,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private AuthenticationManager authenticationManager;
     private UserService userService;
     private SocialService socialService;
-    private ObjectMapper mapper = new ObjectMapper();
-    private TokenProperties tokenProperties;
     private Environment env;
+    private TokenProperties tokenProperties;
+    private JwtTokenProvider jwtTokenProvider;
+    private ObjectMapper mapper = new ObjectMapper();
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, Environment env, UserService userService, SocialService socialService, TokenProperties tokenProperties) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, SocialService socialService, Environment env, TokenProperties tokenProperties, JwtTokenProvider jwtTokenProvider) {
         this.authenticationManager = authenticationManager;
-        this.env = env;
         this.userService = userService;
         this.socialService = socialService;
+        this.env = env;
         this.tokenProperties = tokenProperties;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -110,18 +109,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String refreshKey = UUID.randomUUID().toString();
         userService.saveRefreshToken(principal.getId(), refreshKey);
 
-        String accessToken = JWT.create()
-                .withSubject("AccessToken")
-                .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getAccess().getExpirationTime()))
-                .withClaim("email", principal.getUsername())
-                .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
-
-        String refreshToken = JWT.create()
-                .withSubject("RefreshToken")
-                .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getRefresh().getExpirationTime()))
-                .withClaim("key", principal.getId())
-                .withClaim("value", refreshKey)
-                .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
+        String accessToken = jwtTokenProvider.createToken(principal.getUsername());
+        String refreshToken = jwtTokenProvider.createToken(principal.getId(), refreshKey);
 
         Cookie refreshCookie = new Cookie(tokenProperties.getRefresh().getHeader(), refreshToken);
 

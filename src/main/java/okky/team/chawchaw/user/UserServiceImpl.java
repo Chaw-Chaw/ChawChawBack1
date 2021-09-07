@@ -1,15 +1,12 @@
 package okky.team.chawchaw.user;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.internal.Mimetypes;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import lombok.RequiredArgsConstructor;
-import okky.team.chawchaw.config.properties.TokenProperties;
+import okky.team.chawchaw.config.jwt.JwtTokenProvider;
 import okky.team.chawchaw.follow.FollowRepository;
 import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
@@ -22,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.env.Environment;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -51,7 +46,7 @@ public class UserServiceImpl implements UserService{
     private final UserHopeLanguageRepository userHopeLanguageRepository;
     private final RedisTemplate redisTemplate;
     private final AmazonS3 amazonS3;
-    private final TokenProperties tokenProperties;
+    private final JwtTokenProvider jwtTokenProvider;
     @Value("${user.profile.image.default}")
     private String defaultImage;
     @Value("${cloud.aws.s3.bucket}")
@@ -307,8 +302,8 @@ public class UserServiceImpl implements UserService{
     @Override
     public String verificationRefreshToken(String refreshToken) {
 
-        Long key = JWT.require(Algorithm.HMAC512(tokenProperties.getSecret())).build().verify(refreshToken).getClaim("key").asLong();
-        String value = JWT.require(Algorithm.HMAC512(tokenProperties.getSecret())).build().verify(refreshToken).getClaim("value").asString();
+        Long key = jwtTokenProvider.getClaimByTokenAndKey(refreshToken, "key").asLong();
+        String value = jwtTokenProvider.getClaimByTokenAndKey(refreshToken, "value").asString();
 
         if (key == null) {
             return "";
@@ -317,11 +312,7 @@ public class UserServiceImpl implements UserService{
         UserEntity user = userRepository.findById(key).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
         if (user.getRefreshToken().equals(value)) {
-            return JWT.create()
-                    .withSubject("AccessToken")
-                    .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getAccess().getExpirationTime()))
-                    .withClaim("email", user.getEmail())
-                    .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
+            return jwtTokenProvider.createToken(user.getEmail());
         }
         return "";
     }
