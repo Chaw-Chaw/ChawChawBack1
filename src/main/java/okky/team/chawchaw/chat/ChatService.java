@@ -18,5 +18,7 @@ public interface ChatService {
     String uploadMessageImage(MultipartFile file);
 
     void sendMessage(ChatMessageDto chatMessageDto);
+    Boolean updateCurrentRoom(String email, Long roomId);
     Boolean isRoom(Long userId, Long userId2);
+    Boolean isConnection(String email, Long roomId);
 }

@@ -61,6 +61,17 @@ public class ChatSubController {
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
     }
 
+    @PostMapping("/room/enter")
+    public ResponseEntity updateCurrentRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                            @RequestBody ChatRoomDto chatRoomDto) {
+
+        Boolean result = chatService.updateCurrentRoom(principalDetails.getUsername(), chatRoomDto.getRoomId());
+        if (result)
+            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.MOVE_ROOM_SUCCESS, true), HttpStatus.OK);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.MOVE_ROOM_FAIL, false), HttpStatus.OK);
+    }
+
     @DeleteMapping("/room/{roomId}")
     public ResponseEntity deleteChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @PathVariable Long roomId) {

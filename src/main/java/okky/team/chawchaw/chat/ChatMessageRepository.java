@@ -5,6 +5,9 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -55,5 +58,29 @@ public class ChatMessageRepository {
         }
         keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, "", 1, TimeUnit.MILLISECONDS));
     }
+
+    public Boolean isSession(String email, Long roomId) {
+        Object currentRoomId = redisTemplate.opsForValue().get("ws::" + email);
+        if (currentRoomId == null || !currentRoomId.equals(roomId)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Cacheable(value = "ws", key = "#email")
+    public Long createSession(String email) {
+        return -1L;
+    }
+
+    @CachePut(value = "ws", key = "#email")
+    public Long updateSession(String email, Long roomId) throws Exception {
+        if (redisTemplate.opsForValue().get("ws::" + email) != null)
+            return roomId;
+        else
+            throw new Exception();
+    }
+
+    @CacheEvict(value = "ws", key = "#email")
+    public void deleteSession(String email) {}
 
 }

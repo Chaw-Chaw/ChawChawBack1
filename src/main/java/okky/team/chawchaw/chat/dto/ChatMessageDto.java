@@ -29,5 +29,15 @@ public class ChatMessageDto implements Serializable {
     @NotBlank
     private String imageUrl;
     private LocalDateTime regDate;
+    private Boolean isRead;
 
+    public ChatMessageDto(@NotNull MessageType messageType, @NotNull Long roomId, @NotNull Long senderId, @NotBlank @Length(max = 20) String sender, @NotBlank @Length(max = 2000) String message, @NotBlank String imageUrl, LocalDateTime regDate) {
+        this.messageType = messageType;
+        this.roomId = roomId;
+        this.senderId = senderId;
+        this.sender = sender;
+        this.message = message;
+        this.imageUrl = imageUrl;
+        this.regDate = regDate;
+    }
 }

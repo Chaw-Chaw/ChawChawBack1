@@ -134,9 +134,23 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
+    public Boolean updateCurrentRoom(String email, Long roomId) {
+        try {
+            chatMessageRepository.updateSession(email, roomId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
+    @Override
     public Boolean isRoom(Long userId, Long userId2) {
         Boolean result = chatRoomUserRepository.isChatRoom(userId, userId2);
         return result != null && result;
+    }
+
+    @Override
+    public Boolean isConnection(String email, Long roomId) {
+        return chatMessageRepository.isSession(email, roomId);
     }
 }
