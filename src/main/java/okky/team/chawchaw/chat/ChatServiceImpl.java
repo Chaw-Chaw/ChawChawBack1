@@ -96,7 +96,7 @@ public class ChatServiceImpl implements ChatService {
         for (ChatRoomUserEntity user : users) {
             for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
                 if (!roomUsers.getUser().getId().equals(userId)) {
-                    result.addAll(chatMessageRepository.findAllByRoomIdAndIsRead(user.getChatRoom().getId(), userId));
+                    result.addAll(chatMessageRepository.findAllByRoomIdAndUserId(user.getChatRoom().getId(), userId));
                 }
             }
         }
@@ -133,9 +133,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Boolean updateCurrentRoom(String email, Long roomId) {
+    public Boolean updateCurrentRoom(String email, Long roomId, Long userId) {
         try {
-            chatMessageRepository.updateSession(email, roomId);
+            chatMessageRepository.updateSession(email, roomId, userId);
             return true;
         } catch (Exception e) {
             return false;
