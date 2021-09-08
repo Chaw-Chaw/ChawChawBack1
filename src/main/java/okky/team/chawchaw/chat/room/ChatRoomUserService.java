@@ -1,6 +1,7 @@
 package okky.team.chawchaw.chat.room;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public class ChatRoomUserService {
 
     private final ChatRoomUserRepository chatRoomUserRepository;
 
+    @Cacheable(value = "roomUserIds", key = "#roomId")
     public List<Long> findUserIdsByChatRoomId(Long roomId) {
         return chatRoomUserRepository.findAllByChatRoomId(roomId).stream().map(x -> x.getUser().getId()).collect(Collectors.toList());
     }
