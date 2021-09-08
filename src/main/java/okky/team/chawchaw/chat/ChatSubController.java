@@ -44,7 +44,6 @@ public class ChatSubController {
         }
 
         ChatMessageDto message = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
-        message.setMessageType(MessageType.ENTER);
 
         result = chatService.findMessagesByUserId(principalDetails.getId());
 

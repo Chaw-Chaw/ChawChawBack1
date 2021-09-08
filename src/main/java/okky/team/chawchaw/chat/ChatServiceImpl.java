@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +50,7 @@ public class ChatServiceImpl implements ChatService {
         UserEntity user2 = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         chatRoomUserRepository.save(new ChatRoomUserEntity(room, user));
         chatRoomUserRepository.save(new ChatRoomUserEntity(room, user2));
-        ChatMessageDto message = new ChatMessageDto(MessageType.ENTER, room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", user.getImageUrl(), LocalDateTime.now().withNano(0));
+        ChatMessageDto message = new ChatMessageDto(MessageType.ENTER, room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", user.getImageUrl(), LocalDateTime.now().withNano(0), false);
         chatMessageRepository.save(message);
         return message;
     }
@@ -83,27 +84,25 @@ public class ChatServiceImpl implements ChatService {
         return result;
     }
 
-//    /**
-//     * 해당 유저가 가지고 있는 메시지 중에서 regDate 보다 이후에 들어온 메시지를 찾는다.
-//     * @param userId
-//     * @param regDate
-//     * @return 조건에 맞는 메시지 집합
-//     */
-//    @Override
-//    public List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId, LocalDateTime regDate) {
-//        List<ChatMessageDto> result = new ArrayList<>();
-//        List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
-//        for (ChatRoomUserEntity user : users) {
-//            for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
-//                if (!roomUsers.getUser().getId().equals(userId)) {
-//                    List<ChatMessageDto> messages = chatMessageRepository.findAllByRoomId(user.getChatRoom().getId());
-//                    messages.stream().filter(x -> x.getRegDate().isAfter(regDate)).forEach(result::add);
-//                }
-//            }
-//        }
-//        result.sort(Comparator.comparing(ChatMessageDto::getRegDate).reversed());
-//        return result;
-//    }
+    /**
+     * 해당 유저가 가지고 있는 메시지 중에서 읽음 처리가 되어있지 않은 메시지를 최신순으로 전달한다.
+     * @param userId
+     * @return 조건에 맞는 메시지 집합
+     */
+    @Override
+    public List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId) {
+        List<ChatMessageDto> result = new ArrayList<>();
+        List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
+        for (ChatRoomUserEntity user : users) {
+            for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
+                if (!roomUsers.getUser().getId().equals(userId)) {
+                    result.addAll(chatMessageRepository.findAllByRoomIdAndIsRead(user.getChatRoom().getId(), userId));
+                }
+            }
+        }
+        result.sort(Comparator.comparing(ChatMessageDto::getRegDate).reversed());
+        return result;
+    }
 
     @Override
     public String uploadMessageImage(MultipartFile file) {

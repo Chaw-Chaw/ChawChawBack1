@@ -11,7 +11,9 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -35,6 +37,20 @@ public class ChatMessageRepository {
     public List<ChatMessageDto> findAllByRoomId(Long roomId) {
         Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
         List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
+        return result;
+    }
+
+    public List<ChatMessageDto> findAllByRoomIdAndIsRead(Long roomId, Long userId) {
+        List<ChatMessageDto> result = new ArrayList<>();
+        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+        for (String key : keys) {
+            ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);
+            if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId)) {
+                result.add(message);
+                message.setIsRead(true);
+                redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
+            }
+        }
         return result;
     }
 
