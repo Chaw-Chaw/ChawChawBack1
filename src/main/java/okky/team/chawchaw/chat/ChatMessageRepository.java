@@ -89,12 +89,14 @@ public class ChatMessageRepository {
     @CachePut(value = "ws", key = "#email")
     public Long updateSession(String email, Long roomId, Long userId) throws Exception {
         if (redisTemplate.opsForValue().get("ws::" + email) != null) {
+            redisTemplate.opsForValue().set("ws::" + email, roomId);
             Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
             for (String key : keys) {
                 ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);
                 if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId)) {
                     message.setIsRead(true);
-                    redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
+                    if (!message.getMessageType().equals(MessageType.ENTER))
+                        redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
                 }
             }
             return roomId;
