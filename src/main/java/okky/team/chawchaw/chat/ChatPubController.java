@@ -40,14 +40,16 @@ public class ChatPubController {
          * 상대방의 유저 세션이 열려있고 메인 방에 있다면 읽음 처리
          */
         for (Map.Entry<Long, String> user : usersInRoom.entrySet()) {
-            if (!user.getKey().equals(message.getSenderId()) && chatService.isConnection(user.getValue(), message.getRoomId()))
+            if (!user.getKey().equals(message.getSenderId()) && chatService.isConnection(user.getValue(), message.getRoomId())) {
                 message.setIsRead(true);
-            else
+            }
+            else {
+                messagingTemplate.convertAndSend("/queue/alarm/chat/" + user.getKey(), message);
+                messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);
                 message.setIsRead(false);
-            messagingTemplate.convertAndSend("/queue/alarm/chat/" + user.getKey(), message);
+            }
         }
         chatService.sendMessage(message);
-        messagingTemplate.convertAndSend("/queue/chat/room/" + message.getRoomId(), message);
     }
 
 }

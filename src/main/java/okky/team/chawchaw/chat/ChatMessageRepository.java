@@ -95,8 +95,11 @@ public class ChatMessageRepository {
                 ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);
                 if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId)) {
                     message.setIsRead(true);
-                    if (!message.getMessageType().equals(MessageType.ENTER))
+                    if (!message.getMessageType().equals(MessageType.ENTER)) {
                         redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
+                    } else {
+                        redisTemplate.opsForValue().set(key, message);
+                    }
                 }
             }
             return roomId;
