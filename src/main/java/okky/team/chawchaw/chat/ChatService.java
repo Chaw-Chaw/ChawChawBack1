@@ -19,6 +19,6 @@ public interface ChatService {
 
     void sendMessage(ChatMessageDto chatMessageDto);
     Boolean updateCurrentRoom(String email, Long roomId, Long userId);
-    Boolean isRoom(Long userId, Long userId2);
+    Long getRoomIdByUserIds(Long userId, Long userId2);
     Boolean isConnection(String email, Long roomId);
 }

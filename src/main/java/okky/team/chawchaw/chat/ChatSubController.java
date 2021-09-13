@@ -38,21 +38,17 @@ public class ChatSubController {
         if (principalDetails.getId().equals(createChatRoomDto.getUserId()))
             throw new PointMyselfException();
 
-        List<ChatDto> result = null;
-        Boolean isRoom = chatService.isRoom(principalDetails.getId(), createChatRoomDto.getUserId());
+        Long roomId = chatService.getRoomIdByUserIds(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        if (isRoom) {
-            result = chatService.findMessagesByUserId(principalDetails.getId());
-            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, result), HttpStatus.OK);
+        if (roomId != -1) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, new ChatRoomDto(roomId, "none")), HttpStatus.OK);
         }
 
         ChatMessageDto message = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        result = chatService.findMessagesByUserId(principalDetails.getId());
-
         messagingTemplate.convertAndSend("/queue/chat/" + createChatRoomDto.getUserId(), message);
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, new ChatRoomDto(message.getRoomId(), "none")), HttpStatus.CREATED);
     }
 
     @GetMapping("")

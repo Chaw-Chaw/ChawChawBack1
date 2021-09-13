@@ -147,9 +147,9 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public Boolean isRoom(Long userId, Long userId2) {
-        Boolean result = chatRoomUserRepository.isChatRoom(userId, userId2);
-        return result != null && result;
+    public Long getRoomIdByUserIds(Long userId, Long userId2) {
+        Long result = chatRoomUserRepository.getRoomIdByUserIds(userId, userId2);
+        return result == null ? -1L : result;
     }
 
     @Override

@@ -14,11 +14,11 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUserEntity
 
     void deleteByUserId(Long userId);
 
-    @Query( "select count(ru.chatRoom) > 0 " +
+    @Query( "select ru.chatRoom.id " +
             "from ChatRoomUserEntity ru " +
             "where ru.user.id = :userId or ru.user.id = :userId2 " +
             "group by ru.chatRoom " +
-            "having count(ru.chatRoom) > 1")
-    Boolean isChatRoom(Long userId, Long userId2);
+            "having count(ru.chatRoom) = 2")
+    Long getRoomIdByUserIds(Long userId, Long userId2);
 
 }
