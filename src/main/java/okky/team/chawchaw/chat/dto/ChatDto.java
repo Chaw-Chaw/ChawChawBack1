@@ -9,16 +9,16 @@ import java.util.List;
 public class ChatDto {
 
     private Long roomId;
-    private Long senderId;
-    private String sender;
-    private String imageUrl;
+    private List<String> participantNames;
+    private List<Long> participantIds;
+    private List<String> participantImageUrls;
     private List<ChatMessageDto> messages;
 
-    public ChatDto(Long roodId, Long senderId, String sender, String imageUrl, List<ChatMessageDto> messages) {
-        this.roomId = roodId;
-        this.senderId = senderId;
-        this.sender = sender;
-        this.imageUrl = imageUrl;
+    public ChatDto(Long roomId, List<String> participantNames, List<Long> participantIds, List<String> participantImageUrls, List<ChatMessageDto> messages) {
+        this.roomId = roomId;
+        this.participantNames = participantNames;
+        this.participantIds = participantIds;
+        this.participantImageUrls = participantImageUrls;
         this.messages = messages;
     }
 }

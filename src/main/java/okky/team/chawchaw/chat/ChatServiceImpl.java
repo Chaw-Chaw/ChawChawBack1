@@ -58,29 +58,33 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional(readOnly = false)
     @CacheEvict(value = "roomUserIds", key = "#roomId")
-    public void deleteRoom(Long roomId) {
-        chatRoomRepository.deleteById(roomId);
-        chatMessageRepository.deleteByRoomId(roomId);
+    public void deleteRoomByRoomIdAndUserId(Long roomId, Long userId) {
+        List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByChatRoomId(roomId);
+        if (roomUsers.size() < 2) {
+            chatRoomRepository.deleteById(roomId);
+            chatMessageRepository.deleteByRoomId(roomId);
+        }
+        else {
+            chatRoomUserRepository.deleteByUserId(userId);
+        }
     }
 
     @Override
     @Transactional(readOnly = false)
     public List<ChatDto> findMessagesByUserId(Long userId) {
         List<ChatDto> result = new ArrayList<>();
-        List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
-        for (ChatRoomUserEntity user : users) {
-            for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
-                if (!roomUsers.getUser().getId().equals(userId)) {
-                    result.add(new ChatDto(
-                            user.getChatRoom().getId(),
-                            roomUsers.getUser().getId(),
-                            roomUsers.getUser().getName(),
-                            roomUsers.getUser().getImageUrl(),
-                            chatMessageRepository.findAllByRoomIdOrderByRegDateAsc(user.getChatRoom().getId())
-                    ));
-                }
+        List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByUserId(userId);
+        for (ChatRoomUserEntity roomUser : roomUsers) {
+            ChatDto chatDto = new ChatDto(roomUser.getChatRoom().getId(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
+            for (ChatRoomUserEntity user : chatRoomUserRepository.findAllByChatRoomId(roomUser.getChatRoom().getId())) {
+                chatDto.getParticipantNames().add(user.getUser().getName());
+                chatDto.getParticipantIds().add(user.getUser().getId());
+                chatDto.getParticipantImageUrls().add(user.getUser().getImageUrl());
             }
+            chatDto.setMessages(chatMessageRepository.findAllByRoomIdOrderByRegDateAsc(roomUser.getChatRoom().getId()));
+            result.add(chatDto);
         }
+
         return result;
     }
 

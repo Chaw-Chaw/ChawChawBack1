@@ -165,15 +165,31 @@ class ChatServiceImplTest {
                 MessageType.TALK, room.getRoomId(), userTo.getId(), userTo.getName(), "마이크오바2", userTo.getImageUrl(), LocalDateTime.now()
         ));
         //when
-        chatService.deleteRoom(room.getRoomId());
+        chatService.deleteRoomByRoomIdAndUserId(room.getRoomId(), userFrom.getId());
+
         //then
         List<ChatMessageDto> resultMessage = chatMessageRepository.findAllByRoomId(room.getRoomId());
         Optional<ChatRoomEntity> resultRoom = chatRoomRepository.findById(room.getRoomId());
         List<ChatRoomUserEntity> resultRoomUser = chatRoomUserRepository.findAllByChatRoomId(room.getRoomId());
+        List<ChatDto> messagesByUserId = chatService.findMessagesByUserId(userTo.getId());
+        Assertions.assertThat(resultMessage.size()).isEqualTo(3);
+        Assertions.assertThat(resultRoom.isEmpty()).isEqualTo(false);
+        Assertions.assertThat(resultRoomUser.size()).isEqualTo(1);
+        Assertions.assertThat(resultRoomUser.get(0).getUser().getName()).isEqualTo(userTo.getName());
+        Assertions.assertThat(messagesByUserId).isNotEmpty();
 
-        Assertions.assertThat(resultMessage.size()).isEqualTo(0);
-        Assertions.assertThat(resultRoom.isEmpty()).isEqualTo(true);
-        Assertions.assertThat(resultRoomUser.size()).isEqualTo(0);
+        //when
+        chatService.deleteRoomByRoomIdAndUserId(room.getRoomId(), userTo.getId());
+
+        //then
+        List<ChatMessageDto> resultMessage2 = chatMessageRepository.findAllByRoomId(room.getRoomId());
+        Optional<ChatRoomEntity> resultRoom2 = chatRoomRepository.findById(room.getRoomId());
+        List<ChatRoomUserEntity> resultRoomUser2 = chatRoomUserRepository.findAllByChatRoomId(room.getRoomId());
+        List<ChatDto> messagesByUserId2 = chatService.findMessagesByUserId(userTo.getId());
+        Assertions.assertThat(resultMessage2.size()).isEqualTo(0);
+        Assertions.assertThat(resultRoom2.isEmpty()).isEqualTo(true);
+        Assertions.assertThat(resultRoomUser2.size()).isEqualTo(0);
+        Assertions.assertThat(messagesByUserId2).isEmpty();
     }
 
 }

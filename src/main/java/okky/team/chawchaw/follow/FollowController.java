@@ -32,7 +32,7 @@ public class FollowController {
         FollowMessageDto result = followService.addFollow(principalDetails.getUserEntity(), userId);
 
         if (result != null) {
-            messagingTemplate.convertAndSend("/queue/alarm/follow/" + userId, result);
+            messagingTemplate.convertAndSend("/queue/follow/" + userId, result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
         }
         else {
@@ -47,7 +47,7 @@ public class FollowController {
         FollowMessageDto result = followService.deleteFollow(principalDetails.getUserEntity(), userId);
 
         if (result != null) {
-            messagingTemplate.convertAndSend("/queue/alarm/follow/" + userId, result);
+            messagingTemplate.convertAndSend("/queue/follow/" + userId, result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseFollowMessage.DELETE_SUCCESS, true), HttpStatus.OK);
         }
         else {
