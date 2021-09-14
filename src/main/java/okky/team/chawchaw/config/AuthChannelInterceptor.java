@@ -38,8 +38,8 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                 return null;
             } else {
                 String token = authorization.replace("Bearer ", "");
-                String email = jwtTokenProvider.getClaimByTokenAndKey(token, "email").asString();
-                UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("유저를 찾지 못함"));
+                Long userId = jwtTokenProvider.getClaimByTokenAndKey(token, "userId").asLong();
+                UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("유저를 찾지 못함"));
                 if (!user.getRole().equals(Role.USER)) {
                     return null;
                 }
