@@ -45,8 +45,8 @@ public class ChatPubController {
             }
             else {
                 message.setIsRead(false);
-                messagingTemplate.convertAndSend("/queue/chat/" + user.getKey(), message);
             }
+            messagingTemplate.convertAndSend("/queue/chat/" + user.getKey(), message);
         }
         chatService.sendMessage(message);
     }
