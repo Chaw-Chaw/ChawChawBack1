@@ -17,7 +17,7 @@ create table users
     content       varchar(2000) null,
     email         varchar(255)  not null,
     facebook_url  varchar(255)  null,
-    image_url     varchar(255) null,
+    image_url     varchar(1000) null,
     instagram_url varchar(255)  null,
     name          varchar(255)  null,
     password      varchar(255)  not null,

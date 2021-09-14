@@ -15,11 +15,11 @@ public class JwtTokenProvider {
 
     private final TokenProperties tokenProperties;
 
-    public String createToken(String email) {
+    public String createToken(Long userId) {
         return JWT.create()
                 .withSubject("AccessToken")
                 .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getAccess().getExpirationTime()))
-                .withClaim("email", email)
+                .withClaim("userId", userId)
                 .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
     }
 
@@ -27,8 +27,8 @@ public class JwtTokenProvider {
         return JWT.create()
                 .withSubject("RefreshToken")
                 .withExpiresAt(new Date(System.currentTimeMillis() + tokenProperties.getRefresh().getExpirationTime()))
-                .withClaim("key", userId)
-                .withClaim("value", refreshKey)
+                .withClaim("userId", userId)
+                .withClaim("refreshKey", refreshKey)
                 .sign(Algorithm.HMAC512(tokenProperties.getSecret()));
     }
 

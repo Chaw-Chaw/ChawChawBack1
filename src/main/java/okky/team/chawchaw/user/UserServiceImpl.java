@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.jwt.JwtTokenProvider;
+import okky.team.chawchaw.config.jwt.TokenRedisRepository;
 import okky.team.chawchaw.follow.FollowRepository;
 import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
@@ -47,6 +48,7 @@ public class UserServiceImpl implements UserService{
     private final RedisTemplate redisTemplate;
     private final AmazonS3 amazonS3;
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenRedisRepository tokenRedisRepository;
     @Value("${user.profile.image.default}")
     private String defaultImage;
     @Value("${cloud.aws.s3.bucket}")
@@ -292,6 +294,18 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
+    public void deleteAccessToken(Long userId) {
+        tokenRedisRepository.delete(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void deleteRefreshToken(Long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        user.changeRefreshToken("");
+    }
+
+    @Override
     @Transactional(readOnly = false)
     public void saveRefreshToken(Long userId, String refreshToken) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
@@ -302,17 +316,19 @@ public class UserServiceImpl implements UserService{
     @Override
     public String verificationRefreshToken(String refreshToken) {
 
-        Long key = jwtTokenProvider.getClaimByTokenAndKey(refreshToken, "key").asLong();
-        String value = jwtTokenProvider.getClaimByTokenAndKey(refreshToken, "value").asString();
+        Long userId = jwtTokenProvider.getClaimByTokenAndKey(refreshToken, "userId").asLong();
+        String refreshKey = jwtTokenProvider.getClaimByTokenAndKey(refreshToken, "refreshKey").asString();
 
-        if (key == null) {
+        if (userId == null) {
             return "";
         }
 
-        UserEntity user = userRepository.findById(key).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
-        if (user.getRefreshToken().equals(value)) {
-            return jwtTokenProvider.createToken(user.getEmail());
+        if (user.getRefreshToken().equals(refreshKey)) {
+            String token = jwtTokenProvider.createToken(user.getId());
+            tokenRedisRepository.save(user.getId(), token);
+            return token;
         }
         return "";
     }

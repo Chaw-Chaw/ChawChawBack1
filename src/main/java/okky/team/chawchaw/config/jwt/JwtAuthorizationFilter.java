@@ -27,12 +27,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
     private UserRepository userRepository;
     private JwtTokenProvider jwtTokenProvider;
+    private TokenRedisRepository tokenRedisRepository;
     private ObjectMapper mapper = new ObjectMapper();
 
-    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JwtTokenProvider jwtTokenProvider) {
+    public JwtAuthorizationFilter(AuthenticationManager authenticationManager, UserRepository userRepository, JwtTokenProvider jwtTokenProvider, TokenRedisRepository tokenRedisRepository) {
         super(authenticationManager);
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenRedisRepository = tokenRedisRepository;
     }
 
     @Override
@@ -53,13 +55,21 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             }
 
             String token = jwtHeader.replace("Bearer ", "");
-            String email = jwtTokenProvider.getClaimByTokenAndKey(token, "email").asString();
 
-            if (email == null) {
+            Long userId = jwtTokenProvider.getClaimByTokenAndKey(token, "userId").asLong();
+
+            if (!tokenRedisRepository.findByUserId(userId).equals(token)) {
+                response.setStatus(401);
+                writer = response.getWriter();
+                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.UNAVAILABLE_ACCESS_TOKEN, false)));
+                return;
+            }
+
+            if (userId == null) {
                 throw new JWTDecodeException("JWT 포맷 오류");
             }
 
-            UserEntity user = userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("유저를 찾지 못함"));
+            UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("유저를 찾지 못함"));
             PrincipalDetails principalDetails = new PrincipalDetails(user);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);

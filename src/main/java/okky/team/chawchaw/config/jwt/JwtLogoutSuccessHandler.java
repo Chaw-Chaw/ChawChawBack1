@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.message.ResponseAuthMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
@@ -19,11 +20,13 @@ import java.io.PrintWriter;
 public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
 
     private UserService userService;
-    private Environment env;
+    private JwtTokenProvider jwtTokenProvider;
+    private TokenRedisRepository tokenRedisRepository;
 
-    public JwtLogoutSuccessHandler(UserService userService, Environment env) {
+    public JwtLogoutSuccessHandler(UserService userService, JwtTokenProvider jwtTokenProvider, TokenRedisRepository tokenRedisRepository) {
         this.userService = userService;
-        this.env = env;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenRedisRepository = tokenRedisRepository;
     }
 
     @Override
@@ -44,13 +47,18 @@ public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
 
         try {
             String token = jwtHeader.replace("Bearer ", "");
-            String email = JWT.require(Algorithm.HMAC512(env.getProperty("token.secret")))
-                    .build()
-                    .verify(token)
-                    .getClaim("email")
-                    .asString();
+            Long userId = jwtTokenProvider.getClaimByTokenAndKey(token, "userId").asLong();
+            if (tokenRedisRepository.findByUserId(userId).equals(token)) {
+                userService.deleteAccessToken(userId);
+                userService.deleteRefreshToken(userId);
+            } else {
+                response.setStatus(401);
+                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.UNAVAILABLE_ACCESS_TOKEN, false)));
+                return;
+            }
 
         } catch (Exception e) {
+            response.setStatus(401);
             writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGOUT_FAIL, false)));
             return;
         }

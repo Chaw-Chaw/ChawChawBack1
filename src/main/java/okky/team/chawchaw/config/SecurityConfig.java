@@ -29,6 +29,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final SocialService socialService;
     private final TokenProperties tokenProperties;
     private final JwtTokenProvider jwtTokenProvider;
+    private final TokenRedisRepository tokenRedisRepository;
     @Value("${front.domain}")
     private String frontDomain;
     @Value("${front.domain-local}")
@@ -40,11 +41,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(corsFilter())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userService, socialService, env, tokenProperties, jwtTokenProvider))
-                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, jwtTokenProvider))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userService, socialService, env, tokenProperties, jwtTokenProvider, tokenRedisRepository))
+                .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, jwtTokenProvider, tokenRedisRepository))
                 .formLogin().disable()
                 .httpBasic().disable()
-                .logout().logoutSuccessHandler(new JwtLogoutSuccessHandler(userService, env)).and()
+                .logout().logoutSuccessHandler(new JwtLogoutSuccessHandler(userService, jwtTokenProvider, tokenRedisRepository)).and()
                 .authorizeRequests()
                 .antMatchers("/users/signup/**").permitAll()
                 .antMatchers("/users/login/**").permitAll()

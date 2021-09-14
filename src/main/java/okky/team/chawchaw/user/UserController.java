@@ -23,11 +23,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -160,8 +157,7 @@ public class UserController {
     }
 
     @PostMapping("/auth/refresh")
-    public ResponseEntity getAccessToken(HttpServletRequest request,
-                                         HttpServletResponse response) {
+    public ResponseEntity getAccessToken(HttpServletRequest request) {
 
         String refreshToken = null;
         Cookie[] cookies = request.getCookies();

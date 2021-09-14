@@ -35,15 +35,17 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private Environment env;
     private TokenProperties tokenProperties;
     private JwtTokenProvider jwtTokenProvider;
+    private TokenRedisRepository tokenRedisRepository;
     private ObjectMapper mapper = new ObjectMapper();
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, SocialService socialService, Environment env, TokenProperties tokenProperties, JwtTokenProvider jwtTokenProvider) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, SocialService socialService, Environment env, TokenProperties tokenProperties, JwtTokenProvider jwtTokenProvider, TokenRedisRepository tokenRedisRepository) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.socialService = socialService;
         this.env = env;
         this.tokenProperties = tokenProperties;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.tokenRedisRepository = tokenRedisRepository;
     }
 
     @Override
@@ -109,7 +111,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         String refreshKey = UUID.randomUUID().toString();
         userService.saveRefreshToken(principal.getId(), refreshKey);
 
-        String accessToken = jwtTokenProvider.createToken(principal.getUsername());
+        String accessToken = jwtTokenProvider.createToken(principal.getId());
+        tokenRedisRepository.save(principal.getId(), accessToken);
         String refreshToken = jwtTokenProvider.createToken(principal.getId(), refreshKey);
 
         Cookie refreshCookie = new Cookie(tokenProperties.getRefresh().getHeader(), refreshToken);
