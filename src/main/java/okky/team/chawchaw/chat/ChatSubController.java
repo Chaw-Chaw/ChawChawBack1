@@ -44,11 +44,9 @@ public class ChatSubController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, new ChatRoomDto(roomId, "none")), HttpStatus.OK);
         }
 
-        ChatMessageDto message = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
+        ChatRoomDto result = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        messagingTemplate.convertAndSend("/queue/chat/" + createChatRoomDto.getUserId(), message);
-
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, new ChatRoomDto(message.getRoomId(), "none")), HttpStatus.CREATED);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
     }
 
     @GetMapping("")

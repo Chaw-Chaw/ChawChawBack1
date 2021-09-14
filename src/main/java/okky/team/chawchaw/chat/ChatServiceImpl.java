@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.chat.dto.ChatDto;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
+import okky.team.chawchaw.chat.dto.ChatRoomDto;
 import okky.team.chawchaw.chat.room.ChatRoomEntity;
 import okky.team.chawchaw.chat.room.ChatRoomRepository;
 import okky.team.chawchaw.chat.room.ChatRoomUserEntity;
@@ -44,15 +45,13 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional(readOnly = false)
-    public ChatMessageDto createRoom(Long userFrom, Long userTo) {
+    public ChatRoomDto createRoom(Long userFrom, Long userTo) {
         ChatRoomEntity room = chatRoomRepository.save(new ChatRoomEntity(UUID.randomUUID().toString()));
         UserEntity user = userRepository.findById(userFrom).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         UserEntity user2 = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         chatRoomUserRepository.save(new ChatRoomUserEntity(room, user));
         chatRoomUserRepository.save(new ChatRoomUserEntity(room, user2));
-        ChatMessageDto message = new ChatMessageDto(MessageType.ENTER, room.getId(), user.getId(), user.getName(), user.getName() + "님이 입장하셨습니다.", user.getImageUrl(), LocalDateTime.now().withNano(0), false);
-        chatMessageRepository.save(message);
-        return message;
+        return new ChatRoomDto(room.getId(), "none");
     }
 
     @Override
