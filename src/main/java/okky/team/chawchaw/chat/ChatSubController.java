@@ -2,6 +2,7 @@ package okky.team.chawchaw.chat;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.chat.dto.*;
+import okky.team.chawchaw.chat.room.ChatRoomUserService;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.PointMyselfException;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -27,6 +29,7 @@ public class ChatSubController {
 
     private final ChatService chatService;
     private final SimpMessageSendingOperations messagingTemplate;
+    private final ChatRoomUserService chatRoomUserService;
 
     @PostMapping("/room")
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
@@ -35,22 +38,17 @@ public class ChatSubController {
         if (principalDetails.getId().equals(createChatRoomDto.getUserId()))
             throw new PointMyselfException();
 
-        List<ChatDto> result = null;
-        Boolean isRoom = chatService.isRoom(principalDetails.getId(), createChatRoomDto.getUserId());
+        Long roomId = chatService.getRoomIdByUserIds(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        if (isRoom) {
-            result = chatService.findMessagesByUserId(principalDetails.getId());
-            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, result), HttpStatus.OK);
+        if (roomId != -1) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, new ChatRoomDto(roomId, "none")), HttpStatus.OK);
         }
 
         ChatMessageDto message = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        result = chatService.findMessagesByUserId(principalDetails.getId());
+        messagingTemplate.convertAndSend("/queue/chat/" + createChatRoomDto.getUserId(), message);
 
-        messagingTemplate.convertAndSend("/queue/chat/room/wait/" + createChatRoomDto.getUserId(), message);
-        messagingTemplate.convertAndSend("/queue/alarm/chat/" + createChatRoomDto.getUserId(), message);
-
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, new ChatRoomDto(message.getRoomId(), "none")), HttpStatus.CREATED);
     }
 
     @GetMapping("")
@@ -75,7 +73,7 @@ public class ChatSubController {
     public ResponseEntity deleteChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @PathVariable Long roomId) {
         try {
-            chatService.deleteRoom(roomId);
+            chatService.deleteRoomByRoomIdAndUserId(roomId, principalDetails.getId());
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.NOT_EXIST_ROOM, false), HttpStatus.OK);
         }
@@ -83,7 +81,16 @@ public class ChatSubController {
                 MessageType.EXIT, roomId, principalDetails.getId(), principalDetails.getName(),
                 principalDetails.getName() + "님이 퇴장하셨습니다.", principalDetails.getImageUrl(), LocalDateTime.now().withNano(0));
 
-        messagingTemplate.convertAndSend("/queue/chat/room/" + roomId, message);
+        for (Map.Entry<Long, String> user : chatRoomUserService.findUserIdAndEmailByChatRoomId(message.getRoomId()).entrySet()) {
+            if (!user.getKey().equals(message.getSenderId()) && chatService.isConnection(user.getValue(), message.getRoomId())) {
+                message.setIsRead(true);
+            }
+            else {
+                message.setIsRead(false);
+                messagingTemplate.convertAndSend("/queue/chat/" + user.getKey(), message);
+            }
+        }
+        chatService.sendMessage(message);
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.DELETE_SUCCESS, true), HttpStatus.OK);
     }

@@ -30,7 +30,6 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         StompCommand command = accessor.getCommand();
-        String path = accessor.getFirstNativeHeader("ws-path");
 
         if (StompCommand.CONNECT == command) {
             String authorization = accessor.getFirstNativeHeader("Authorization");
@@ -47,8 +46,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                 PrincipalDetails principalDetails = new PrincipalDetails(user);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
                 accessor.setUser(authentication);
-                if (path.equals("chat"))
-                    chatMessageRepository.createSession(user.getEmail());
+                chatMessageRepository.createSession(user.getEmail());
             }
 
         } else if (StompCommand.SEND == command) {

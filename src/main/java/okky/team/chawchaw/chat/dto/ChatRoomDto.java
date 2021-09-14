@@ -13,6 +13,6 @@ public class ChatRoomDto {
 
     @NotNull
     private Long roomId;
-    private String name;
+    private String roomName;
 
 }

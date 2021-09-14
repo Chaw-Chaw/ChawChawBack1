@@ -10,7 +10,7 @@ import java.util.List;
 public interface ChatService {
 
     ChatMessageDto createRoom(Long userFrom, Long userTo);
-    void deleteRoom(Long roomId);
+    void deleteRoomByRoomIdAndUserId(Long roomId, Long userId);
 
     List<ChatDto> findMessagesByUserId(Long userId);
     List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId);
@@ -19,6 +19,6 @@ public interface ChatService {
 
     void sendMessage(ChatMessageDto chatMessageDto);
     Boolean updateCurrentRoom(String email, Long roomId, Long userId);
-    Boolean isRoom(Long userId, Long userId2);
+    Long getRoomIdByUserIds(Long userId, Long userId2);
     Boolean isConnection(String email, Long roomId);
 }

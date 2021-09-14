@@ -12,11 +12,13 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUserEntity
     @EntityGraph(attributePaths = {"chatRoom", "user"})
     List<ChatRoomUserEntity> findAllByChatRoomId(Long roomId);
 
-    @Query( "select count(ru.chatRoom) > 0 " +
+    void deleteByUserId(Long userId);
+
+    @Query( "select ru.chatRoom.id " +
             "from ChatRoomUserEntity ru " +
             "where ru.user.id = :userId or ru.user.id = :userId2 " +
             "group by ru.chatRoom " +
-            "having count(ru.chatRoom) > 1")
-    Boolean isChatRoom(Long userId, Long userId2);
+            "having count(ru.chatRoom) = 2")
+    Long getRoomIdByUserIds(Long userId, Long userId2);
 
 }
