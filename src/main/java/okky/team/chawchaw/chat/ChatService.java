@@ -5,7 +5,6 @@ import okky.team.chawchaw.chat.dto.ChatMessageDto;
 import okky.team.chawchaw.chat.dto.ChatRoomDto;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatService {
@@ -20,6 +19,5 @@ public interface ChatService {
 
     void sendMessage(ChatMessageDto chatMessageDto);
     Boolean updateCurrentRoom(String email, Long roomId, Long userId);
-    Long getRoomIdByUserIds(Long userId, Long userId2);
     Boolean isConnection(String email, Long roomId);
 }

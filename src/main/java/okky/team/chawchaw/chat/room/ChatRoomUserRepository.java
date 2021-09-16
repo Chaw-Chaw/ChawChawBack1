@@ -19,6 +19,6 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUserEntity
             "where ru.user.id = :userId or ru.user.id = :userId2 " +
             "group by ru.chatRoom " +
             "having count(ru.chatRoom) = 2")
-    Long getRoomIdByUserIds(Long userId, Long userId2);
+    Long findChatRoomIdByUserIds(Long userId, Long userId2);
 
 }

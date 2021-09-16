@@ -82,6 +82,8 @@ create table chat_room_user
     id      bigint auto_increment primary key,
     room_id bigint      null,
     user_id bigint      null,
+    exit_date DATETIME  not null default CURRENT_TIMESTAMP,
+    is_exit boolean not null default false,
     foreign key (room_id) references chat_room (id),
     foreign key (user_id) references users (user_id)
 );

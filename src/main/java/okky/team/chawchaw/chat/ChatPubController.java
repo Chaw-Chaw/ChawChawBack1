@@ -3,11 +3,8 @@ package okky.team.chawchaw.chat;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
 import okky.team.chawchaw.chat.room.ChatRoomUserService;
-import okky.team.chawchaw.config.auth.PrincipalDetails;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 

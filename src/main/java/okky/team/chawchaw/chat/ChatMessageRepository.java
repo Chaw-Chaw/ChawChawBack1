@@ -52,9 +52,16 @@ public class ChatMessageRepository {
         return result;
     }
 
-    public List<ChatMessageDto> findAllByRoomIdOrderByRegDateAsc(Long roomId) {
+    /**
+     * 해당하는 방 메시지 조회 (단, 입장 했던 시간 이후로 메시지만 조회)
+     * @param roomId
+     * @param exitDate
+     * @return 해당하는 방 메시지
+     */
+    public List<ChatMessageDto> findAllByRoomIdAndExitDateOrderByRegDateAsc(Long roomId, LocalDateTime exitDate) {
         Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
         List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x))
+                .filter(x -> x.getRegDate().isAfter(exitDate))
                 .sorted(Comparator.comparing(ChatMessageDto::getRegDate))
                 .collect(Collectors.toList());
         return result;
