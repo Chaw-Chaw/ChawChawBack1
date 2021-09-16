@@ -3,6 +3,7 @@ package okky.team.chawchaw.chat.room;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -19,6 +20,6 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUserEntity
             "where ru.user.id = :userId or ru.user.id = :userId2 " +
             "group by ru.chatRoom " +
             "having count(ru.chatRoom) = 2")
-    Long findChatRoomIdByUserIds(Long userId, Long userId2);
+    Long findChatRoomIdByUserIds(@Param("userId") Long userId, @Param("userId2") Long userId2);
 
 }

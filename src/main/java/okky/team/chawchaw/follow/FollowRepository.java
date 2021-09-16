@@ -13,7 +13,7 @@ public interface FollowRepository extends JpaRepository<FollowEntity, Long> {
     Long countByUserToId(Long id);
     void removeByUserFromAndUserTo(UserEntity userFrom, UserEntity UserTo);
     @Query("select count(f) > 0 from FollowEntity f where f.userFrom.id = :userFrom and f.userTo.id = :userTo")
-    Boolean isFollow(Long userFrom, Long userTo);
+    Boolean isFollow(@Param("userFrom") Long userFrom,@Param("userTo") Long userTo);
     @Modifying
     @Query("delete from FollowEntity f where f.userFrom = :userFrom or f.userTo = :userTo")
     void deleteByUserFromOrUserTo(@Param("userFrom") UserEntity userFrom, @Param("userTo") UserEntity userTo);

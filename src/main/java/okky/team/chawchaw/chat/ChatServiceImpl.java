@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -59,7 +60,23 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(readOnly = false)
     @CacheEvict(value = "roomUserIds", key = "#roomId")
     public void deleteRoomByRoomIdAndUserId(Long roomId, Long userId) {
-        List<ChatRoomUserEntity> existUsers = chatRoomUserRepository.findAllByChatRoomId(roomId).stream().filter(x -> !x.getIsExit()).collect(Collectors.toList());
+        /*
+        * 최근 메시지와 방 유저의 퇴장 시간을 비교
+        * 최근 메시지 등록일 < 방 유저 퇴장 시간 : 해당 유저가 퇴장 했다는 의미
+        * 최근 메시지 등록일 > 방 유저 퇴장 시간 : 해당 유저가 퇴장 하지 않았다는 의미
+        * 최근 메시지가 없다면, 방을 생성하고 메시지를 보내지 않았다는 의미
+        * */
+        LocalDateTime latestMessageRegDate = chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomId).stream().map(ChatMessageDto::getRegDate).max(LocalDateTime::compareTo).orElse(null);
+        List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByChatRoomId(roomId);
+        if (latestMessageRegDate == null) {
+            if (!roomUsers.stream().map(x -> x.getUser().getId()).collect(Collectors.toList()).contains(userId))
+                throw new NotExistRoomException();
+            chatRoomRepository.deleteById(roomId);
+            chatMessageRepository.deleteByRoomId(roomId);
+            return;
+        }
+        List<ChatRoomUserEntity> existUsers = roomUsers.stream().filter(x -> x.getExitDate().isBefore(latestMessageRegDate)).collect(Collectors.toList());
+
         if (existUsers.size() < 2) {
             if (!existUsers.get(0).getUser().getId().equals(userId))
                 throw new NotExistRoomException();
@@ -78,15 +95,19 @@ public class ChatServiceImpl implements ChatService {
         List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByUserId(userId);
         for (ChatRoomUserEntity roomUser : roomUsers) {
             ChatDto chatDto = new ChatDto(roomUser.getChatRoom().getId(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
+
+            List<ChatMessageDto> chatMessages = chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomUser.getChatRoom().getId());
+            List<ChatMessageDto> chatMessagesDesc = chatMessages.stream().filter(x -> x.getRegDate().isAfter(roomUser.getExitDate())).collect(Collectors.toList());
+            /* 내 아이디라면 && 내가 나간 방이라면(메시지가 없다면 나간 방으로 간주) && 자의로 나간지 체크*/
+            if (roomUser.getUser().getId().equals(userId) && chatMessagesDesc.isEmpty() && roomUser.getIsExit())
+                break;
+            chatDto.setMessages(chatMessagesDesc);
+
             for (ChatRoomUserEntity user : chatRoomUserRepository.findAllByChatRoomId(roomUser.getChatRoom().getId())) {
                 chatDto.getParticipantNames().add(user.getUser().getName());
                 chatDto.getParticipantIds().add(user.getUser().getId());
                 chatDto.getParticipantImageUrls().add(user.getUser().getImageUrl());
             }
-            chatDto.setMessages(chatMessageRepository.findAllByRoomIdAndExitDateOrderByRegDateAsc(roomUser.getChatRoom().getId(), roomUser.getExitDate()));
-            /* 내가 나간 방이라면 */
-            if (roomUser.getUser().getId().equals(userId) && chatDto.getMessages().isEmpty())
-                break;
             result.add(chatDto);
         }
 
