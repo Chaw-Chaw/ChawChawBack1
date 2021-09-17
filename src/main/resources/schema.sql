@@ -87,3 +87,13 @@ create table chat_room_user
     foreign key (room_id) references chat_room (id),
     foreign key (user_id) references users (user_id)
 );
+
+create table block
+(
+    block_id bigint auto_increment primary key,
+    reg_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
+    user_from bigint      null,
+    user_to   bigint      null,
+    foreign key (user_to) references users (user_id),
+    foreign key (user_from) references users (user_id)
+);
