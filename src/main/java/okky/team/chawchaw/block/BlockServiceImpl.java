@@ -2,7 +2,9 @@ package okky.team.chawchaw.block;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.block.dto.CreateBlockDto;
+import okky.team.chawchaw.block.dto.DeleteBlockDto;
 import okky.team.chawchaw.block.exception.ExistBlockException;
+import okky.team.chawchaw.block.exception.NotExistBlockException;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,13 +23,24 @@ public class BlockServiceImpl implements BlockService {
     @Transactional(readOnly = false)
     public Long createBlock(CreateBlockDto createBlockDto) {
         if (!blockRepository.existsByUserFromIdAndUserToId(createBlockDto.getUserFrom(), createBlockDto.getUserId())) {
-            UserEntity userFrom = userRepository.findById(createBlockDto.getUserFrom()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             UserEntity userTo = userRepository.findById(createBlockDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+            UserEntity userFrom = userRepository.findById(createBlockDto.getUserFrom()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             BlockEntity block = blockRepository.save(new BlockEntity(userFrom, userTo));
             return block.getId();
         }
         else {
             throw new ExistBlockException();
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public void deleteBlock(DeleteBlockDto deleteBlockDto) {
+        if (blockRepository.existsByUserFromIdAndUserToId(deleteBlockDto.getUserFrom(), deleteBlockDto.getUserId())) {
+            blockRepository.deleteByUserFromIdAndUserToId(deleteBlockDto.getUserFrom(), deleteBlockDto.getUserId());
+        }
+        else {
+            throw new NotExistBlockException();
         }
     }
 }
