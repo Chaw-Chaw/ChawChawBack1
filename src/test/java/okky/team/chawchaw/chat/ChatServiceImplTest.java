@@ -2,6 +2,7 @@ package okky.team.chawchaw.chat;
 
 import okky.team.chawchaw.chat.dto.ChatDto;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
+import okky.team.chawchaw.chat.dto.ChatRoomDto;
 import okky.team.chawchaw.chat.room.ChatRoomEntity;
 import okky.team.chawchaw.chat.room.ChatRoomRepository;
 import okky.team.chawchaw.chat.room.ChatRoomUserEntity;
@@ -105,7 +106,7 @@ class ChatServiceImplTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        ChatMessageDto room = chatService.createRoom(userFrom.getId(), userTo.getId());
+        ChatRoomDto room = chatService.createRoom(userFrom.getId(), userTo.getId());
         chatService.sendMessage(new ChatMessageDto(
                 MessageType.TALK, room.getRoomId(), userTo.getId(), userTo.getName(), "마이크오바1", userTo.getImageUrl(), LocalDateTime.now()
         ));
@@ -157,7 +158,7 @@ class ChatServiceImplTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        ChatMessageDto room = chatService.createRoom(userFrom.getId(), userTo.getId());
+        ChatRoomDto room = chatService.createRoom(userFrom.getId(), userTo.getId());
         chatService.sendMessage(new ChatMessageDto(
                 MessageType.TALK, room.getRoomId(), userFrom.getId(), userFrom.getName(), "마이크오바1", userTo.getImageUrl(), LocalDateTime.now()
         ));
