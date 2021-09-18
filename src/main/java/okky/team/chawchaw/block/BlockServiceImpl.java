@@ -1,6 +1,7 @@
 package okky.team.chawchaw.block;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.dto.BlockUserDto;
 import okky.team.chawchaw.block.dto.CreateBlockDto;
 import okky.team.chawchaw.block.dto.DeleteBlockDto;
 import okky.team.chawchaw.block.exception.ExistBlockException;
@@ -10,6 +11,8 @@ import okky.team.chawchaw.user.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -42,5 +45,10 @@ public class BlockServiceImpl implements BlockService {
         else {
             throw new NotExistBlockException();
         }
+    }
+
+    @Override
+    public List<BlockUserDto> findBlockUsers(Long userFromId) {
+        return blockRepository.findAllByUserFromId(userFromId);
     }
 }
