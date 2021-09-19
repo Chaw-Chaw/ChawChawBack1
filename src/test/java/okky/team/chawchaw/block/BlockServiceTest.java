@@ -1,5 +1,6 @@
 package okky.team.chawchaw.block;
 
+import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.block.dto.BlockUserDto;
 import okky.team.chawchaw.block.dto.CreateBlockDto;
 import okky.team.chawchaw.block.dto.DeleteBlockDto;
@@ -22,8 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 @Transactional
@@ -132,7 +131,7 @@ class BlockServiceTest {
         blockRepository.save(new BlockEntity(users.get(0), users.get(1)));
         blockRepository.save(new BlockEntity(users.get(0), users.get(2)));
         //when
-        List<BlockUserDto> blockUsers = blockService.findBlockUsers(users.get(0).getId());
+        List<BlockUserDto> blockUsers = blockService.findAllByUserFromId(users.get(0).getId());
         //then
         Assertions.assertThat(blockUsers.size()).isEqualTo(2);
         Assertions.assertThat(blockUsers)
@@ -153,10 +152,11 @@ class BlockServiceTest {
         //when
         blockService.createSession(users.get(0).getEmail());
         //then
-        Set<Long> result = (Set<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail());
+        List<BlockSessionDto> result = (List<BlockSessionDto>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail());
         Assertions.assertThat(result)
                 .isNotNull();
         Assertions.assertThat(result)
+                .extracting("userId")
                 .containsOnly(users.get(1).getId(), users.get(2).getId());
     }
     
@@ -176,14 +176,15 @@ class BlockServiceTest {
         //given
         blockService.createSession(users.get(0).getEmail());
         //then
-        Assertions.assertThat((Set<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
+        Assertions.assertThat((List<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
                 .isEmpty();
         //when
         blockRepository.save(new BlockEntity(users.get(0), users.get(1)));
         blockRepository.save(new BlockEntity(users.get(1), users.get(0)));
         blockService.updateSession(users.get(0).getEmail());
         //then
-        Assertions.assertThat((Set<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
+        Assertions.assertThat((List<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
+                .extracting("userId")
                 .containsOnly(users.get(1).getId());
     }
 

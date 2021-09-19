@@ -5,6 +5,8 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.BlockService;
+import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.chat.dto.ChatDto;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
 import okky.team.chawchaw.chat.dto.ChatRoomDto;
@@ -23,10 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +37,7 @@ public class ChatServiceImpl implements ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
     private final UserRepository userRepository;
+    private final BlockService blockService;
     private final AmazonS3 amazonS3;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -92,22 +92,40 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(readOnly = false)
     public List<ChatDto> findMessagesByUserId(Long userId) {
         List<ChatDto> result = new ArrayList<>();
+        List<BlockSessionDto> blockUsers = new ArrayList<>();
+
         List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByUserId(userId);
         for (ChatRoomUserEntity roomUser : roomUsers) {
-            ChatDto chatDto = new ChatDto(roomUser.getChatRoom().getId(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
-
-            List<ChatMessageDto> chatMessages = chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomUser.getChatRoom().getId());
-            List<ChatMessageDto> chatMessagesDesc = chatMessages.stream().filter(x -> x.getRegDate().isAfter(roomUser.getExitDate())).collect(Collectors.toList());
-            /* 내 아이디라면 && 내가 나간 방이라면(메시지가 없다면 나간 방으로 간주) && 자의로 나간지 체크*/
-            if (roomUser.getUser().getId().equals(userId) && chatMessagesDesc.isEmpty() && roomUser.getIsExit())
+            if (roomUser.getUser().getId().equals(userId)) {
+                blockUsers = blockService.findSessionDto(roomUser.getUser().getEmail());
                 break;
-            chatDto.setMessages(chatMessagesDesc);
+            }
+        }
+        for (ChatRoomUserEntity roomUser : roomUsers) {
+            ChatDto chatDto = new ChatDto(roomUser.getChatRoom().getId(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), null);
 
             for (ChatRoomUserEntity user : chatRoomUserRepository.findAllByChatRoomId(roomUser.getChatRoom().getId())) {
                 chatDto.getParticipantNames().add(user.getUser().getName());
                 chatDto.getParticipantIds().add(user.getUser().getId());
                 chatDto.getParticipantImageUrls().add(user.getUser().getImageUrl());
             }
+
+            List<ChatMessageDto> chatMessages = chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomUser.getChatRoom().getId());
+            List<ChatMessageDto> chatMessagesDesc = chatMessages.stream().filter(x -> x.getRegDate().isAfter(roomUser.getExitDate())).collect(Collectors.toList());
+
+            /* 내 아이디라면 && 내가 나간 방이라면(메시지가 없다면 나간 방으로 간주) && 자의로 나간지 체크*/
+            if (roomUser.getUser().getId().equals(userId) && chatMessagesDesc.isEmpty() && roomUser.getIsExit())
+                continue;
+
+            List<BlockSessionDto> blockUser = blockUsers.stream().filter(x -> chatDto.getParticipantIds().contains(x.getUserId())).collect(Collectors.toList());
+            /* 차단했거나 차단된 유저라면 */
+            if (!blockUser.isEmpty()) {
+                chatDto.setMessages(chatMessagesDesc.stream().filter(x -> x.getRegDate().isBefore(blockUser.get(0).getRegDate())).collect(Collectors.toList()));
+            }
+            else {
+                chatDto.setMessages(chatMessagesDesc);
+            }
+
             result.add(chatDto);
         }
 
@@ -122,12 +140,35 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<ChatMessageDto> findMessagesByUserIdAndRegDate(Long userId) {
         List<ChatMessageDto> result = new ArrayList<>();
-        List<ChatRoomUserEntity> users = chatRoomUserRepository.findAllByUserId(userId);
-        for (ChatRoomUserEntity user : users) {
-            for (ChatRoomUserEntity roomUsers : chatRoomUserRepository.findAllByChatRoomId(user.getChatRoom().getId())) {
-                if (!roomUsers.getUser().getId().equals(userId)) {
-                    result.addAll(chatMessageRepository.findAllByRoomIdAndUserId(user.getChatRoom().getId(), userId));
+        List<BlockSessionDto> blockUsers = new ArrayList<>();
+
+        List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByUserId(userId);
+
+        for (ChatRoomUserEntity roomUser : roomUsers) {
+            if (roomUser.getUser().getId().equals(userId)) {
+                blockUsers = blockService.findSessionDtoWithYou(roomUser.getUser().getEmail());
+                break;
+            }
+        }
+
+        for (ChatRoomUserEntity roomUser : roomUsers) {
+            List<ChatMessageDto> messages = chatMessageRepository.findAllByRoomId(roomUser.getChatRoom().getId()).stream()
+                    .filter(x -> x.getIsRead().equals(false) && !x.getSenderId().equals(userId))
+                    .collect(Collectors.toList());
+            Long id = chatRoomUserRepository.findAllByChatRoomId(roomUser.getChatRoom().getId()).stream()
+                    .map(x -> x.getUser().getId()).filter(x -> !x.equals(userId)).findFirst().orElse(null);
+
+            if (id != null) {
+                List<BlockSessionDto> blockUser = blockUsers.stream().filter(x -> x.getUserId().equals(id)).collect(Collectors.toList());
+                if (!blockUser.isEmpty()) {
+                    result.addAll(messages.stream().filter(x -> x.getRegDate().isBefore(blockUser.get(0).getRegDate())).collect(Collectors.toList()));
                 }
+                else {
+                    result.addAll(messages);
+                }
+            }
+            else {
+                result.addAll(messages);
             }
         }
         result.sort(Comparator.comparing(ChatMessageDto::getRegDate).reversed());

@@ -54,7 +54,7 @@ public class BlockController {
 
     @GetMapping("/users/block")
     public ResponseEntity findBlockUsers(@AuthenticationPrincipal PrincipalDetails principalDetails) {
-        List<BlockUserDto> result = blockService.findBlockUsers(principalDetails.getId());
+        List<BlockUserDto> result = blockService.findAllByUserFromId(principalDetails.getId());
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
     }

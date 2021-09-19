@@ -3,7 +3,10 @@ package okky.team.chawchaw.chat;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.BlockRedisRepository;
+import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
+import okky.team.chawchaw.chat.room.ChatRoomUserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -23,6 +26,8 @@ import java.util.stream.Collectors;
 public class ChatMessageRepository {
 
     private final RedisTemplate redisTemplate;
+    private final BlockRedisRepository blockRedisRepository;
+    private final ChatRoomUserRepository chatRoomUserRepository;
     private final AmazonS3 amazonS3;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -37,18 +42,6 @@ public class ChatMessageRepository {
     public List<ChatMessageDto> findAllByRoomId(Long roomId) {
         Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
         List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
-        return result;
-    }
-
-    public List<ChatMessageDto> findAllByRoomIdAndUserId(Long roomId, Long userId) {
-        List<ChatMessageDto> result = new ArrayList<>();
-        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
-        for (String key : keys) {
-            ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);
-            if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId)) {
-                result.add(message);
-            }
-        }
         return result;
     }
 
@@ -88,18 +81,29 @@ public class ChatMessageRepository {
 
     @CachePut(value = "ws", key = "#email")
     public Long updateSession(String email, Long roomId, Long userId) throws Exception {
+        List<BlockSessionDto> blockUsers = blockRedisRepository.findAllByEmail(email);
+        LocalDateTime regDate = LocalDateTime.now();
+        Long receiveId = chatRoomUserRepository.findAllByChatRoomId(roomId).stream()
+                .map(x -> x.getUser().getId())
+                .filter(x -> !x.equals(userId))
+                .findFirst().orElse(null);
+        if (receiveId != null) {
+            BlockSessionDto blockUser = blockUsers.stream()
+                    .filter(x -> x.getUserId().equals(receiveId))
+                    .findFirst().orElse(null);
+            if (blockUser != null)
+                regDate = blockUser.getRegDate();
+        }
+
         if (redisTemplate.opsForValue().get("ws::" + email) != null) {
             redisTemplate.opsForValue().set("ws::" + email, roomId);
             Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+
             for (String key : keys) {
                 ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);
-                if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId)) {
+                if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId) && message.getRegDate().isBefore(regDate)) {
                     message.setIsRead(true);
-                    if (!message.getMessageType().equals(MessageType.ENTER)) {
-                        redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
-                    } else {
-                        redisTemplate.opsForValue().set(key, message);
-                    }
+                    redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
                 }
             }
             return roomId;

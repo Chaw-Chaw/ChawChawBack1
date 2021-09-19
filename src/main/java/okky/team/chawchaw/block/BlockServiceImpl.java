@@ -1,6 +1,7 @@
 package okky.team.chawchaw.block;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.block.dto.BlockUserDto;
 import okky.team.chawchaw.block.dto.CreateBlockDto;
 import okky.team.chawchaw.block.dto.DeleteBlockDto;
@@ -12,9 +13,10 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,25 +55,45 @@ public class BlockServiceImpl implements BlockService {
     }
 
     @Override
-    public List<BlockUserDto> findBlockUsers(Long userFromId) {
+    public List<BlockUserDto> findAllByUserFromId(Long userFromId) {
         return blockRepository.findAllByUserFromId(userFromId);
     }
 
     @Override
+    public Set<Long> findUserId(String email) {
+        return blockRedisRepository.findAllByEmail(email).stream().map(x -> x.getUserId()).collect(Collectors.toSet());
+    }
+
+    @Override
+    public List<BlockSessionDto> findSessionDto(String email) {
+        return blockRepository.findSessionDtoByUserFromEmail(email);
+    }
+
+    @Override
+    public List<BlockSessionDto> findSessionDtoWithYou(String email) {
+        List<BlockSessionDto> blockUsers = new ArrayList<>();
+
+        blockRepository.findSessionDtoByUserFromEmail(email).stream().filter(x -> !blockUsers.contains(x.getUserId())).forEach(blockUsers::add);
+        blockRepository.findSessionDtoByUserToEmail(email).stream().filter(x -> !blockUsers.contains(x.getUserId())).forEach(blockUsers::add);
+
+        return blockUsers;
+    }
+
+    @Override
     public void createSession(String email) {
-        Set<Long> userIds = new HashSet<>();
-        userIds.addAll(blockRepository.findAllByUserFromEmail(email));
-        userIds.addAll(blockRepository.findAllByUserToEmail(email));
-        blockRedisRepository.save(userIds, email);
+
+        List<BlockSessionDto> blockUsers = findSessionDtoWithYou(email);
+
+        blockRedisRepository.save(blockUsers, email);
     }
 
     @Override
     public void updateSession(String email) {
         if (blockRedisRepository.isBlock(email)) {
-            Set<Long> userIds = new HashSet<>();
-            userIds.addAll(blockRepository.findAllByUserFromEmail(email));
-            userIds.addAll(blockRepository.findAllByUserToEmail(email));
-            blockRedisRepository.update(userIds, email);
+
+            List<BlockSessionDto> blockUsers = findSessionDtoWithYou(email);
+
+            blockRedisRepository.update(blockUsers, email);
         }
     }
 

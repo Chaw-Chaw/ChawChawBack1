@@ -1,5 +1,6 @@
 package okky.team.chawchaw.block;
 
+import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.block.dto.BlockUserDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,20 +20,20 @@ public interface BlockRepository extends JpaRepository<BlockEntity, Long> {
      * @param email
      * @return List<Long>
      */
-    @Query("select b.userTo.id " +
+    @Query("select new okky.team.chawchaw.block.dto.BlockSessionDto(b.userTo.id, b.regDate) " +
             "from BlockEntity b " +
             "where b.userFrom.email = :email")
-    List<Long> findAllByUserFromEmail(@Param("email") String email);
+    List<BlockSessionDto> findSessionDtoByUserFromEmail(@Param("email") String email);
 
     /**
      * 내가 차단된 아이디 번호 조회
      * @param email
      * @return List<Long>
      */
-    @Query("select b.userFrom.id " +
+    @Query("select new okky.team.chawchaw.block.dto.BlockSessionDto(b.userFrom.id, b.regDate) " +
             "from BlockEntity b " +
             "where b.userTo.email = :email")
-    List<Long> findAllByUserToEmail(@Param("email") String email);
+    List<BlockSessionDto> findSessionDtoByUserToEmail(@Param("email") String email);
 
 
     Boolean existsByUserFromIdAndUserToId(Long userFrom, Long userTo);
