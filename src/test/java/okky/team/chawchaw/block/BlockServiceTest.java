@@ -8,11 +8,13 @@ import okky.team.chawchaw.block.exception.NotExistBlockException;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 @SpringBootTest
 @Transactional
@@ -32,6 +36,8 @@ class BlockServiceTest {
     private BlockService blockService;
     @Autowired
     private BlockRepository blockRepository;
+    @Autowired
+    private RedisTemplate redisTemplate;
     private List<UserEntity> users;
 
     @BeforeEach
@@ -48,6 +54,13 @@ class BlockServiceTest {
                     .build());
             users.add(user);
         }
+    }
+
+    @AfterEach
+    void endEach() {
+        redisTemplate.delete("block::" + users.get(0).getEmail());
+        redisTemplate.delete("block::" + users.get(1).getEmail());
+        redisTemplate.delete("block::" + users.get(2).getEmail());
     }
 
     @Test
@@ -88,7 +101,7 @@ class BlockServiceTest {
     public void delete_block_fail() throws Exception {
         //when, then
         Assertions.assertThatExceptionOfType(NotExistBlockException.class).isThrownBy(() -> {
-            blockService.deleteBlock(new DeleteBlockDto(users.get(0).getId(), -1L));
+            blockService.deleteBlock(new DeleteBlockDto(users.get(0).getId(), users.get(0).getEmail(), -1L));
         });
     }
 
@@ -98,7 +111,7 @@ class BlockServiceTest {
         //given
         blockRepository.save(new BlockEntity(users.get(0), users.get(1)));
         //when
-        blockService.deleteBlock(new DeleteBlockDto(users.get(0).getId(), users.get(1).getId()));
+        blockService.deleteBlock(new DeleteBlockDto(users.get(0).getId(), users.get(0).getEmail(), users.get(1).getId()));
         //then
         Assertions.assertThat(blockRepository.findAll().size()).isEqualTo(0);
     }
@@ -108,7 +121,7 @@ class BlockServiceTest {
     public void delete_not_exist_block() throws Exception {
         //when, then
         Assertions.assertThatExceptionOfType(NotExistBlockException.class).isThrownBy(() -> {
-            blockService.deleteBlock(new DeleteBlockDto(users.get(0).getId(), users.get(1).getId()));
+            blockService.deleteBlock(new DeleteBlockDto(users.get(0).getId(), users.get(0).getEmail(), users.get(1).getId()));
         });
     }
 
@@ -129,5 +142,61 @@ class BlockServiceTest {
                         new BlockUserDto(users.get(2).getId(), users.get(2).getName(), users.get(2).getImageUrl())
                 ));
     }
+
+    @Test
+    @DisplayName("세션 생성")
+    public void create_session() throws Exception {
+        //given
+        blockRepository.save(new BlockEntity(users.get(0), users.get(1)));
+        blockRepository.save(new BlockEntity(users.get(1), users.get(0)));
+        blockRepository.save(new BlockEntity(users.get(2), users.get(0)));
+        //when
+        blockService.createSession(users.get(0).getEmail());
+        //then
+        Set<Long> result = (Set<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail());
+        Assertions.assertThat(result)
+                .isNotNull();
+        Assertions.assertThat(result)
+                .containsOnly(users.get(1).getId(), users.get(2).getId());
+    }
+    
+    @Test
+    @DisplayName("세션 생성 안 됐을 때 세션 업데이트")
+    public void not_exist_session_update() throws Exception {
+        //when
+        blockService.updateSession(users.get(0).getEmail());
+        //then
+        Assertions.assertThat(redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
+                .isNull();
+    }
+
+    @Test
+    @DisplayName("세션 생성 됐을 때 세션 업데이트")
+    public void exist_session_update() throws Exception {
+        //given
+        blockService.createSession(users.get(0).getEmail());
+        //then
+        Assertions.assertThat((Set<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
+                .isEmpty();
+        //when
+        blockRepository.save(new BlockEntity(users.get(0), users.get(1)));
+        blockRepository.save(new BlockEntity(users.get(1), users.get(0)));
+        blockService.updateSession(users.get(0).getEmail());
+        //then
+        Assertions.assertThat((Set<Long>) redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
+                .containsOnly(users.get(1).getId());
+    }
+
+    @Test
+    @DisplayName("세션 삭제")
+    public void delete_session() throws Exception {
+        blockService.createSession(users.get(0).getEmail());
+        //when
+        blockService.deleteSession(users.get(0).getEmail());
+        //then
+        Assertions.assertThat(redisTemplate.opsForValue().get("block::" + users.get(0).getEmail()))
+                .isNull();
+    }
+
 
 }

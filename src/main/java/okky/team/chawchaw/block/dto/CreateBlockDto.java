@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class CreateBlockDto {
 
-    private Long userFrom;
+    private Long userFromId;
     @NotNull
     private Long userId;
 

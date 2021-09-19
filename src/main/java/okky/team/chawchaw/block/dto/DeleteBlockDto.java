@@ -12,7 +12,8 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 public class DeleteBlockDto {
 
-    private Long userFrom;
+    private Long userFromId;
+    private String userFromEmail;
     @NotNull
     private Long userId;
 

@@ -27,7 +27,7 @@ public class BlockController {
     public ResponseEntity createBlock(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                       @Valid @RequestBody CreateBlockDto createBlockDto) {
 
-        createBlockDto.setUserFrom(principalDetails.getId());
+        createBlockDto.setUserFromId(principalDetails.getId());
 
         try {
             blockService.createBlock(createBlockDto);
@@ -41,7 +41,8 @@ public class BlockController {
     public ResponseEntity deleteBlock(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                       @Valid @RequestBody DeleteBlockDto deleteBlockDto) {
 
-        deleteBlockDto.setUserFrom(principalDetails.getId());
+        deleteBlockDto.setUserFromId(principalDetails.getId());
+        deleteBlockDto.setUserFromEmail(principalDetails.getUsername());
 
         try {
             blockService.deleteBlock(deleteBlockDto);

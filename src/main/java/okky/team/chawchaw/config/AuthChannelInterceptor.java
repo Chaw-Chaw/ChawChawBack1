@@ -1,6 +1,7 @@
 package okky.team.chawchaw.config;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.BlockService;
 import okky.team.chawchaw.chat.ChatMessageRepository;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.jwt.JwtTokenProvider;
@@ -23,6 +24,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final BlockService blockService;
     private final ChatMessageRepository chatMessageRepository;
 
     @Override
@@ -47,12 +49,15 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
                 accessor.setUser(authentication);
                 chatMessageRepository.createSession(user.getEmail());
+                blockService.createSession(user.getEmail());
             }
 
         } else if (StompCommand.SEND == command) {
         } else if (StompCommand.DISCONNECT == command) {
-            if (accessor.getUser() != null)
+            if (accessor.getUser() != null) {
                 chatMessageRepository.deleteSession(accessor.getUser().getName());
+                blockService.deleteSession(accessor.getUser().getName());
+            }
         }
 
         return message;

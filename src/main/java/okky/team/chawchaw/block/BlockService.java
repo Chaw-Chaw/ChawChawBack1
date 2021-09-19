@@ -13,4 +13,8 @@ public interface BlockService {
 
     List<BlockUserDto> findBlockUsers(Long userFromId);
 
+    void createSession(String email);
+    void updateSession(String email);
+    void deleteSession(String email);
+
 }

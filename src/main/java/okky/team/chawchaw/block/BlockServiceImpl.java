@@ -12,7 +12,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,14 +23,16 @@ public class BlockServiceImpl implements BlockService {
 
     private final BlockRepository blockRepository;
     private final UserRepository userRepository;
+    private final BlockRedisRepository blockRedisRepository;
 
     @Override
     @Transactional(readOnly = false)
     public Long createBlock(CreateBlockDto createBlockDto) {
-        if (!blockRepository.existsByUserFromIdAndUserToId(createBlockDto.getUserFrom(), createBlockDto.getUserId())) {
+        if (!blockRepository.existsByUserFromIdAndUserToId(createBlockDto.getUserFromId(), createBlockDto.getUserId())) {
+            UserEntity userFrom = userRepository.findById(createBlockDto.getUserFromId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             UserEntity userTo = userRepository.findById(createBlockDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-            UserEntity userFrom = userRepository.findById(createBlockDto.getUserFrom()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
             BlockEntity block = blockRepository.save(new BlockEntity(userFrom, userTo));
+            updateSession(userFrom.getEmail());
             return block.getId();
         }
         else {
@@ -39,8 +43,9 @@ public class BlockServiceImpl implements BlockService {
     @Override
     @Transactional(readOnly = false)
     public void deleteBlock(DeleteBlockDto deleteBlockDto) {
-        if (blockRepository.existsByUserFromIdAndUserToId(deleteBlockDto.getUserFrom(), deleteBlockDto.getUserId())) {
-            blockRepository.deleteByUserFromIdAndUserToId(deleteBlockDto.getUserFrom(), deleteBlockDto.getUserId());
+        if (blockRepository.existsByUserFromIdAndUserToId(deleteBlockDto.getUserFromId(), deleteBlockDto.getUserId())) {
+            blockRepository.deleteByUserFromIdAndUserToId(deleteBlockDto.getUserFromId(), deleteBlockDto.getUserId());
+            updateSession(deleteBlockDto.getUserFromEmail());
         }
         else {
             throw new NotExistBlockException();
@@ -50,5 +55,28 @@ public class BlockServiceImpl implements BlockService {
     @Override
     public List<BlockUserDto> findBlockUsers(Long userFromId) {
         return blockRepository.findAllByUserFromId(userFromId);
+    }
+
+    @Override
+    public void createSession(String email) {
+        Set<Long> userIds = new HashSet<>();
+        userIds.addAll(blockRepository.findAllByUserFromEmail(email));
+        userIds.addAll(blockRepository.findAllByUserToEmail(email));
+        blockRedisRepository.save(userIds, email);
+    }
+
+    @Override
+    public void updateSession(String email) {
+        if (blockRedisRepository.isBlock(email)) {
+            Set<Long> userIds = new HashSet<>();
+            userIds.addAll(blockRepository.findAllByUserFromEmail(email));
+            userIds.addAll(blockRepository.findAllByUserToEmail(email));
+            blockRedisRepository.update(userIds, email);
+        }
+    }
+
+    @Override
+    public void deleteSession(String email) {
+        blockRedisRepository.delete(email);
     }
 }
