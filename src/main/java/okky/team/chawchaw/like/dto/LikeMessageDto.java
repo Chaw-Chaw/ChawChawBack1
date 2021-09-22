@@ -1,10 +1,10 @@
-package okky.team.chawchaw.follow.dto;
+package okky.team.chawchaw.like.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import okky.team.chawchaw.follow.FollowType;
+import okky.team.chawchaw.like.LikeType;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -12,9 +12,9 @@ import java.time.LocalDateTime;
 @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FollowMessageDto implements Serializable {
+public class LikeMessageDto implements Serializable {
 
-    FollowType followType;
+    LikeType likeType;
     String name;
     LocalDateTime regDate;
 

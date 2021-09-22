@@ -26,7 +26,7 @@ public class UserDetailsDto implements Serializable {
     String instagramUrl;
     LocalDateTime days;
     Long views;
-    Long follows;
-    Boolean isFollow;
+    Long likes;
+    Boolean isLike;
 
 }

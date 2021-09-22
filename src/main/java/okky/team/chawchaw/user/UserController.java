@@ -7,8 +7,8 @@ import okky.team.chawchaw.chat.ChatService;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.properties.TokenProperties;
-import okky.team.chawchaw.follow.FollowService;
-import okky.team.chawchaw.follow.dto.FollowMessageDto;
+import okky.team.chawchaw.like.LikeService;
+import okky.team.chawchaw.like.dto.LikeMessageDto;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
@@ -32,7 +32,7 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-    private final FollowService followService;
+    private final LikeService likeService;
     private final ChatService chatService;
     private final Environment env;
     private final TokenProperties tokenProperties;
@@ -107,7 +107,7 @@ public class UserController {
 
         UserDetailsDto result = userService.findUserDetails(userId);
         result.setViews(userService.getViews(userId));
-        result.setIsFollow(followService.isFollow(principalDetails.getId(), userId));
+        result.setIsLike(likeService.isLike(principalDetails.getId(), userId));
 
         if (result != null)
             return new ResponseEntity(DefaultResponseVo.res(
@@ -193,8 +193,8 @@ public class UserController {
     @GetMapping("/alarm")
     public AlarmDto getAlarm(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         List<ChatMessageDto> messages = chatService.findMessagesByUserIdAndRegDate(principalDetails.getId());
-        List<FollowMessageDto> follows = followService.findMessagesByUserId(principalDetails.getId());
-        return new AlarmDto(messages, follows);
+        List<LikeMessageDto> likes = likeService.findMessagesByUserId(principalDetails.getId());
+        return new AlarmDto(messages, likes);
     }
 
 }

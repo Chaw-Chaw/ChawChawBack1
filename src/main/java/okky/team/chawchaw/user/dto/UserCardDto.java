@@ -17,9 +17,9 @@ public class UserCardDto {
     String repHopeLanguage;
     LocalDateTime days;
     Long views;
-    Integer follows;
+    Integer likes;
 
-    public UserCardDto(Long id, String name, String imageUrl, String content, String repCountry, String repLanguage, String repHopeLanguage, LocalDateTime days, Integer follows) {
+    public UserCardDto(Long id, String name, String imageUrl, String content, String repCountry, String repLanguage, String repHopeLanguage, LocalDateTime days, Integer likes) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;
@@ -28,6 +28,6 @@ public class UserCardDto {
         this.repLanguage = repLanguage;
         this.repHopeLanguage = repHopeLanguage;
         this.days = days;
-        this.follows = follows;
+        this.likes = likes;
     }
 }

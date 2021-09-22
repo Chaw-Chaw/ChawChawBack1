@@ -8,7 +8,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.config.jwt.JwtTokenProvider;
 import okky.team.chawchaw.config.jwt.TokenRedisRepository;
-import okky.team.chawchaw.follow.FollowRepository;
+import okky.team.chawchaw.like.LikeRepository;
 import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService{
 
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final FollowRepository followRepository;
+    private final LikeRepository likeRepository;
     private final CountryRepository countryRepository;
     private final UserCountryRepository userCountryRepository;
     private final LanguageRepository languageRepository;
@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService{
     @CacheEvict(value = "userDetail", key = "#userId")
     public void deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-        followRepository.deleteByUserFromOrUserTo(user, user);
+        likeRepository.deleteByUserFromOrUserTo(user, user);
         if (user != null)
             userRepository.delete(user);
 
@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService{
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
         List<UserHopeLanguageEntity> hopeLanguages = userHopeLanguageRepository.findByUser(user);
-        Long follows = followRepository.countByUserToId(user.getId());
+        Long follows = likeRepository.countByUserToId(user.getId());
 
         UserDetailsDto result = UserDetailsDto.builder()
                 .id(user.getId())
@@ -119,7 +119,7 @@ public class UserServiceImpl implements UserService{
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
                 .days(user.getRegDate())
-                .follows(follows)
+                .likes(follows)
                 .repCountry(user.getRepCountry())
                 .repLanguage(user.getRepLanguage())
                 .repHopeLanguage(user.getRepHopeLanguage())
@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService{
     public UserDetailsDto updateProfile(UpdateUserDto updateUserDto) {
 
         UserEntity user = userRepository.findById(updateUserDto.getId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-        Long follows = followRepository.countByUserToId(user.getId());
+        Long follows = likeRepository.countByUserToId(user.getId());
 
         if (user.getRole().equals(Role.GUEST)) {
             user.changeRole(Role.USER);
@@ -226,7 +226,7 @@ public class UserServiceImpl implements UserService{
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
                 .days(user.getRegDate())
-                .follows(follows)
+                .likes(follows)
                 .repCountry(user.getRepCountry())
                 .repLanguage(user.getRepLanguage())
                 .repHopeLanguage(user.getRepHopeLanguage())

@@ -33,9 +33,9 @@ create table users
     unique (email)
 );
 
-create table follow
+create table likes
 (
-    follow_id bigint auto_increment primary key,
+    like_id bigint auto_increment primary key,
     reg_date  DATETIME DEFAULT CURRENT_TIMESTAMP,
     user_from bigint      null,
     user_to   bigint      null,

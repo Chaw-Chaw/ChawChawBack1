@@ -1,7 +1,7 @@
-package okky.team.chawchaw.follow;
+package okky.team.chawchaw.like;
 
 import lombok.RequiredArgsConstructor;
-import okky.team.chawchaw.follow.dto.FollowMessageDto;
+import okky.team.chawchaw.like.dto.LikeMessageDto;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -15,26 +15,24 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class FollowMessageRepository {
+public class LikeMessageRepository {
 
     private final RedisTemplate redisTemplate;
 
-    public void save(FollowMessageDto messageDto, Long userId) {
-        String key = "follow::" + userId + "_" + UUID.randomUUID().toString();
+    public void save(LikeMessageDto messageDto, Long userId) {
+        String key = "like::" + userId + "_" + UUID.randomUUID().toString();
         redisTemplate.opsForValue().set(key, messageDto);
         redisTemplate.expireAt(key, Date.from(ZonedDateTime.now().plusDays(7).toInstant()));
     }
 
-    public List<FollowMessageDto> findMessagesByUserId(Long userId) {
-        Set<String> keys = redisTemplate.keys("follow::" + userId + "_" + "*");
-        keys.forEach(System.out::println);
-        List<FollowMessageDto> result = keys.stream().map(x -> (FollowMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
+    public List<LikeMessageDto> findMessagesByUserId(Long userId) {
+        Set<String> keys = redisTemplate.keys("like::" + userId + "_" + "*");
+        List<LikeMessageDto> result = keys.stream().map(x -> (LikeMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
         return result;
     }
 
     public void deleteMessagesByUserId(Long userId) {
-        Set<String> keys = redisTemplate.keys("follow::" + userId + "_" + "*");
-        keys.forEach(System.out::println);
+        Set<String> keys = redisTemplate.keys("like::" + userId + "_" + "*");
         keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, "", 1, TimeUnit.MILLISECONDS));
     }
 

@@ -1,4 +1,4 @@
-package okky.team.chawchaw.follow;
+package okky.team.chawchaw.like;
 
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
@@ -10,25 +10,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @SpringBootTest
 @Transactional
 @ActiveProfiles("dev")
-class FollowServiceTest {
+class LikeServiceTest {
 
     @Autowired
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private FollowService followService;
+    private LikeService likeService;
     @Autowired
-    private FollowRepository followRepository;
+    private LikeRepository likeRepository;
 
     @Test
-    public void 팔로우_언팔로우() throws Exception {
+    public void 좋아요() throws Exception {
         //given
         UserEntity userFrom = userRepository.save(UserEntity.builder()
                 .email("mangchhe@naver.com")
@@ -45,14 +42,14 @@ class FollowServiceTest {
                 .school("학교")
                 .build());
         //when && then
-        followService.addFollow(userFrom, userTo.getId());
-        Assertions.assertThat(followRepository.findAll().size()).isEqualTo(1);
-        followService.deleteFollow(userFrom, userTo.getId());
-        Assertions.assertThat(followRepository.findAll().size()).isEqualTo(0);
+        likeService.addLike(userFrom, userTo.getId());
+        Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(1);
+        likeService.deleteLike(userFrom, userTo.getId());
+        Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(0);
     }
 
     @Test
-    public void 회원삭제_팔로우() throws Exception {
+    public void 회원삭제_좋아요() throws Exception {
         //given
         UserEntity userFrom = userRepository.save(UserEntity.builder()
                 .email("mangchhe@naver.com")
@@ -68,18 +65,18 @@ class FollowServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        followService.addFollow(userFrom, userTo.getId());
-        followService.addFollow(userFrom, userTo.getId());
-        followService.addFollow(userFrom, userTo.getId());
-        followService.addFollow(userTo, userFrom.getId());
+        likeService.addLike(userFrom, userTo.getId());
+        likeService.addLike(userFrom, userTo.getId());
+        likeService.addLike(userFrom, userTo.getId());
+        likeService.addLike(userTo, userFrom.getId());
         //when
         userService.deleteUser(userTo.getId());
         //then
-        Assertions.assertThat(followRepository.findAll().size()).isEqualTo(0);
+        Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(0);
     }
 
     @Test
-    public void 팔로우_상대_확인() throws Exception {
+    public void 좋아요_상대_확인() throws Exception {
         //given
         UserEntity userFrom = userRepository.save(UserEntity.builder()
                 .email("mangchhe@naver.com")
@@ -102,10 +99,10 @@ class FollowServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        followService.addFollow(userFrom, userTo.getId());
+        likeService.addLike(userFrom, userTo.getId());
         //when
-        Boolean result = followService.isFollow(userFrom.getId(), userTo.getId());
-        Boolean result2 = followService.isFollow(userFrom.getId(), userTo2.getId());
+        Boolean result = likeService.isLike(userFrom.getId(), userTo.getId());
+        Boolean result2 = likeService.isLike(userFrom.getId(), userTo2.getId());
         //then
         Assertions.assertThat(result).isEqualTo(true);
         Assertions.assertThat(result2).isEqualTo(false);

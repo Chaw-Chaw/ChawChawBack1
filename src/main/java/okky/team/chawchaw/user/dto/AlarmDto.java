@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import okky.team.chawchaw.chat.dto.ChatMessageDto;
-import okky.team.chawchaw.follow.dto.FollowMessageDto;
+import okky.team.chawchaw.like.dto.LikeMessageDto;
 
 import java.util.List;
 
@@ -15,6 +15,6 @@ import java.util.List;
 public class AlarmDto {
 
     List<ChatMessageDto> messages;
-    List<FollowMessageDto> follows;
+    List<LikeMessageDto> likes;
 
 }

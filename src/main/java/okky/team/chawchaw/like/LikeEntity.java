@@ -1,4 +1,4 @@
-package okky.team.chawchaw.follow;
+package okky.team.chawchaw.like;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,14 +11,14 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "follow")
+@Table(name = "likes")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @DynamicInsert
-public class FollowEntity {
+public class LikeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "follow_id")
+    @Column(name = "like_id")
     private Long id;
     @Column(nullable = false, insertable = false, updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
@@ -31,7 +31,7 @@ public class FollowEntity {
     @JoinColumn(name = "user_to")
     private UserEntity userTo;
 
-    public FollowEntity(UserEntity userFrom, UserEntity userTo) {
+    public LikeEntity(UserEntity userFrom, UserEntity userTo) {
         this.userFrom = userFrom;
         this.userTo = userTo;
     }

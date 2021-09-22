@@ -1,14 +1,12 @@
 package okky.team.chawchaw.user;
 
-import okky.team.chawchaw.follow.FollowService;
-import okky.team.chawchaw.user.country.UserCountryEntity;
+import okky.team.chawchaw.like.LikeService;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
 import okky.team.chawchaw.user.language.UserLanguageRepository;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Sets;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
 @SpringBootTest
@@ -31,7 +28,7 @@ class UserServiceTest {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private FollowService followService;
+    private LikeService likeService;
     @Autowired
     private UserCountryRepository userCountryRepository;
     @Autowired
@@ -203,7 +200,7 @@ class UserServiceTest {
         List<UserEntity> users = userRepository.findAll();
         for (int i = 0; i < 2; i++) {
             for (int j = i + 1; j < 3; j++) {
-                followService.addFollow(users.get(i), users.get(j).getId());
+                likeService.addLike(users.get(i), users.get(j).getId());
             }
         }
         //when
@@ -263,7 +260,7 @@ class UserServiceTest {
         Assertions.assertThat(result.getContent()).isEqualTo("내용");
         Assertions.assertThat(result.getFacebookUrl()).isEqualTo("페이스북주소");
         Assertions.assertThat(result.getInstagramUrl()).isEqualTo("인스타그램주소");
-        Assertions.assertThat(result.getFollows()).isEqualTo(0);
+        Assertions.assertThat(result.getLikes()).isEqualTo(0);
         Assertions.assertThat(result.getCountry())
                 .usingRecursiveComparison()
                 .ignoringCollectionOrder()

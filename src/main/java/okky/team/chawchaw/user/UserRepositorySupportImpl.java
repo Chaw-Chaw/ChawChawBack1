@@ -1,23 +1,16 @@
 package okky.team.chawchaw.user;
 
-import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
-import okky.team.chawchaw.follow.QFollowEntity;
-import okky.team.chawchaw.user.country.QUserCountryEntity;
 import okky.team.chawchaw.user.dto.FindUserVo;
 import okky.team.chawchaw.user.dto.UserCardDto;
 import okky.team.chawchaw.user.language.QLanguageEntity;
 import okky.team.chawchaw.user.language.QUserHopeLanguageEntity;
 import okky.team.chawchaw.user.language.QUserLanguageEntity;
-import org.springframework.data.domain.Page;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -53,7 +46,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         user.repLanguage,
                         user.repHopeLanguage,
                         user.regDate,
-                        user.followTo.size()
+                        user.likeTo.size()
                 ))
                 .from(user)
                 .where(
@@ -95,7 +88,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
     private OrderSpecifier<?> getSortedColumn(String order) {
         if (StringUtils.hasText(order)) {
             if (order.equals("like")) {
-                return user.followTo.size().desc();
+                return user.likeTo.size().desc();
             }
             else if (order.equals("view")) {
                 return user.views.desc();

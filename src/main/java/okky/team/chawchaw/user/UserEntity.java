@@ -1,7 +1,7 @@
 package okky.team.chawchaw.user;
 
 import lombok.*;
-import okky.team.chawchaw.follow.FollowEntity;
+import okky.team.chawchaw.like.LikeEntity;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.language.UserHopeLanguageEntity;
 import okky.team.chawchaw.user.language.UserLanguageEntity;
@@ -52,9 +52,9 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<UserHopeLanguageEntity> userHopeLanguages = new ArrayList<>();
     @OneToMany(mappedBy = "userFrom")
-    private List<FollowEntity> followFrom = new ArrayList<>();
+    private List<LikeEntity> likeFrom = new ArrayList<>();
     @OneToMany(mappedBy = "userTo")
-    private List<FollowEntity> followTo = new ArrayList<>();
+    private List<LikeEntity> likeTo = new ArrayList<>();
 
     @Column(nullable = false, insertable = false, updatable = false)
     @ColumnDefault(value = "CURRENT_TIMESTAMP")
