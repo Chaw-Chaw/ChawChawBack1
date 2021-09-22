@@ -1,6 +1,8 @@
 package okky.team.chawchaw.like;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.like.dto.CreateLikeDto;
+import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
@@ -22,14 +24,15 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     @Transactional(readOnly = false)
-    public LikeMessageDto addLike(UserEntity userFrom, Long userTo) {
+    public LikeMessageDto addLike(CreateLikeDto createLikeDto) {
 
-        UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        UserEntity userFrom = userRepository.findById(createLikeDto.getUserFromId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        UserEntity userTo = userRepository.findById(createLikeDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
-        if (!likeRepository.isLike(userFrom.getId(), userTo)) {
-            LikeEntity follow = likeRepository.save(new LikeEntity(userFrom, user));
+        if (!likeRepository.isLike(userFrom.getId(), userTo.getId())) {
+            likeRepository.save(new LikeEntity(userFrom, userTo));
             LikeMessageDto result = new LikeMessageDto(LikeType.LIKE, userFrom.getName(), LocalDateTime.now().withNano(0));
-            likeMessageRepository.save(result, userTo);
+            likeMessageRepository.save(result, userTo.getId());
             return result;
         }
         return null;
@@ -37,14 +40,15 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     @Transactional(readOnly = false)
-    public LikeMessageDto deleteLike(UserEntity userFrom, Long userTo) {
+    public LikeMessageDto deleteLike(DeleteLikeDto deleteLikeDto) {
 
-        UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        UserEntity userFrom = userRepository.findById(deleteLikeDto.getUserFromId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        UserEntity userTo = userRepository.findById(deleteLikeDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
 
-        if (likeRepository.isLike(userFrom.getId(), userTo)) {
-            likeRepository.removeByUserFromAndUserTo(userFrom, user);
-            LikeMessageDto result = new LikeMessageDto(LikeType.UNLIKE, user.getName(), LocalDateTime.now().withNano(0));
-            likeMessageRepository.save(result, userTo);
+        if (likeRepository.isLike(userFrom.getId(), userTo.getId())) {
+            likeRepository.removeByUserFromAndUserTo(userFrom, userTo);
+            LikeMessageDto result = new LikeMessageDto(LikeType.UNLIKE, userFrom.getName(), LocalDateTime.now().withNano(0));
+            likeMessageRepository.save(result, userTo.getId());
             return result;
         }
         return null;

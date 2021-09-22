@@ -1,5 +1,7 @@
 package okky.team.chawchaw.like;
 
+import okky.team.chawchaw.like.dto.CreateLikeDto;
+import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.UserService;
@@ -42,9 +44,9 @@ class LikeServiceTest {
                 .school("학교")
                 .build());
         //when && then
-        likeService.addLike(userFrom, userTo.getId());
+        likeService.addLike(new CreateLikeDto(userFrom.getId(), userTo.getId()));
         Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(1);
-        likeService.deleteLike(userFrom, userTo.getId());
+        likeService.deleteLike(new DeleteLikeDto(userFrom.getId(), userTo.getId()));
         Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(0);
     }
 
@@ -65,10 +67,8 @@ class LikeServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        likeService.addLike(userFrom, userTo.getId());
-        likeService.addLike(userFrom, userTo.getId());
-        likeService.addLike(userFrom, userTo.getId());
-        likeService.addLike(userTo, userFrom.getId());
+        likeService.addLike(new CreateLikeDto(userFrom.getId(), userTo.getId()));
+        likeService.addLike(new CreateLikeDto(userTo.getId(), userFrom.getId()));
         //when
         userService.deleteUser(userTo.getId());
         //then
@@ -99,7 +99,7 @@ class LikeServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        likeService.addLike(userFrom, userTo.getId());
+        likeService.addLike(new CreateLikeDto(userFrom.getId(), userTo.getId()));
         //when
         Boolean result = likeService.isLike(userFrom.getId(), userTo.getId());
         Boolean result2 = likeService.isLike(userFrom.getId(), userTo2.getId());

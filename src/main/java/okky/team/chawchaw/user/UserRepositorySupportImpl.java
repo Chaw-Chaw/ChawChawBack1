@@ -73,7 +73,7 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         /* 학교 */
                         StringUtils.hasText(findUserVo.getSchool()) ? user.school.eq(findUserVo.getSchool()) : null,
                         /* 이름 */
-                        StringUtils.hasText(findUserVo.getName()) ? user.name.eq(findUserVo.getName()) : null,
+                        StringUtils.hasText(findUserVo.getName()) ? user.name.contains(findUserVo.getName()) : null,
                         /* 제외 목록 */
                         findUserVo.getExclude() != null && !findUserVo.getExclude().isEmpty() ?
                                 user.id.notIn(findUserVo.getExclude()) : null,

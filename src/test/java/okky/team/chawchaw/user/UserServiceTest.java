@@ -1,6 +1,7 @@
 package okky.team.chawchaw.user;
 
 import okky.team.chawchaw.like.LikeService;
+import okky.team.chawchaw.like.dto.CreateLikeDto;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
@@ -200,7 +201,7 @@ class UserServiceTest {
         List<UserEntity> users = userRepository.findAll();
         for (int i = 0; i < 2; i++) {
             for (int j = i + 1; j < 3; j++) {
-                likeService.addLike(users.get(i), users.get(j).getId());
+                likeService.addLike(new CreateLikeDto(users.get(i).getId(), users.get(j).getId()));
             }
         }
         //when

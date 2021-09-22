@@ -3,6 +3,8 @@ package okky.team.chawchaw.like;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.block.BlockService;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
+import okky.team.chawchaw.like.dto.CreateLikeDto;
+import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.exception.PointMyselfException;
@@ -11,10 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,19 +23,21 @@ public class LikeController {
     private final BlockService blockService;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    @PostMapping("like/{userId}")
+    @PostMapping("like")
     public ResponseEntity createLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                     @PathVariable Long userId) {
+                                     @RequestBody CreateLikeDto createLikeDto) {
 
-        blockService.validBlockUser(principalDetails.getId(), userId);
+        createLikeDto.setUserFromId(principalDetails.getId());
 
-        if (principalDetails.getId().equals(userId))
+        blockService.validBlockUser(principalDetails.getId(), createLikeDto.getUserId());
+
+        if (principalDetails.getId().equals(createLikeDto.getUserId()))
             throw new PointMyselfException();
 
-        LikeMessageDto result = likeService.addLike(principalDetails.getUserEntity(), userId);
+        LikeMessageDto result = likeService.addLike(createLikeDto);
 
         if (result != null) {
-            messagingTemplate.convertAndSend("/queue/like/" + userId, result);
+            messagingTemplate.convertAndSend("/queue/like/" + createLikeDto.getUserId(), result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseLikeMessage.CREATED_SUCCESS, true), HttpStatus.CREATED);
         }
         else {
@@ -44,14 +45,16 @@ public class LikeController {
         }
     }
 
-    @DeleteMapping("like/{userId}")
+    @DeleteMapping("like")
     public ResponseEntity deleteLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                     @PathVariable Long userId) {
+                                     @RequestBody DeleteLikeDto deleteLikeDto) {
 
-        LikeMessageDto result = likeService.deleteLike(principalDetails.getUserEntity(), userId);
+        deleteLikeDto.setUserFromId(principalDetails.getId());
+
+        LikeMessageDto result = likeService.deleteLike(deleteLikeDto);
 
         if (result != null) {
-            messagingTemplate.convertAndSend("/queue/like/" + userId, result);
+            messagingTemplate.convertAndSend("/queue/like/" + deleteLikeDto.getUserId(), result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseLikeMessage.DELETE_SUCCESS, true), HttpStatus.OK);
         }
         else {
