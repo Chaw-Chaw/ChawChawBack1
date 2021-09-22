@@ -1,6 +1,7 @@
 package okky.team.chawchaw.chat;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.BlockService;
 import okky.team.chawchaw.chat.dto.*;
 import okky.team.chawchaw.chat.room.ChatRoomUserService;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
@@ -27,10 +28,13 @@ public class ChatSubController {
 
     private final ChatService chatService;
     private final ChatRoomUserService chatRoomUserService;
+    private final BlockService blockService;
 
     @PostMapping("/room")
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @Valid @RequestBody CreateChatRoomDto createChatRoomDto) {
+
+        blockService.validBlockUser(principalDetails.getId(), createChatRoomDto.getUserId());
 
         if (principalDetails.getId().equals(createChatRoomDto.getUserId()))
             throw new PointMyselfException();

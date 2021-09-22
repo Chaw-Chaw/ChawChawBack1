@@ -1,7 +1,9 @@
 package okky.team.chawchaw.utils.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import okky.team.chawchaw.block.exception.BlockedUserException;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.message.ResponseBlockMessage;
 import okky.team.chawchaw.utils.message.ResponseDataMessage;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
@@ -51,6 +53,11 @@ public class GlobalExceptionHandler {
     protected ResponseEntity pointMyself(PointMyselfException e) {
         log.warn("자기 자신 선택");
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.POINT_MYSELF, false), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BlockedUserException.class)
+    protected ResponseEntity blockUserException(BlockedUserException e) {
+        return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.BLOCKED_USER, false), HttpStatus.FORBIDDEN);
     }
 
 }

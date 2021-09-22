@@ -15,6 +15,11 @@ public interface BlockRepository extends JpaRepository<BlockEntity, Long> {
             "where b.userFrom.id = :userId")
     List<BlockUserDto> findAllByUserFromId(@Param("userId") Long userId);
 
+    @Query("select b.id " +
+            "from BlockEntity b " +
+            "where b.userFrom.id = :userId")
+    List<Long> findIdsByUserFromId(@Param("userId") Long userId);
+
     /**
      * 내가 차단한 아이디 번호 조회
      * @param email
@@ -35,7 +40,17 @@ public interface BlockRepository extends JpaRepository<BlockEntity, Long> {
             "where b.userTo.email = :email")
     List<BlockSessionDto> findSessionDtoByUserToEmail(@Param("email") String email);
 
-
+    /**
+     * 차단 했거나 차단 되었는지에 대한 검증
+     * @param userFromId
+     * @param userToId
+     * @return 차단 여부
+     */
+    @Query("select count(b) > 0 " +
+            "from BlockEntity b " +
+            "where (b.userFrom.id = :userFromId and b.userTo.id = :userToId) " +
+            "or (b.userFrom.id = :userToId and b.userTo.id = :userFromId)")
+    Boolean existsByUserIds(@Param("userFromId") Long userFromId, @Param("userToId") Long userToId);
     Boolean existsByUserFromIdAndUserToId(Long userFrom, Long userTo);
     void deleteByUserFromIdAndUserToId(Long userFrom, Long userTo);
 

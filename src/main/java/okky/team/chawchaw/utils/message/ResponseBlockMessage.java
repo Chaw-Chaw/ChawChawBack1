@@ -10,5 +10,6 @@ public class ResponseBlockMessage {
     public static final String NOT_EXIST_BLOCK = "차단되지 않은 대상";
     public static final String FIND_SUCCESS = "차단 목록 조회 성공";
     public static final String FIND_FAIL = "차단 목록 조회 실패";
+    public static final String BLOCKED_USER = "차단한 또는 차단된 유저";
 
 }

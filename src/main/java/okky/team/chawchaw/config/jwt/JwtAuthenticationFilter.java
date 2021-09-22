@@ -1,6 +1,7 @@
 package okky.team.chawchaw.config.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import okky.team.chawchaw.block.BlockRepository;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.social.SocialService;
@@ -36,9 +37,10 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     private TokenProperties tokenProperties;
     private JwtTokenProvider jwtTokenProvider;
     private TokenRedisRepository tokenRedisRepository;
+    private BlockRepository blockRepository;
     private ObjectMapper mapper = new ObjectMapper();
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, SocialService socialService, Environment env, TokenProperties tokenProperties, JwtTokenProvider jwtTokenProvider, TokenRedisRepository tokenRedisRepository) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserService userService, SocialService socialService, Environment env, TokenProperties tokenProperties, JwtTokenProvider jwtTokenProvider, TokenRedisRepository tokenRedisRepository, BlockRepository blockRepository) {
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.socialService = socialService;
@@ -46,6 +48,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         this.tokenProperties = tokenProperties;
         this.jwtTokenProvider = jwtTokenProvider;
         this.tokenRedisRepository = tokenRedisRepository;
+        this.blockRepository = blockRepository;
     }
 
     @Override
@@ -130,7 +133,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         TokenDto tokenInfo = new TokenDto("JWT", accessToken, tokenProperties.getAccess().getExpirationTime(), tokenProperties.getRefresh().getExpirationTime());
 
-        UserProfileTokenDto responseBody = new UserProfileTokenDto(userService.findUserProfile(principal.getUserEntity()), tokenInfo);
+        UserProfileTokenDto responseBody = new UserProfileTokenDto(userService.findUserProfile(principal.getUserEntity()), tokenInfo, blockRepository.findIdsByUserFromId(principal.getId()));
 
         writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, responseBody)));
     }

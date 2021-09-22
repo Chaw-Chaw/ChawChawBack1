@@ -1,6 +1,7 @@
 package okky.team.chawchaw.follow;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.BlockService;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.follow.dto.FollowMessageDto;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
@@ -20,11 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class FollowController {
 
     private final FollowService followService;
+    private final BlockService blockService;
     private final SimpMessageSendingOperations messagingTemplate;
 
     @PostMapping("follow/{userId}")
     public ResponseEntity createFollow(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                        @PathVariable Long userId) {
+
+        blockService.validBlockUser(principalDetails.getId(), userId);
 
         if (principalDetails.getId().equals(userId))
             throw new PointMyselfException();

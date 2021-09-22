@@ -5,6 +5,7 @@ import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.block.dto.BlockUserDto;
 import okky.team.chawchaw.block.dto.CreateBlockDto;
 import okky.team.chawchaw.block.dto.DeleteBlockDto;
+import okky.team.chawchaw.block.exception.BlockedUserException;
 import okky.team.chawchaw.block.exception.ExistBlockException;
 import okky.team.chawchaw.block.exception.NotExistBlockException;
 import okky.team.chawchaw.user.UserEntity;
@@ -100,5 +101,11 @@ public class BlockServiceImpl implements BlockService {
     @Override
     public void deleteSession(String email) {
         blockRedisRepository.delete(email);
+    }
+
+    @Override
+    public void validBlockUser(Long userFromId, Long userToId) {
+        if (blockRepository.existsByUserIds(userFromId, userToId))
+            throw new BlockedUserException();
     }
 }

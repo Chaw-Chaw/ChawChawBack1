@@ -18,8 +18,11 @@ public interface BlockService {
     Set<Long> findUserId(String email);
     List<BlockSessionDto> findSessionDto(String email);
     List<BlockSessionDto> findSessionDtoWithYou(String email);
+
     void createSession(String email);
     void updateSession(String email);
     void deleteSession(String email);
+
+    void validBlockUser(Long userFromId, Long userToId);
 
 }

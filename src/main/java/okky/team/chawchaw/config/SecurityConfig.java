@@ -1,6 +1,7 @@
 package okky.team.chawchaw.config;
 
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.BlockRepository;
 import okky.team.chawchaw.config.jwt.*;
 import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.social.SocialService;
@@ -30,6 +31,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final TokenProperties tokenProperties;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRedisRepository tokenRedisRepository;
+    private final BlockRepository blockRepository;
     @Value("${front.domain}")
     private String frontDomain;
     @Value("${front.domain-local}")
@@ -41,7 +43,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(corsFilter())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userService, socialService, env, tokenProperties, jwtTokenProvider, tokenRedisRepository))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userService, socialService, env, tokenProperties, jwtTokenProvider, tokenRedisRepository, blockRepository))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, jwtTokenProvider, tokenRedisRepository))
                 .formLogin().disable()
                 .httpBasic().disable()
