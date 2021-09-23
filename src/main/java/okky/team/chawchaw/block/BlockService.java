@@ -10,7 +10,7 @@ import java.util.Set;
 
 public interface BlockService {
 
-    Long createBlock(CreateBlockDto createBlockDto);
+    void createBlock(CreateBlockDto createBlockDto);
     void deleteBlock(DeleteBlockDto deleteBlockDto);
 
     List<BlockUserDto> findAllByUserFromId(Long userFromId);

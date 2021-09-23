@@ -8,9 +8,6 @@ import okky.team.chawchaw.block.dto.DeleteBlockDto;
 import okky.team.chawchaw.block.exception.BlockedUserException;
 import okky.team.chawchaw.block.exception.ExistBlockException;
 import okky.team.chawchaw.block.exception.NotExistBlockException;
-import okky.team.chawchaw.user.UserEntity;
-import okky.team.chawchaw.user.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,18 +22,14 @@ import java.util.stream.Collectors;
 public class BlockServiceImpl implements BlockService {
 
     private final BlockRepository blockRepository;
-    private final UserRepository userRepository;
     private final BlockRedisRepository blockRedisRepository;
 
     @Override
     @Transactional(readOnly = false)
-    public Long createBlock(CreateBlockDto createBlockDto) {
+    public void createBlock(CreateBlockDto createBlockDto) {
         if (!blockRepository.existsByUserFromIdAndUserToId(createBlockDto.getUserFromId(), createBlockDto.getUserId())) {
-            UserEntity userFrom = userRepository.findById(createBlockDto.getUserFromId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-            UserEntity userTo = userRepository.findById(createBlockDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-            BlockEntity block = blockRepository.save(new BlockEntity(userFrom, userTo));
-            updateSession(userFrom.getEmail());
-            return block.getId();
+            blockRepository.saveByUserFromIdAndUserToId(createBlockDto.getUserFromId(), createBlockDto.getUserId());
+            updateSession(createBlockDto.getUserFromEmail());
         }
         else {
             throw new ExistBlockException();

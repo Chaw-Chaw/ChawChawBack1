@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 public class CreateBlockDto {
 
     private Long userFromId;
+    private String userFromEmail;
     @NotNull
     private Long userId;
 

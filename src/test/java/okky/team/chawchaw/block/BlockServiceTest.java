@@ -15,8 +15,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,8 +66,8 @@ class BlockServiceTest {
     @DisplayName("잘못된 아이디 번호로 인한 차단 실패")
     public void create_block_fail() throws Exception {
         //when, then
-        Assertions.assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> {
-            blockService.createBlock(new CreateBlockDto(users.get(0).getId(), -1L));
+        Assertions.assertThatExceptionOfType(DataIntegrityViolationException.class).isThrownBy(() -> {
+            blockService.createBlock(new CreateBlockDto(users.get(0).getId(), users.get(0).getEmail(), -1L));
         });
     }
 
@@ -75,11 +75,9 @@ class BlockServiceTest {
     @DisplayName("쌍방 차단 성공")
     public void create_block() throws Exception {
         //when
-        Long blockId = blockService.createBlock(new CreateBlockDto(users.get(0).getId(), users.get(1).getId()));
-        Long blockId2 = blockService.createBlock(new CreateBlockDto(users.get(1).getId(), users.get(0).getId()));
+        blockService.createBlock(new CreateBlockDto(users.get(0).getId(), users.get(0).getEmail(), users.get(1).getId()));
+        blockService.createBlock(new CreateBlockDto(users.get(1).getId(), users.get(1).getEmail(), users.get(0).getId()));
         //then
-        Assertions.assertThat(blockId).isNotNull();
-        Assertions.assertThat(blockId2).isNotNull();
         Assertions.assertThat(blockRepository.findAll().size()).isEqualTo(2);
     }
 
@@ -89,8 +87,8 @@ class BlockServiceTest {
     public void duplicate_block() throws Exception {
         //when, then
         Assertions.assertThatExceptionOfType(ExistBlockException.class).isThrownBy(() -> {
-                    blockService.createBlock(new CreateBlockDto(users.get(0).getId(), users.get(1).getId()));
-                    blockService.createBlock(new CreateBlockDto(users.get(0).getId(), users.get(1).getId()));
+                    blockService.createBlock(new CreateBlockDto(users.get(0).getId(), users.get(0).getEmail(), users.get(1).getId()));
+                    blockService.createBlock(new CreateBlockDto(users.get(0).getId(), users.get(0).getEmail(), users.get(1).getId()));
                 }
         );
     }

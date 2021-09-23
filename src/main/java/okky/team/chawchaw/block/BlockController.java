@@ -28,6 +28,7 @@ public class BlockController {
                                       @Valid @RequestBody CreateBlockDto createBlockDto) {
 
         createBlockDto.setUserFromId(principalDetails.getId());
+        createBlockDto.setUserFromEmail(principalDetails.getUsername());
 
         try {
             blockService.createBlock(createBlockDto);

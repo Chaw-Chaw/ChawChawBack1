@@ -3,12 +3,17 @@ package okky.team.chawchaw.block;
 import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.block.dto.BlockUserDto;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
 public interface BlockRepository extends JpaRepository<BlockEntity, Long> {
+
+    @Modifying
+    @Query(value = "insert into block(user_from, user_to) values (:userFromId, :userToId)", nativeQuery = true)
+    void saveByUserFromIdAndUserToId(@Param("userFromId") Long userFromId, @Param("userToId") Long userToId);
 
     @Query("select new okky.team.chawchaw.block.dto.BlockUserDto(b.userTo.id, b.userTo.name, b.userTo.imageUrl) " +
             "from BlockEntity b " +
