@@ -14,7 +14,6 @@ public class DeleteBlockDto {
 
     private Long userFromId;
     private String userFromEmail;
-    @NotNull
     private Long userId;
 
 }

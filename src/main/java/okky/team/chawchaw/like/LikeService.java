@@ -3,7 +3,6 @@ package okky.team.chawchaw.like;
 import okky.team.chawchaw.like.dto.CreateLikeDto;
 import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
-import okky.team.chawchaw.user.UserEntity;
 
 import java.util.List;
 

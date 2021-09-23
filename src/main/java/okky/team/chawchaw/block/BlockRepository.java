@@ -15,10 +15,10 @@ public interface BlockRepository extends JpaRepository<BlockEntity, Long> {
             "where b.userFrom.id = :userId")
     List<BlockUserDto> findAllByUserFromId(@Param("userId") Long userId);
 
-    @Query("select b.id " +
+    @Query("select b.userTo.id " +
             "from BlockEntity b " +
             "where b.userFrom.id = :userId")
-    List<Long> findIdsByUserFromId(@Param("userId") Long userId);
+    List<Long> findUserToIdsByUserFromId(@Param("userId") Long userId);
 
     /**
      * 내가 차단한 아이디 번호 조회

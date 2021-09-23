@@ -37,15 +37,12 @@ public class BlockController {
         return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.CREATE_BLOCK_SUCCESS, true), HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/block")
+    @DeleteMapping("/users/block/{userId}")
     public ResponseEntity deleteBlock(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                      @Valid @RequestBody DeleteBlockDto deleteBlockDto) {
-
-        deleteBlockDto.setUserFromId(principalDetails.getId());
-        deleteBlockDto.setUserFromEmail(principalDetails.getUsername());
+                                      @PathVariable Long userId) {
 
         try {
-            blockService.deleteBlock(deleteBlockDto);
+            blockService.deleteBlock(new DeleteBlockDto(principalDetails.getId(), principalDetails.getUsername(), userId));
         } catch (NotExistBlockException e) {
             return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.NOT_EXIST_BLOCK, false), HttpStatus.OK);
         }

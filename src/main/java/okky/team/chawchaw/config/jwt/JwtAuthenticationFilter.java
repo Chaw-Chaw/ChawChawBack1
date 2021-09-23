@@ -133,7 +133,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         TokenDto tokenInfo = new TokenDto("JWT", accessToken, tokenProperties.getAccess().getExpirationTime(), tokenProperties.getRefresh().getExpirationTime());
 
-        UserProfileTokenDto responseBody = new UserProfileTokenDto(userService.findUserProfile(principal.getUserEntity()), tokenInfo, blockRepository.findIdsByUserFromId(principal.getId()));
+        UserProfileTokenDto responseBody = new UserProfileTokenDto(userService.findUserProfile(principal.getUserEntity()), tokenInfo, blockRepository.findUserToIdsByUserFromId(principal.getId()));
 
         writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, responseBody)));
     }

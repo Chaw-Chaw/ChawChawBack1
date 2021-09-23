@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("like")
 public class LikeController {
 
     private final LikeService likeService;
     private final BlockService blockService;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    @PostMapping("like")
+    @PostMapping("")
     public ResponseEntity createLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                      @RequestBody CreateLikeDto createLikeDto) {
 
@@ -45,16 +46,15 @@ public class LikeController {
         }
     }
 
-    @DeleteMapping("like")
+    @DeleteMapping("{userId}")
     public ResponseEntity deleteLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                     @RequestBody DeleteLikeDto deleteLikeDto) {
+                                     @PathVariable Long userId) {
 
-        deleteLikeDto.setUserFromId(principalDetails.getId());
 
-        LikeMessageDto result = likeService.deleteLike(deleteLikeDto);
+        LikeMessageDto result = likeService.deleteLike(new DeleteLikeDto(principalDetails.getId(), userId));
 
         if (result != null) {
-            messagingTemplate.convertAndSend("/queue/like/" + deleteLikeDto.getUserId(), result);
+            messagingTemplate.convertAndSend("/queue/like/" + userId, result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseLikeMessage.DELETE_SUCCESS, true), HttpStatus.OK);
         }
         else {
