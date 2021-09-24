@@ -8,6 +8,7 @@ import okky.team.chawchaw.block.dto.DeleteBlockDto;
 import okky.team.chawchaw.block.exception.BlockedUserException;
 import okky.team.chawchaw.block.exception.ExistBlockException;
 import okky.team.chawchaw.block.exception.NotExistBlockException;
+import okky.team.chawchaw.user.UserEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +29,7 @@ public class BlockServiceImpl implements BlockService {
     @Transactional(readOnly = false)
     public void createBlock(CreateBlockDto createBlockDto) {
         if (!blockRepository.existsByUserFromIdAndUserToId(createBlockDto.getUserFromId(), createBlockDto.getUserId())) {
-            blockRepository.saveByUserFromIdAndUserToId(createBlockDto.getUserFromId(), createBlockDto.getUserId());
+            blockRepository.save(new BlockEntity(new UserEntity(createBlockDto.getUserFromId()), new UserEntity(createBlockDto.getUserId())));
             updateSession(createBlockDto.getUserFromEmail());
         }
         else {

@@ -32,4 +32,5 @@ public class ChatRoomEntity {
     public ChatRoomEntity(String name) {
         this.name = name;
     }
+
 }

@@ -83,6 +83,10 @@ public class UserEntity {
         this.repHopeLanguage = repHopeLanguage == null ? "" : repHopeLanguage;
     }
 
+    public UserEntity(Long id) {
+        this.id = id;
+    }
+
     public void changeImageUrl(String imageUrl) {
         this.imageUrl = imageUrl != null ? imageUrl : this.imageUrl;
     }

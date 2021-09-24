@@ -11,10 +11,6 @@ import java.util.List;
 
 public interface BlockRepository extends JpaRepository<BlockEntity, Long> {
 
-    @Modifying
-    @Query(value = "insert into block(user_from, user_to) values (:userFromId, :userToId)", nativeQuery = true)
-    void saveByUserFromIdAndUserToId(@Param("userFromId") Long userFromId, @Param("userToId") Long userToId);
-
     @Query("select new okky.team.chawchaw.block.dto.BlockUserDto(b.userTo.id, b.userTo.name, b.userTo.imageUrl) " +
             "from BlockEntity b " +
             "where b.userFrom.id = :userId")

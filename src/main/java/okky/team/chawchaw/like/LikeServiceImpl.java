@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.like.dto.CreateLikeDto;
 import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
+import okky.team.chawchaw.user.UserEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +24,7 @@ public class LikeServiceImpl implements LikeService {
     public LikeMessageDto addLike(CreateLikeDto createLikeDto) {
 
         if (!likeRepository.isLike(createLikeDto.getUserFromId(), createLikeDto.getUserId())) {
-            likeRepository.saveByUserFromIdAndUserToId(createLikeDto.getUserFromId(), createLikeDto.getUserId());
+            likeRepository.save(new LikeEntity(new UserEntity(createLikeDto.getUserFromId()), new UserEntity(createLikeDto.getUserId())));
             LikeMessageDto result = new LikeMessageDto(LikeType.LIKE, createLikeDto.getUserFromName(), LocalDateTime.now().withNano(0));
             likeMessageRepository.save(result, createLikeDto.getUserId());
             return result;

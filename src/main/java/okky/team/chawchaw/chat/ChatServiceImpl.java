@@ -15,11 +15,9 @@ import okky.team.chawchaw.chat.room.ChatRoomRepository;
 import okky.team.chawchaw.chat.room.ChatRoomUserEntity;
 import okky.team.chawchaw.chat.room.ChatRoomUserRepository;
 import okky.team.chawchaw.user.UserEntity;
-import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.utils.exception.NotExistRoomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +34,6 @@ public class ChatServiceImpl implements ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
-    private final UserRepository userRepository;
     private final BlockService blockService;
     private final AmazonS3 amazonS3;
     @Value("${cloud.aws.s3.bucket}")
@@ -49,10 +46,8 @@ public class ChatServiceImpl implements ChatService {
     @Transactional(readOnly = false)
     public ChatRoomDto createRoom(Long userFrom, Long userTo) {
         ChatRoomEntity room = chatRoomRepository.save(new ChatRoomEntity(UUID.randomUUID().toString()));
-        UserEntity user = userRepository.findById(userFrom).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-        UserEntity user2 = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-        chatRoomUserRepository.save(new ChatRoomUserEntity(room, user));
-        chatRoomUserRepository.save(new ChatRoomUserEntity(room, user2));
+        chatRoomUserRepository.save(new ChatRoomUserEntity(room, new UserEntity(userFrom)));
+        chatRoomUserRepository.save(new ChatRoomUserEntity(room, new UserEntity(userTo)));
         return new ChatRoomDto(room.getId(), "none");
     }
 
