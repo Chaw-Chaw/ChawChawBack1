@@ -4,9 +4,6 @@ import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.like.dto.CreateLikeDto;
 import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
-import okky.team.chawchaw.user.UserEntity;
-import okky.team.chawchaw.user.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +15,6 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class LikeServiceImpl implements LikeService {
 
-    private final UserRepository userRepository;
     private final LikeRepository likeRepository;
     private final LikeMessageRepository likeMessageRepository;
 
@@ -26,13 +22,10 @@ public class LikeServiceImpl implements LikeService {
     @Transactional(readOnly = false)
     public LikeMessageDto addLike(CreateLikeDto createLikeDto) {
 
-        UserEntity userFrom = userRepository.findById(createLikeDto.getUserFromId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-        UserEntity userTo = userRepository.findById(createLikeDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-
-        if (!likeRepository.isLike(userFrom.getId(), userTo.getId())) {
-            likeRepository.save(new LikeEntity(userFrom, userTo));
-            LikeMessageDto result = new LikeMessageDto(LikeType.LIKE, userFrom.getName(), LocalDateTime.now().withNano(0));
-            likeMessageRepository.save(result, userTo.getId());
+        if (!likeRepository.isLike(createLikeDto.getUserFromId(), createLikeDto.getUserId())) {
+            likeRepository.saveByUserFromIdAndUserToId(createLikeDto.getUserFromId(), createLikeDto.getUserId());
+            LikeMessageDto result = new LikeMessageDto(LikeType.LIKE, createLikeDto.getUserFromName(), LocalDateTime.now().withNano(0));
+            likeMessageRepository.save(result, createLikeDto.getUserId());
             return result;
         }
         return null;
@@ -42,13 +35,10 @@ public class LikeServiceImpl implements LikeService {
     @Transactional(readOnly = false)
     public LikeMessageDto deleteLike(DeleteLikeDto deleteLikeDto) {
 
-        UserEntity userFrom = userRepository.findById(deleteLikeDto.getUserFromId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-        UserEntity userTo = userRepository.findById(deleteLikeDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-
-        if (likeRepository.isLike(userFrom.getId(), userTo.getId())) {
-            likeRepository.removeByUserFromAndUserTo(userFrom, userTo);
-            LikeMessageDto result = new LikeMessageDto(LikeType.UNLIKE, userFrom.getName(), LocalDateTime.now().withNano(0));
-            likeMessageRepository.save(result, userTo.getId());
+        if (likeRepository.isLike(deleteLikeDto.getUserFromId(), deleteLikeDto.getUserId())) {
+            likeRepository.removeByUserFromIdAndUserToId(deleteLikeDto.getUserFromId(), deleteLikeDto.getUserId());
+            LikeMessageDto result = new LikeMessageDto(LikeType.UNLIKE, deleteLikeDto.getUserFromName(), LocalDateTime.now().withNano(0));
+            likeMessageRepository.save(result, deleteLikeDto.getUserId());
             return result;
         }
         return null;

@@ -13,6 +13,7 @@ import javax.validation.constraints.NotNull;
 public class CreateLikeDto {
 
     private Long userFromId;
+    private String userFromName;
     @NotNull
     private Long userId;
 

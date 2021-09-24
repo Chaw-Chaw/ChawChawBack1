@@ -44,9 +44,9 @@ class LikeServiceTest {
                 .school("학교")
                 .build());
         //when && then
-        likeService.addLike(new CreateLikeDto(userFrom.getId(), userTo.getId()));
+        likeService.addLike(new CreateLikeDto(userFrom.getId(), userFrom.getName(), userTo.getId()));
         Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(1);
-        likeService.deleteLike(new DeleteLikeDto(userFrom.getId(), userTo.getId()));
+        likeService.deleteLike(new DeleteLikeDto(userFrom.getId(), userFrom.getName(), userTo.getId()));
         Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(0);
     }
 
@@ -67,8 +67,8 @@ class LikeServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        likeService.addLike(new CreateLikeDto(userFrom.getId(), userTo.getId()));
-        likeService.addLike(new CreateLikeDto(userTo.getId(), userFrom.getId()));
+        likeService.addLike(new CreateLikeDto(userFrom.getId(), userFrom.getName(), userTo.getId()));
+        likeService.addLike(new CreateLikeDto(userTo.getId(), userFrom.getName(), userFrom.getId()));
         //when
         userService.deleteUser(userTo.getId());
         //then
@@ -99,7 +99,7 @@ class LikeServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        likeService.addLike(new CreateLikeDto(userFrom.getId(), userTo.getId()));
+        likeService.addLike(new CreateLikeDto(userFrom.getId(), userFrom.getName(), userTo.getId()));
         //when
         Boolean result = likeService.isLike(userFrom.getId(), userTo.getId());
         Boolean result2 = likeService.isLike(userFrom.getId(), userTo2.getId());

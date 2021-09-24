@@ -201,7 +201,7 @@ class UserServiceTest {
         List<UserEntity> users = userRepository.findAll();
         for (int i = 0; i < 2; i++) {
             for (int j = i + 1; j < 3; j++) {
-                likeService.addLike(new CreateLikeDto(users.get(i).getId(), users.get(j).getId()));
+                likeService.addLike(new CreateLikeDto(users.get(i).getId(), users.get(i).getName(), users.get(j).getId()));
             }
         }
         //when

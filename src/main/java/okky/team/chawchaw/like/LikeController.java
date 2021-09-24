@@ -29,6 +29,7 @@ public class LikeController {
                                      @RequestBody CreateLikeDto createLikeDto) {
 
         createLikeDto.setUserFromId(principalDetails.getId());
+        createLikeDto.setUserFromName(principalDetails.getName());
 
         blockService.validBlockUser(principalDetails.getId(), createLikeDto.getUserId());
 
@@ -51,7 +52,7 @@ public class LikeController {
                                      @PathVariable Long userId) {
 
 
-        LikeMessageDto result = likeService.deleteLike(new DeleteLikeDto(principalDetails.getId(), userId));
+        LikeMessageDto result = likeService.deleteLike(new DeleteLikeDto(principalDetails.getId(), principalDetails.getName(), userId));
 
         if (result != null) {
             messagingTemplate.convertAndSend("/queue/like/" + userId, result);
