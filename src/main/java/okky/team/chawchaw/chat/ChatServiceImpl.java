@@ -15,7 +15,7 @@ import okky.team.chawchaw.chat.room.ChatRoomRepository;
 import okky.team.chawchaw.chat.room.ChatRoomUserEntity;
 import okky.team.chawchaw.chat.room.ChatRoomUserRepository;
 import okky.team.chawchaw.user.UserEntity;
-import okky.team.chawchaw.utils.exception.NotExistRoomException;
+import okky.team.chawchaw.chat.exception.NotExistRoomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatRedisRepository chatRedisRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
     private final BlockService blockService;
@@ -44,10 +44,10 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     @Transactional(readOnly = false)
-    public ChatRoomDto createRoom(Long userFrom, Long userTo) {
+    public ChatRoomDto createRoom(Long userFromId, Long userToId) {
         ChatRoomEntity room = chatRoomRepository.save(new ChatRoomEntity(UUID.randomUUID().toString()));
-        chatRoomUserRepository.save(new ChatRoomUserEntity(room, new UserEntity(userFrom)));
-        chatRoomUserRepository.save(new ChatRoomUserEntity(room, new UserEntity(userTo)));
+        chatRoomUserRepository.save(new ChatRoomUserEntity(room, new UserEntity(userFromId)));
+        chatRoomUserRepository.save(new ChatRoomUserEntity(room, new UserEntity(userToId)));
         return new ChatRoomDto(room.getId(), "none");
     }
 
@@ -61,13 +61,13 @@ public class ChatServiceImpl implements ChatService {
         * 최근 메시지 등록일 > 방 유저 퇴장 시간 : 해당 유저가 퇴장 하지 않았다는 의미
         * 최근 메시지가 없다면, 방을 생성하고 메시지를 보내지 않았다는 의미
         * */
-        LocalDateTime latestMessageRegDate = chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomId).stream().map(ChatMessageDto::getRegDate).max(LocalDateTime::compareTo).orElse(null);
+        LocalDateTime latestMessageRegDate = chatRedisRepository.findAllByRoomIdOrderByRegDateDesc(roomId).stream().map(ChatMessageDto::getRegDate).max(LocalDateTime::compareTo).orElse(null);
         List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByChatRoomId(roomId);
         if (latestMessageRegDate == null) {
             if (!roomUsers.stream().map(x -> x.getUser().getId()).collect(Collectors.toList()).contains(userId))
                 throw new NotExistRoomException();
             chatRoomRepository.deleteById(roomId);
-            chatMessageRepository.deleteByRoomId(roomId);
+            chatRedisRepository.deleteByRoomId(roomId);
             return;
         }
         List<ChatRoomUserEntity> existUsers = roomUsers.stream().filter(x -> x.getExitDate().isBefore(latestMessageRegDate)).collect(Collectors.toList());
@@ -76,7 +76,7 @@ public class ChatServiceImpl implements ChatService {
             if (!existUsers.get(0).getUser().getId().equals(userId))
                 throw new NotExistRoomException();
             chatRoomRepository.deleteById(roomId);
-            chatMessageRepository.deleteByRoomId(roomId);
+            chatRedisRepository.deleteByRoomId(roomId);
         }
         else {
             existUsers.stream().filter(x -> x.getUser().getId().equals(userId)).forEach(ChatRoomUserEntity::exitRoom);
@@ -105,7 +105,7 @@ public class ChatServiceImpl implements ChatService {
                 chatDto.getParticipantImageUrls().add(user.getUser().getImageUrl());
             }
 
-            List<ChatMessageDto> chatMessages = chatMessageRepository.findAllByRoomIdOrderByRegDateDesc(roomUser.getChatRoom().getId());
+            List<ChatMessageDto> chatMessages = chatRedisRepository.findAllByRoomIdOrderByRegDateDesc(roomUser.getChatRoom().getId());
             List<ChatMessageDto> chatMessagesDesc = chatMessages.stream().filter(x -> x.getRegDate().isAfter(roomUser.getExitDate())).collect(Collectors.toList());
 
             /* 내 아이디라면 && 내가 나간 방이라면(메시지가 없다면 나간 방으로 간주) && 자의로 나간지 체크*/
@@ -147,7 +147,7 @@ public class ChatServiceImpl implements ChatService {
         }
 
         for (ChatRoomUserEntity roomUser : roomUsers) {
-            List<ChatMessageDto> messages = chatMessageRepository.findAllByRoomId(roomUser.getChatRoom().getId()).stream()
+            List<ChatMessageDto> messages = chatRedisRepository.findAllByRoomId(roomUser.getChatRoom().getId()).stream()
                     .filter(x -> x.getIsRead().equals(false) && !x.getSenderId().equals(userId))
                     .collect(Collectors.toList());
             Long id = chatRoomUserRepository.findAllByChatRoomId(roomUser.getChatRoom().getId()).stream()
@@ -195,13 +195,13 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional(readOnly = false)
     public void sendMessage(ChatMessageDto chatMessageDto) {
-        chatMessageRepository.save(chatMessageDto);
+        chatRedisRepository.save(chatMessageDto);
     }
 
     @Override
     public Boolean updateCurrentRoom(String email, Long roomId, Long userId) {
         try {
-            chatMessageRepository.updateSession(email, roomId, userId);
+            chatRedisRepository.updateSession(email, roomId, userId);
             return true;
         } catch (Exception e) {
             return false;
@@ -210,6 +210,6 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public Boolean isConnection(String email, Long roomId) {
-        return chatMessageRepository.isSession(email, roomId);
+        return chatRedisRepository.isSession(email, roomId);
     }
 }

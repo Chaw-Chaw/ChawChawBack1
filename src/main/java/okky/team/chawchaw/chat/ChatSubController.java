@@ -5,9 +5,9 @@ import okky.team.chawchaw.block.BlockService;
 import okky.team.chawchaw.chat.dto.*;
 import okky.team.chawchaw.chat.room.ChatRoomUserService;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
+import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
-import okky.team.chawchaw.utils.exception.NotExistRoomException;
-import okky.team.chawchaw.utils.exception.PointMyselfException;
+import okky.team.chawchaw.chat.exception.NotExistRoomException;
 import okky.team.chawchaw.utils.message.ResponseChatMessage;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -29,15 +29,14 @@ public class ChatSubController {
     private final ChatService chatService;
     private final ChatRoomUserService chatRoomUserService;
     private final BlockService blockService;
+    private final UserService userService;
 
     @PostMapping("/room")
     public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @Valid @RequestBody CreateChatRoomDto createChatRoomDto) {
 
+        userService.validMyself(principalDetails.getId(), createChatRoomDto.getUserId());
         blockService.validBlockUser(principalDetails.getId(), createChatRoomDto.getUserId());
-
-        if (principalDetails.getId().equals(createChatRoomDto.getUserId()))
-            throw new PointMyselfException();
 
         Long roomId = chatRoomUserService.getRoomIdByUserIds(principalDetails.getId(), createChatRoomDto.getUserId());
 

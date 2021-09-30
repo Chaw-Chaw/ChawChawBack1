@@ -1,4 +1,4 @@
-package okky.team.chawchaw.utils.exception;
+package okky.team.chawchaw.user.exception;
 
 public class PointMyselfException extends RuntimeException{
 }

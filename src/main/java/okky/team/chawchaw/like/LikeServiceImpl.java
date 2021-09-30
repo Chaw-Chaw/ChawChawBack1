@@ -17,7 +17,7 @@ import java.util.List;
 public class LikeServiceImpl implements LikeService {
 
     private final LikeRepository likeRepository;
-    private final LikeMessageRepository likeMessageRepository;
+    private final LikeRedisRepository likeRedisRepository;
 
     @Override
     @Transactional(readOnly = false)
@@ -26,7 +26,7 @@ public class LikeServiceImpl implements LikeService {
         if (!likeRepository.isLike(createLikeDto.getUserFromId(), createLikeDto.getUserId())) {
             likeRepository.save(new LikeEntity(new UserEntity(createLikeDto.getUserFromId()), new UserEntity(createLikeDto.getUserId())));
             LikeMessageDto result = new LikeMessageDto(LikeType.LIKE, createLikeDto.getUserFromName(), LocalDateTime.now().withNano(0));
-            likeMessageRepository.save(result, createLikeDto.getUserId());
+            likeRedisRepository.save(result, createLikeDto.getUserId());
             return result;
         }
         return null;
@@ -39,23 +39,23 @@ public class LikeServiceImpl implements LikeService {
         if (likeRepository.isLike(deleteLikeDto.getUserFromId(), deleteLikeDto.getUserId())) {
             likeRepository.removeByUserFromIdAndUserToId(deleteLikeDto.getUserFromId(), deleteLikeDto.getUserId());
             LikeMessageDto result = new LikeMessageDto(LikeType.UNLIKE, deleteLikeDto.getUserFromName(), LocalDateTime.now().withNano(0));
-            likeMessageRepository.save(result, deleteLikeDto.getUserId());
+            likeRedisRepository.save(result, deleteLikeDto.getUserId());
             return result;
         }
         return null;
     }
 
     @Override
-    public List<LikeMessageDto> findMessagesByUserId(Long userId) {
+    public List<LikeMessageDto> findMessagesByUserFromId(Long userFromId) {
 
-        List<LikeMessageDto> result = likeMessageRepository.findMessagesByUserId(userId);
-        likeMessageRepository.deleteMessagesByUserId(userId);
+        List<LikeMessageDto> result = likeRedisRepository.findMessagesByUserFromId(userFromId);
+        likeRedisRepository.deleteMessagesByUserFromId(userFromId);
         return result;
     }
 
     @Override
-    public Boolean isLike(Long userFrom, Long userTo) {
+    public Boolean isLike(Long userFromId, Long userToId) {
 
-        return likeRepository.isLike(userFrom, userTo);
+        return likeRepository.isLike(userFromId, userToId);
     }
 }

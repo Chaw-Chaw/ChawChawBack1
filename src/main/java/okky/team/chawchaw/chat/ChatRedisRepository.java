@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class ChatMessageRepository {
+public class ChatRedisRepository {
 
     private final RedisTemplate redisTemplate;
     private final BlockRedisRepository blockRedisRepository;
@@ -31,22 +31,23 @@ public class ChatMessageRepository {
     private final AmazonS3 amazonS3;
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
+    private final String prefix = "message::";
 
     public void save(ChatMessageDto message) {
-        String key = "message::" + message.getRoomId().toString() + "_" + UUID.randomUUID().toString();
+        String key = prefix + message.getRoomId().toString() + "_" + UUID.randomUUID().toString();
         redisTemplate.opsForValue().set(key, message);
         if (!message.getMessageType().equals(MessageType.ENTER))
             redisTemplate.expireAt(key, Date.from(ZonedDateTime.now().plusDays(1).toInstant()));
     }
 
     public List<ChatMessageDto> findAllByRoomId(Long roomId) {
-        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+        Set<String> keys = redisTemplate.keys(prefix + roomId.toString() + "_" + "*");
         List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
         return result;
     }
 
     public List<ChatMessageDto> findAllByRoomIdOrderByRegDateDesc(Long roomId) {
-        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+        Set<String> keys = redisTemplate.keys(prefix + roomId.toString() + "_" + "*");
         List<ChatMessageDto> result = keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x))
                 .sorted(Comparator.comparing(ChatMessageDto::getRegDate))
                 .collect(Collectors.toList());
@@ -54,7 +55,7 @@ public class ChatMessageRepository {
     }
 
     public void deleteByRoomId(Long roomId) {
-        Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+        Set<String> keys = redisTemplate.keys(prefix + roomId.toString() + "_" + "*");
         for (String key : keys) {
             ChatMessageDto chatMessageDto = (ChatMessageDto) redisTemplate.opsForValue().get(key);
             if (chatMessageDto.getMessageType().equals(MessageType.IMAGE)) {
@@ -97,7 +98,7 @@ public class ChatMessageRepository {
 
         if (redisTemplate.opsForValue().get("ws::" + email) != null) {
             redisTemplate.opsForValue().set("ws::" + email, roomId);
-            Set<String> keys = redisTemplate.keys("message::" + roomId.toString() + "_" + "*");
+            Set<String> keys = redisTemplate.keys(prefix + roomId.toString() + "_" + "*");
 
             for (String key : keys) {
                 ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);

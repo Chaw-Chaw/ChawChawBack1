@@ -24,8 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @Transactional
 @ActiveProfiles("dev")
@@ -38,7 +36,7 @@ class ChatServiceImplTest {
     @Autowired
     private ChatRoomUserRepository chatRoomUserRepository;
     @Autowired
-    private ChatMessageRepository chatMessageRepository;
+    private ChatRedisRepository chatRedisRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -66,7 +64,7 @@ class ChatServiceImplTest {
         //then
         List<ChatRoomEntity> rooms = chatRoomRepository.findAll();
         List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAll();
-        List<ChatMessageDto> messages = chatMessageRepository.findAllByRoomId(rooms.get(0).getId());
+        List<ChatMessageDto> messages = chatRedisRepository.findAllByRoomId(rooms.get(0).getId());
         Assertions.assertThat(rooms.size()).isEqualTo(1);
         Assertions.assertThat(roomUsers.size()).isEqualTo(2);
         Assertions.assertThat(messages.get(0)).extracting("roomId", "sender", "message").isEqualTo(
@@ -169,7 +167,7 @@ class ChatServiceImplTest {
         chatService.deleteRoomByRoomIdAndUserId(room.getRoomId(), userFrom.getId());
 
         //then
-        List<ChatMessageDto> resultMessage = chatMessageRepository.findAllByRoomId(room.getRoomId());
+        List<ChatMessageDto> resultMessage = chatRedisRepository.findAllByRoomId(room.getRoomId());
         Optional<ChatRoomEntity> resultRoom = chatRoomRepository.findById(room.getRoomId());
         List<ChatRoomUserEntity> resultRoomUser = chatRoomUserRepository.findAllByChatRoomId(room.getRoomId());
         List<ChatDto> messagesByUserId = chatService.findMessagesByUserId(userTo.getId());
@@ -183,7 +181,7 @@ class ChatServiceImplTest {
         chatService.deleteRoomByRoomIdAndUserId(room.getRoomId(), userTo.getId());
 
         //then
-        List<ChatMessageDto> resultMessage2 = chatMessageRepository.findAllByRoomId(room.getRoomId());
+        List<ChatMessageDto> resultMessage2 = chatRedisRepository.findAllByRoomId(room.getRoomId());
         Optional<ChatRoomEntity> resultRoom2 = chatRoomRepository.findById(room.getRoomId());
         List<ChatRoomUserEntity> resultRoomUser2 = chatRoomUserRepository.findAllByChatRoomId(room.getRoomId());
         List<ChatDto> messagesByUserId2 = chatService.findMessagesByUserId(userTo.getId());

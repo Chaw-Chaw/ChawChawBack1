@@ -1,4 +1,4 @@
-package okky.team.chawchaw.utils.exception;
+package okky.team.chawchaw.chat.exception;
 
 public class NotExistRoomException extends RuntimeException{
 }

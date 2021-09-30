@@ -6,8 +6,8 @@ import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.like.dto.CreateLikeDto;
 import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
+import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
-import okky.team.chawchaw.utils.exception.PointMyselfException;
 import okky.team.chawchaw.utils.message.ResponseLikeMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,19 +22,18 @@ public class LikeController {
 
     private final LikeService likeService;
     private final BlockService blockService;
+    private final UserService userService;
     private final SimpMessageSendingOperations messagingTemplate;
 
     @PostMapping("")
     public ResponseEntity createLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                      @RequestBody CreateLikeDto createLikeDto) {
 
-        createLikeDto.setUserFromId(principalDetails.getId());
-        createLikeDto.setUserFromName(principalDetails.getName());
-
+        userService.validMyself(principalDetails.getId(), createLikeDto.getUserId());
         blockService.validBlockUser(principalDetails.getId(), createLikeDto.getUserId());
 
-        if (principalDetails.getId().equals(createLikeDto.getUserId()))
-            throw new PointMyselfException();
+        createLikeDto.setUserFromId(principalDetails.getId());
+        createLikeDto.setUserFromName(principalDetails.getName());
 
         LikeMessageDto result = likeService.addLike(createLikeDto);
 
@@ -51,6 +50,7 @@ public class LikeController {
     public ResponseEntity deleteLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                      @PathVariable Long userId) {
 
+        userService.validMyself(principalDetails.getId(), userId);
 
         LikeMessageDto result = likeService.deleteLike(new DeleteLikeDto(principalDetails.getId(), principalDetails.getName(), userId));
 

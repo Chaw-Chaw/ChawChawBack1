@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserService {
 
     Long createUser(CreateUserDto createUserDto);
-    Boolean duplicateEmail(String email);
+    void duplicateEmail(String email);
     void deleteUser(Long userId);
 
     List<UserCardDto> findUserCards(FindUserVo findUserVo);
@@ -27,5 +27,6 @@ public interface UserService {
     Boolean isUser(String email);
     Long getViews(Long userId);
     void updateViews();
-    void checkView(Long userFrom, Long userTo);
+    void checkView(Long userFromId, Long userToId);
+    void validMyself(Long userFromId, Long userToId);
 }

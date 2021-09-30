@@ -1,6 +1,7 @@
 package okky.team.chawchaw.user.dto;
 
 import lombok.*;
+import okky.team.chawchaw.user.UserEntity;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
@@ -30,5 +31,16 @@ public class CreateUserDto {
     @NotNull
     @Length(max = 8)
     private String provider;
+
+    public UserEntity dtoToUserEntity() {
+        return UserEntity.builder()
+                .email(email)
+                .password(password)
+                .name(name)
+                .web_email(web_email)
+                .school(school)
+                .imageUrl(imageUrl)
+                .build();
+    }
 
 }

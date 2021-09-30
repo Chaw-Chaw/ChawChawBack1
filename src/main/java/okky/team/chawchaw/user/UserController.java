@@ -11,7 +11,6 @@ import okky.team.chawchaw.like.LikeService;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
-import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.utils.message.ResponseAuthMessage;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
@@ -59,9 +58,7 @@ public class UserController {
     @GetMapping("/email/duplicate/{email}")
     public ResponseEntity<Boolean> duplicateEmail(@PathVariable String email){
 
-        if (userService.duplicateEmail(email)) {
-            throw new DuplicationUserEmailException();
-        }
+        userService.duplicateEmail(email);
 
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.EMAIL_NOT_EXIST, false), HttpStatus.OK);
 
@@ -193,7 +190,7 @@ public class UserController {
     @GetMapping("/alarm")
     public AlarmDto getAlarm(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         List<ChatMessageDto> messages = chatService.findMessagesByUserIdAndRegDate(principalDetails.getId());
-        List<LikeMessageDto> likes = likeService.findMessagesByUserId(principalDetails.getId());
+        List<LikeMessageDto> likes = likeService.findMessagesByUserFromId(principalDetails.getId());
         return new AlarmDto(messages, likes);
     }
 

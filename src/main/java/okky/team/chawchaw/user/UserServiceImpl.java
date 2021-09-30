@@ -14,8 +14,8 @@ import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.*;
-import okky.team.chawchaw.utils.DtoToEntity;
-import okky.team.chawchaw.utils.exception.DuplicationUserEmailException;
+import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
+import okky.team.chawchaw.user.exception.PointMyselfException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -60,23 +60,23 @@ public class UserServiceImpl implements UserService{
     @Transactional(readOnly = false)
     public Long createUser(CreateUserDto createUserDto) {
 
-        if (duplicateEmail(createUserDto.getEmail())) {
-            throw new DuplicationUserEmailException();
-        }
+        duplicateEmail(createUserDto.getEmail());
 
         createUserDto.setPassword(passwordEncoder.encode(createUserDto.getPassword()));
         if (!StringUtils.hasText(createUserDto.getImageUrl())) {
                 createUserDto.setImageUrl(cloudFrontDomain + defaultImage);
         }
-        UserEntity user = DtoToEntity.createUserDtoToEntity(createUserDto);
+        UserEntity user = createUserDto.dtoToUserEntity();
 
         return userRepository.save(user).getId();
     }
 
     @Override
-    public Boolean duplicateEmail(String email) {
+    public void duplicateEmail(String email) {
         Optional<UserEntity> user = userRepository.findByEmail(email);
-        return user.isPresent();
+        if (user.isPresent()) {
+            throw new DuplicationUserEmailException();
+        }
     }
 
     @Override
@@ -369,17 +369,22 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    public void checkView(Long userFrom, Long userTo) {
+    public void checkView(Long userFromId, Long userToId) {
 
-        Object views = redisTemplate.opsForValue().get("views::" + userTo);
+        Object views = redisTemplate.opsForValue().get("views::" + userToId);
 
-        if (redisTemplate.opsForValue().get("viewDuplex::" + userFrom + "_" + userTo) == null) {
-            UserEntity user = userRepository.findById(userTo).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-            redisTemplate.opsForValue().set("viewDuplex::" + userFrom + "_" + userTo, 1, 1, TimeUnit.DAYS);
+        if (redisTemplate.opsForValue().get("viewDuplex::" + userFromId + "_" + userToId) == null) {
+            redisTemplate.opsForValue().set("viewDuplex::" + userFromId + "_" + userToId, 1, 1, TimeUnit.DAYS);
             if (views == null) {
-                views = userRepository.findViewsByUserId(userTo);
+                views = userRepository.findViewsByUserId(userToId);
             }
-            redisTemplate.opsForValue().set("views::" + userTo, (Long) views + 1, 1, TimeUnit.DAYS);
+            redisTemplate.opsForValue().set("views::" + userToId, (Long) views + 1, 1, TimeUnit.DAYS);
         }
+    }
+
+    @Override
+    public void validMyself(Long userFromId, Long userToId) {
+        if (userFromId.equals(userToId))
+            throw new PointMyselfException();
     }
 }

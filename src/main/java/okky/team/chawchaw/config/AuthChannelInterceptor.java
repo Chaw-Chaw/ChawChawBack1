@@ -2,7 +2,7 @@ package okky.team.chawchaw.config;
 
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.block.BlockService;
-import okky.team.chawchaw.chat.ChatMessageRepository;
+import okky.team.chawchaw.chat.ChatRedisRepository;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.jwt.JwtTokenProvider;
 import okky.team.chawchaw.user.Role;
@@ -25,7 +25,7 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
     private final BlockService blockService;
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatRedisRepository chatRedisRepository;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -48,14 +48,14 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
                 PrincipalDetails principalDetails = new PrincipalDetails(user);
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
                 accessor.setUser(authentication);
-                chatMessageRepository.createSession(user.getEmail());
+                chatRedisRepository.createSession(user.getEmail());
                 blockService.createSession(user.getEmail());
             }
 
         } else if (StompCommand.SEND == command) {
         } else if (StompCommand.DISCONNECT == command) {
             if (accessor.getUser() != null) {
-                chatMessageRepository.deleteSession(accessor.getUser().getName());
+                chatRedisRepository.deleteSession(accessor.getUser().getName());
                 blockService.deleteSession(accessor.getUser().getName());
             }
         }

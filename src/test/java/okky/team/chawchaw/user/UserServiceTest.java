@@ -6,6 +6,7 @@ import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
 import okky.team.chawchaw.user.language.UserLanguageRepository;
+import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.Test;
@@ -71,12 +72,11 @@ class UserServiceTest {
                 .web_email("웹메일")
                 .school("학교")
                 .build());
-        //when
-        Boolean result = userService.duplicateEmail("mangchhe@naver.com");
-        Boolean result2 = userService.duplicateEmail("mangchhe2@naver.com");
-        //then
-        Assertions.assertThat(result).isTrue();
-        Assertions.assertThat(result2).isFalse();
+        //when, then
+        Assertions.assertThatExceptionOfType(DuplicationUserEmailException.class).isThrownBy(() -> {
+            userService.duplicateEmail("mangchhe@naver.com");
+        });
+        userService.duplicateEmail("mangchhe2@naver.com");
     }
 
     @Test

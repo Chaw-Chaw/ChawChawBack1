@@ -15,24 +15,25 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class LikeMessageRepository {
+public class LikeRedisRepository {
 
     private final RedisTemplate redisTemplate;
+    private final String prefix = "like::";
 
     public void save(LikeMessageDto messageDto, Long userId) {
-        String key = "like::" + userId + "_" + UUID.randomUUID().toString();
+        String key = prefix + userId + "_" + UUID.randomUUID().toString();
         redisTemplate.opsForValue().set(key, messageDto);
         redisTemplate.expireAt(key, Date.from(ZonedDateTime.now().plusDays(7).toInstant()));
     }
 
-    public List<LikeMessageDto> findMessagesByUserId(Long userId) {
-        Set<String> keys = redisTemplate.keys("like::" + userId + "_" + "*");
+    public List<LikeMessageDto> findMessagesByUserFromId(Long userFromId) {
+        Set<String> keys = redisTemplate.keys(prefix + userFromId + "_" + "*");
         List<LikeMessageDto> result = keys.stream().map(x -> (LikeMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
         return result;
     }
 
-    public void deleteMessagesByUserId(Long userId) {
-        Set<String> keys = redisTemplate.keys("like::" + userId + "_" + "*");
+    public void deleteMessagesByUserFromId(Long userFromId) {
+        Set<String> keys = redisTemplate.keys(prefix + userFromId + "_" + "*");
         keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, "", 1, TimeUnit.MILLISECONDS));
     }
 

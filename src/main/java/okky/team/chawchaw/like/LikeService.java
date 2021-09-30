@@ -11,8 +11,8 @@ public interface LikeService {
     LikeMessageDto addLike(CreateLikeDto createLikeDto);
     LikeMessageDto deleteLike(DeleteLikeDto deleteLikeDto);
 
-    List<LikeMessageDto> findMessagesByUserId(Long userId);
+    List<LikeMessageDto> findMessagesByUserFromId(Long userFromId);
 
-    Boolean isLike(Long userFrom, Long userTo);
+    Boolean isLike(Long userFromId, Long userToId);
 
 }

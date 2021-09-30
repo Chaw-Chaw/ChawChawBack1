@@ -2,6 +2,8 @@ package okky.team.chawchaw.utils.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import okky.team.chawchaw.block.exception.BlockedUserException;
+import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
+import okky.team.chawchaw.user.exception.PointMyselfException;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseBlockMessage;
 import okky.team.chawchaw.utils.message.ResponseDataMessage;
