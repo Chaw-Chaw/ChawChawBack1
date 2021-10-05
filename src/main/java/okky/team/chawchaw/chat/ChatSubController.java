@@ -58,7 +58,7 @@ public class ChatSubController {
 
     @PostMapping("/room/enter")
     public ResponseEntity updateCurrentRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                            @RequestBody ChatRoomDto chatRoomDto) {
+                                            @Valid @RequestBody ChatRoomDto chatRoomDto) {
 
         Boolean result = chatService.updateCurrentRoom(principalDetails.getUsername(), chatRoomDto.getRoomId(), principalDetails.getId());
         if (result)
@@ -67,11 +67,11 @@ public class ChatSubController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.MOVE_ROOM_FAIL, false), HttpStatus.OK);
     }
 
-    @DeleteMapping("/room/{roomId}")
+    @DeleteMapping("/room")
     public ResponseEntity deleteChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                         @PathVariable Long roomId) {
+                                         @Valid @RequestBody DeleteChatRoomDto deleteChatRoomDto) {
         try {
-            chatService.deleteRoomByRoomIdAndUserId(roomId, principalDetails.getId());
+            chatService.deleteRoomByRoomIdAndUserId(deleteChatRoomDto.getRoomId(), principalDetails.getId());
 
         }  catch (NotExistRoomException | EmptyResultDataAccessException e) {
             return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.NOT_EXIST_ROOM, false), HttpStatus.OK);

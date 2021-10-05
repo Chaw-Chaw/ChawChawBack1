@@ -15,6 +15,8 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("like")
@@ -27,7 +29,7 @@ public class LikeController {
 
     @PostMapping("")
     public ResponseEntity createLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                     @RequestBody CreateLikeDto createLikeDto) {
+                                     @Valid @RequestBody CreateLikeDto createLikeDto) {
 
         userService.validMyself(principalDetails.getId(), createLikeDto.getUserId());
         blockService.validBlockUser(principalDetails.getId(), createLikeDto.getUserId());
@@ -46,16 +48,19 @@ public class LikeController {
         }
     }
 
-    @DeleteMapping("{userId}")
+    @DeleteMapping("")
     public ResponseEntity deleteLike(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                     @PathVariable Long userId) {
+                                     @Valid @RequestBody DeleteLikeDto deleteLikeDto) {
 
-        userService.validMyself(principalDetails.getId(), userId);
+        deleteLikeDto.setUserFromId(principalDetails.getId());
+        deleteLikeDto.setUserFromName(principalDetails.getName());
 
-        LikeMessageDto result = likeService.deleteLike(new DeleteLikeDto(principalDetails.getId(), principalDetails.getName(), userId));
+        userService.validMyself(deleteLikeDto.getUserFromId(), deleteLikeDto.getUserId());
+
+        LikeMessageDto result = likeService.deleteLike(deleteLikeDto);
 
         if (result != null) {
-            messagingTemplate.convertAndSend("/queue/like/" + userId, result);
+            messagingTemplate.convertAndSend("/queue/like/" + deleteLikeDto.getUserId(), result);
             return new ResponseEntity(DefaultResponseVo.res(ResponseLikeMessage.DELETE_SUCCESS, true), HttpStatus.OK);
         }
         else {
