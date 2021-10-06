@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.block.BlockRepository;
 import okky.team.chawchaw.config.jwt.JwtTokenProvider;
 import okky.team.chawchaw.config.jwt.TokenRedisRepository;
 import okky.team.chawchaw.like.LikeRepository;
@@ -40,6 +41,7 @@ public class UserServiceImpl implements UserService{
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final LikeRepository likeRepository;
+    private final BlockRepository blockRepository;
     private final CountryRepository countryRepository;
     private final UserCountryRepository userCountryRepository;
     private final LanguageRepository languageRepository;
@@ -85,6 +87,7 @@ public class UserServiceImpl implements UserService{
     public void deleteUser(Long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         likeRepository.deleteByUserFromOrUserTo(user, user);
+        blockRepository.deleteByUserFromOrUserTo(user, user);
         if (user != null)
             userRepository.delete(user);
 

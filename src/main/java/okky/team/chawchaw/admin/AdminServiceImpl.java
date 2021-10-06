@@ -156,6 +156,7 @@ public class AdminServiceImpl implements AdminService{
 
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         likeRepository.deleteByUserFromOrUserTo(user, user);
+        blockRepository.deleteByUserFromOrUserTo(user, user);
         if (user != null)
             userRepository.delete(user);
     }

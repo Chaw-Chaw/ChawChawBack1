@@ -2,6 +2,7 @@ package okky.team.chawchaw.block;
 
 import okky.team.chawchaw.block.dto.BlockSessionDto;
 import okky.team.chawchaw.block.dto.BlockUserDto;
+import okky.team.chawchaw.user.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -55,4 +56,7 @@ public interface BlockRepository extends JpaRepository<BlockEntity, Long> {
     Boolean existsByUserFromIdAndUserToId(Long userFrom, Long userTo);
     void deleteByUserFromIdAndUserToId(Long userFrom, Long userTo);
 
+    @Modifying
+    @Query("delete from BlockEntity b where b.userFrom = :userFrom or b.userTo = :userTo")
+    void deleteByUserFromOrUserTo(@Param("userFrom") UserEntity userFrom, @Param("userTo") UserEntity userTo);
 }
