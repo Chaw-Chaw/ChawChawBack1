@@ -2,6 +2,7 @@ package okky.team.chawchaw.config;
 
 import com.google.common.collect.Sets;
 import lombok.RequiredArgsConstructor;
+import okky.team.chawchaw.user.Role;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.UserService;
@@ -37,6 +38,19 @@ public class DummyConfig implements CommandLineRunner {
         List<CountryEntity> countrys = countryRepository.findAll();
 
         if (!isStart) {
+            /* 관리자 */
+            userRepository.save(UserEntity.builder()
+                    .email("admin@chawchaw.kr")
+                    .password(passwordEncoder.encode("admin123!@#"))
+                    .imageUrl(
+                            env.getProperty("cloud.front.domain") +
+                            env.getProperty("user.profile.image.default")
+                    )
+                    .school("차우차우대학교")
+                    .web_email("admin@school.ac.kr")
+                    .role(Role.ADMIN)
+                    .build());
+            /* 사용자 */
             for (int i = 0; i < 20; i++) {
                 /* 랜덤 언어, 희망 언어, 나라 생성 */
                 ArrayList<String> language = new ArrayList();
