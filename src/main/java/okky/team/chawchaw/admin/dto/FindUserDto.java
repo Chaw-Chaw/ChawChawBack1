@@ -1,11 +1,12 @@
 package okky.team.chawchaw.admin.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
 @Getter @Setter
+@AllArgsConstructor
+@Builder
 public class FindUserDto {
 
     String name;

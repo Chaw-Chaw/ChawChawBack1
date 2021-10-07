@@ -11,6 +11,7 @@ import okky.team.chawchaw.block.BlockEntity;
 import okky.team.chawchaw.block.BlockRedisRepository;
 import okky.team.chawchaw.block.BlockRepository;
 import okky.team.chawchaw.block.dto.BlockSessionDto;
+import okky.team.chawchaw.block.dto.BlockUserDto;
 import okky.team.chawchaw.block.exception.ExistBlockException;
 import okky.team.chawchaw.block.exception.NotExistBlockException;
 import okky.team.chawchaw.like.LikeRepository;
@@ -20,12 +21,13 @@ import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
-import okky.team.chawchaw.user.dto.UserCardDto;
 import okky.team.chawchaw.user.dto.UserDetailsDto;
 import okky.team.chawchaw.user.language.*;
+import okky.team.chawchaw.utils.dto.PageResultDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 public class AdminServiceImpl implements AdminService{
 
     private final UserRepository userRepository;
+    private final AdminRepositorySupport adminRepositorySupport;
     private final LikeRepository likeRepository;
     private final CountryRepository countryRepository;
     private final UserCountryRepository userCountryRepository;
@@ -59,13 +62,42 @@ public class AdminServiceImpl implements AdminService{
     private String cloudFrontDomain;
 
     @Override
-    public List<UserCardDto> findUsers(FindUserDto findUserDto) {
-        return null;
+    public PageResultDto<UserCardDto> findUserCards(FindUserDto findUserDto) {
+        Page<UserCardDto> result = adminRepositorySupport.findAllByElement(findUserDto);
+        return new PageResultDto<>(result);
     }
 
     @Override
+    @Transactional(readOnly = false)
     public UserDetailDto findUserDetail(Long userId) {
-        return null;
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+
+        List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
+        List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
+        List<UserHopeLanguageEntity> hopeLanguages = userHopeLanguageRepository.findByUser(user);
+        Long likes = likeRepository.countByUserToId(user.getId());
+        List<BlockUserDto> blockUsers = blockRepository.findAllByUserFromId(user.getId());
+
+        UserDetailDto result = UserDetailDto.builder()
+                .id(user.getId())
+                .name(user.getName())
+                .imageUrl(user.getImageUrl())
+                .content(user.getContent())
+                .facebookUrl(user.getFacebookUrl())
+                .instagramUrl(user.getInstagramUrl())
+                .regDate(user.getRegDate())
+                .likes(likes)
+                .views(user.getViews())
+                .repCountry(user.getRepCountry())
+                .repLanguage(user.getRepLanguage())
+                .repHopeLanguage(user.getRepHopeLanguage())
+                .country(countrys.stream().map(x -> x.getCountry().getName()).collect(Collectors.toList()))
+                .language(languages.stream().map(x -> x.getLanguage().getAbbr()).collect(Collectors.toList()))
+                .hopeLanguage(hopeLanguages.stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toList()))
+                .blockUsers(blockUsers)
+                .build();
+
+        return result;
     }
 
     @Override
@@ -136,7 +168,7 @@ public class AdminServiceImpl implements AdminService{
                 .content(user.getContent())
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
-                .days(user.getRegDate())
+                .regDate(user.getRegDate())
                 .likes(follows)
                 .repCountry(user.getRepCountry())
                 .repLanguage(user.getRepLanguage())

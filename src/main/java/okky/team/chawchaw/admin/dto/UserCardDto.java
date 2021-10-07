@@ -14,13 +14,13 @@ public class UserCardDto {
 
     Long id;
     String name;
-    String imageUrl;
-    String content;
+    String school;
+    String email;
     String repCountry;
     String repLanguage;
     String repHopeLanguage;
-    LocalDateTime days;
-    Long views;
     Integer likes;
+    Long views;
+    LocalDateTime regDate;
 
 }

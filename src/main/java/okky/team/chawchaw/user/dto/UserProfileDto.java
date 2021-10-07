@@ -1,9 +1,9 @@
 package okky.team.chawchaw.user.dto;
 
 import lombok.*;
+import okky.team.chawchaw.user.Role;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter @Setter
@@ -25,5 +25,6 @@ public class UserProfileDto implements Serializable {
     private List<String> hopeLanguage;
     private String facebookUrl;
     private String instagramUrl;
+    private Role role;
 
 }

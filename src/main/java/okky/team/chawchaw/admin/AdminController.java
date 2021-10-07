@@ -6,6 +6,7 @@ import okky.team.chawchaw.block.exception.ExistBlockException;
 import okky.team.chawchaw.block.exception.NotExistBlockException;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.dto.PageResultDto;
 import okky.team.chawchaw.utils.message.ResponseBlockMessage;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
@@ -69,7 +70,9 @@ public class AdminController {
 
     @PostMapping("/users/image")
     public ResponseEntity updateProfileImage(@Valid @ModelAttribute UploadProfileImageDto uploadProfileImageDto) {
+
         String result = adminService.updateProfileImage(uploadProfileImageDto);
+
         if (!result.isEmpty())
             return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_SUCCESS, true, result), HttpStatus.OK);
         else
@@ -78,21 +81,40 @@ public class AdminController {
 
     @DeleteMapping("/users/image")
     public ResponseEntity deleteProfileImage(@Valid @RequestBody DeleteProfileImageDto deleteProfileImageDto) {
+
         String result = adminService.deleteProfileImage(deleteProfileImageDto);
+
         if (!result.isEmpty())
             return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.DELETE_SUCCESS, true, result), HttpStatus.OK);
         else
             return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.DELETE_FAIL, false), HttpStatus.OK);
     }
 
-//    @GetMapping("/users/{userId}")
-//    public ResponseEntity findUserDetail(@PathVariable String userId) {
-//
-//    }
-//
-//    @GetMapping("/users")
-//    public ResponseEntity findUsers(@Valid @ModelAttribute FindUserDto findUserDto) {
-//
-//    }
+    @GetMapping("/users")
+    public ResponseEntity findUsers(@Valid @ModelAttribute FindUserDto findUserDto) {
+
+        PageResultDto<UserCardDto> result = adminService.findUserCards(findUserDto);
+
+        if (result.getContents().isEmpty())
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_NOT_EXIST, false), HttpStatus.OK);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/{userId}")
+    public ResponseEntity findUserDetail(@PathVariable Long userId) {
+
+        UserDetailDto result = adminService.findUserDetail(userId);
+
+        if (result != null)
+            return new ResponseEntity(DefaultResponseVo.res(
+                    ResponseUserMessage.FIND_SUCCESS,
+                    true,
+                    result
+            ), HttpStatus.OK);
+        else
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_FAIL, false), HttpStatus.OK);
+    }
+
 
 }

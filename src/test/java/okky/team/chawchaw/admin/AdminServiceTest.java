@@ -1,8 +1,6 @@
 package okky.team.chawchaw.admin;
 
-import okky.team.chawchaw.admin.dto.CreateBlockDto;
-import okky.team.chawchaw.admin.dto.DeleteBlockDto;
-import okky.team.chawchaw.admin.dto.UpdateProfileDto;
+import okky.team.chawchaw.admin.dto.*;
 import okky.team.chawchaw.block.BlockEntity;
 import okky.team.chawchaw.block.BlockRepository;
 import okky.team.chawchaw.user.Role;
@@ -11,6 +9,7 @@ import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
 import okky.team.chawchaw.user.language.UserLanguageRepository;
+import okky.team.chawchaw.utils.dto.PageResultDto;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Sets;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +52,7 @@ class AdminServiceTest {
             UserEntity user = userRepository.save(UserEntity.builder()
                     .email("test" + i + "@test.kr")
                     .password("1234")
-                    .name("이름")
+                    .name("테스터" + i)
                     .web_email("웹메일")
                     .school("학교")
                     .imageUrl("이미지주소")
@@ -139,6 +138,39 @@ class AdminServiceTest {
         adminService.deleteBlock(new DeleteBlockDto(users.get(0).getId(), users.get(0).getEmail(), users.get(1).getId()));
         //then
         Assertions.assertThat(blockRepository.findAllByUserFromId(users.get(0).getId())).isEmpty();
+    }
+
+    @Test
+    @DisplayName("test 유저 1페이지 조회")
+    public void find_user_cards_1page() throws Exception {
+        //when
+        PageResultDto<UserCardDto> testers = adminService.findUserCards(FindUserDto.builder().pageNo(1).name("테스터").build());
+        //then
+        Assertions.assertThat(testers.getContents().size()).isEqualTo(3);
+        Assertions.assertThat(testers.getContents())
+                .extracting("name")
+                .containsOnly(users.get(0).getName(), users.get(1).getName(), users.get(2).getName());
+    }
+
+    @Test
+    @DisplayName("test 유저 2페이지 조회")
+    public void find_user_cards_2page() throws Exception {
+        //when
+        PageResultDto<UserCardDto> testers = adminService.findUserCards(FindUserDto.builder().pageNo(2).name("tester").build());
+        //then
+        Assertions.assertThat(testers.getContents()).isEmpty();
+    }
+
+    @Test
+    @DisplayName("test1, test2를 차단한 test0 유저 상세 조회")
+    public void find_user_detail() throws Exception {
+        //given
+        blockRepository.save(new BlockEntity(users.get(0), users.get(1)));
+        blockRepository.save(new BlockEntity(users.get(0), users.get(2)));
+        //when
+        UserDetailDto result = adminService.findUserDetail(users.get(0).getId());
+        //then
+        Assertions.assertThat(result.getBlockUsers().size()).isEqualTo(2);
     }
 
 }

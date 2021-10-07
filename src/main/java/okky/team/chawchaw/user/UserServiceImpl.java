@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService{
         List<UserCountryEntity> countrys = userCountryRepository.findByUser(user);
         List<UserLanguageEntity> languages = userLanguageRepository.findByUser(user);
         List<UserHopeLanguageEntity> hopeLanguages = userHopeLanguageRepository.findByUser(user);
-        Long follows = likeRepository.countByUserToId(user.getId());
+        Long likes = likeRepository.countByUserToId(user.getId());
 
         UserDetailsDto result = UserDetailsDto.builder()
                 .id(user.getId())
@@ -121,8 +121,8 @@ public class UserServiceImpl implements UserService{
                 .content(user.getContent())
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
-                .days(user.getRegDate())
-                .likes(follows)
+                .regDate(user.getRegDate())
+                .likes(likes)
                 .repCountry(user.getRepCountry())
                 .repLanguage(user.getRepLanguage())
                 .repHopeLanguage(user.getRepHopeLanguage())
@@ -155,6 +155,7 @@ public class UserServiceImpl implements UserService{
                 .hopeLanguage(hopeLanguages.stream().map(x -> x.getHopeLanguage().getAbbr()).collect(Collectors.toList()))
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
+                .role(user.getRole())
                 .build();
 
         return result;
@@ -228,7 +229,7 @@ public class UserServiceImpl implements UserService{
                 .content(user.getContent())
                 .facebookUrl(user.getFacebookUrl())
                 .instagramUrl(user.getInstagramUrl())
-                .days(user.getRegDate())
+                .regDate(user.getRegDate())
                 .likes(follows)
                 .repCountry(user.getRepCountry())
                 .repLanguage(user.getRepLanguage())

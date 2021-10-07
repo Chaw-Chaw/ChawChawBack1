@@ -25,10 +25,9 @@ public class UserDetailDto {
     List<String> hopeLanguage;
     String facebookUrl;
     String instagramUrl;
-    LocalDateTime days;
+    LocalDateTime regDate;
     Long views;
     Long likes;
-    Boolean isLike;
     List<BlockUserDto> blockUsers = new ArrayList<>();
 
 }

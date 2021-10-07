@@ -24,7 +24,7 @@ public class UserDetailsDto implements Serializable {
     List<String> hopeLanguage;
     String facebookUrl;
     String instagramUrl;
-    LocalDateTime days;
+    LocalDateTime regDate;
     Long views;
     Long likes;
     Boolean isLike;

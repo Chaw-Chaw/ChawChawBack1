@@ -1,14 +1,12 @@
 package okky.team.chawchaw.admin;
 
 import okky.team.chawchaw.admin.dto.*;
-import okky.team.chawchaw.user.dto.UserCardDto;
 import okky.team.chawchaw.user.dto.UserDetailsDto;
-
-import java.util.List;
+import okky.team.chawchaw.utils.dto.PageResultDto;
 
 public interface AdminService {
 
-    List<UserCardDto> findUsers(FindUserDto findUserDto);
+    PageResultDto<UserCardDto> findUserCards(FindUserDto findUserDto);
     UserDetailDto findUserDetail(Long userId);
     UserDetailsDto updateProfile(UpdateProfileDto updateProfileDto);
     void deleteUser(Long userId);
