@@ -36,6 +36,9 @@ public class DummyConfig implements CommandLineRunner {
         Random rd = new Random();
         List<LanguageEntity> languages = languageRepository.findAll();
         List<CountryEntity> countrys = countryRepository.findAll();
+        List<String> schools = Arrays.asList("건국대학교", "서울시립대학교", "성균관대학교", "단국대학교", "부산대학교",
+                "울산대학교", "부경대학교", "동아대학교", "동의대학교", "명지대학교", "신라대학교", "순천대학교",
+                "창원대학교", "동서울대학교", "중앙대학교", "서울대학교", "전남대학교", "한양대학교");
 
         if (!isStart) {
             /* 관리자 */
@@ -51,7 +54,7 @@ public class DummyConfig implements CommandLineRunner {
                     .role(Role.ADMIN)
                     .build());
             /* 사용자 */
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 200; i++) {
                 /* 랜덤 언어, 희망 언어, 나라 생성 */
                 ArrayList<String> language = new ArrayList();
                 ArrayList<String> hopeLanguage = new ArrayList();
@@ -71,7 +74,7 @@ public class DummyConfig implements CommandLineRunner {
                     .password(passwordEncoder.encode("sssssssS1!"))
                     .name(randomHangulName())
                     .web_email("school@school.ac.kr")
-                    .school("서울시립대학교")
+                    .school(schools.get(rd.nextInt(18)))
                     .imageUrl(
                             env.getProperty("cloud.front.domain") +
                             env.getProperty("user.profile.image.default")
