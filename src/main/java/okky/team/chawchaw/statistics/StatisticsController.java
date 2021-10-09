@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.statistics.dto.HopeLanguageUsersDto;
 import okky.team.chawchaw.statistics.dto.LanguageUsersDto;
 import okky.team.chawchaw.statistics.dto.SchoolUsersDto;
+import okky.team.chawchaw.statistics.log.SearchLogService;
+import okky.team.chawchaw.statistics.log.dto.SearchLanguageUsersDto;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +19,7 @@ import java.util.List;
 public class StatisticsController {
 
     private final StatisticsService statisticsService;
+    private final SearchLogService searchLogService;
 
     @GetMapping("/users/rank/school")
     public ResponseEntity findSchoolRanks() {
@@ -33,6 +36,12 @@ public class StatisticsController {
     @GetMapping("/users/rank/hopeLanguage")
     public ResponseEntity findHopeLanguageRanks() {
         List<HopeLanguageUsersDto> result = statisticsService.findHopeLanguageRanks();
+        return new ResponseEntity(DefaultResponseVo.res("조회 성공", true, result), HttpStatus.OK);
+    }
+
+    @GetMapping("/users/rank/visited/language")
+    public ResponseEntity findSearchLanguageRanks() {
+        List<SearchLanguageUsersDto> result = searchLogService.findLanguageRanks();
         return new ResponseEntity(DefaultResponseVo.res("조회 성공", true, result), HttpStatus.OK);
     }
 

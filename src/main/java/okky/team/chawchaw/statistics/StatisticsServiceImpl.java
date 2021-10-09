@@ -8,12 +8,14 @@ import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
 import okky.team.chawchaw.user.language.UserLanguageRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class StatisticsServiceImpl implements StatisticsService{
 
     private final UserRepository userRepository;

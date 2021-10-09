@@ -59,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/users/rank/**").permitAll()
                 .antMatchers("/ws/**").permitAll()
                 .anyRequest()
-                .access("hasRole('ROLE_GUEST') or hasRole('ROLE_USER')");
+                .access("hasRole('ROLE_GUEST') or hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')");
     }
 
     @Bean

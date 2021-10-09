@@ -9,6 +9,8 @@ import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.config.properties.TokenProperties;
 import okky.team.chawchaw.like.LikeService;
 import okky.team.chawchaw.like.dto.LikeMessageDto;
+import okky.team.chawchaw.statistics.log.SearchLogService;
+import okky.team.chawchaw.statistics.log.dto.CreateSearchLogDto;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseAuthMessage;
@@ -33,6 +35,7 @@ public class UserController {
     private final UserService userService;
     private final LikeService likeService;
     private final ChatService chatService;
+    private final SearchLogService searchLogService;
     private final Environment env;
     private final TokenProperties tokenProperties;
 
@@ -69,6 +72,9 @@ public class UserController {
     public ResponseEntity<List<UserCardDto>> getUserCards(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                                           @Valid @ModelAttribute FindUserVo findUserVo,
                                                           HttpServletRequest request) {
+
+        if (findUserVo.getLanguage() != null)
+            searchLogService.createSearchLog(new CreateSearchLogDto(principalDetails.getId(), findUserVo.getLanguage()));
 
         findUserVo.getExclude().add(principalDetails.getId());
 

@@ -7,7 +7,7 @@ create table country
 create table language
 (
     language_id bigint auto_increment primary key,
-    abbr        varchar(255) null,
+    abbr        varchar(2) null,
     name        varchar(255) null
 );
 
@@ -96,4 +96,12 @@ create table block
     user_to   bigint      null,
     foreign key (user_to) references users (user_id),
     foreign key (user_from) references users (user_id)
+);
+
+create table search_log
+(
+    search_log_id bigint auto_increment primary key,
+    user_id bigint not null,
+    language_abbr varchar(2) not null,
+    reg_date  DATETIME DEFAULT CURRENT_TIMESTAMP
 );
