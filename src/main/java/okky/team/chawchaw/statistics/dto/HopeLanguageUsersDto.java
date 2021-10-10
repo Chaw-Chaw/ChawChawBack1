@@ -4,9 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Getter @Setter
 @AllArgsConstructor
-public class HopeLanguageUsersDto {
+public class HopeLanguageUsersDto implements Serializable {
 
     String hopeLanguageName;
     Long userCnt;

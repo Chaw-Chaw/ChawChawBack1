@@ -44,6 +44,7 @@ public class DummyConfig implements CommandLineRunner {
             /* 관리자 */
             userRepository.save(UserEntity.builder()
                     .email("admin@chawchaw.kr")
+                    .name("알파고")
                     .password(passwordEncoder.encode("admin123!@#"))
                     .imageUrl(
                             env.getProperty("cloud.front.domain") +

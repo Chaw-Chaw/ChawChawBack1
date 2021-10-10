@@ -7,6 +7,7 @@ import okky.team.chawchaw.statistics.dto.SchoolUsersDto;
 import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.language.UserHopeLanguageRepository;
 import okky.team.chawchaw.user.language.UserLanguageRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,16 +24,19 @@ public class StatisticsServiceImpl implements StatisticsService{
     private final UserHopeLanguageRepository userHopeLanguageRepository;
 
     @Override
+    @Cacheable(cacheNames = "schoolRank")
     public List<SchoolUsersDto> findSchoolRanks() {
         return userRepository.findSchoolRanks().stream().limit(10).collect(Collectors.toList());
     }
 
     @Override
+    @Cacheable(value = "languageRank")
     public List<LanguageUsersDto> findLanguageRanks() {
         return userLanguageRepository.findLanguageRanks().stream().limit(10).collect(Collectors.toList());
     }
 
     @Override
+    @Cacheable(value = "hopeLanguageRank")
     public List<HopeLanguageUsersDto> findHopeLanguageRanks() {
         return userHopeLanguageRepository.findHopeLanguageRanks().stream().limit(10).collect(Collectors.toList());
     }

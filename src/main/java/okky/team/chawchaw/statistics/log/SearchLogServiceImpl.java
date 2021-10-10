@@ -3,6 +3,7 @@ package okky.team.chawchaw.statistics.log;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.statistics.log.dto.CreateSearchLogDto;
 import okky.team.chawchaw.statistics.log.dto.SearchLanguageUsersDto;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class SearchLogServiceImpl implements SearchLogService {
     }
 
     @Override
+    @Cacheable(value = "searchLanguageRank")
     public List<SearchLanguageUsersDto> findLanguageRanks() {
         return searchLogRepository.findLanguageRanks().stream().limit(10).collect(Collectors.toList());
     }
