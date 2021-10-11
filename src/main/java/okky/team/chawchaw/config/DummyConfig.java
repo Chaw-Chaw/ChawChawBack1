@@ -42,18 +42,20 @@ public class DummyConfig implements CommandLineRunner {
 
         if (!isStart) {
             /* 관리자 */
-            userRepository.save(UserEntity.builder()
-                    .email("admin@chawchaw.kr")
-                    .name("알파고")
-                    .password(passwordEncoder.encode("admin123!@#"))
-                    .imageUrl(
-                            env.getProperty("cloud.front.domain") +
-                            env.getProperty("user.profile.image.default")
-                    )
-                    .school("차우차우대학교")
-                    .web_email("admin@school.ac.kr")
-                    .role(Role.ADMIN)
-                    .build());
+            for (int i = 0; i < 3; i++) {
+                userRepository.save(UserEntity.builder()
+                        .email("admin"+ i +"@chawchaw.kr")
+                        .name("알파고")
+                        .password(passwordEncoder.encode("admin123!@#"))
+                        .imageUrl(
+                                env.getProperty("cloud.front.domain") +
+                                        env.getProperty("user.profile.image.default")
+                        )
+                        .school("차우차우대학교")
+                        .web_email("admin@school.ac.kr")
+                        .role(Role.ADMIN)
+                        .build());
+            }
             /* 사용자 */
             for (int i = 0; i < 200; i++) {
                 /* 랜덤 언어, 희망 언어, 나라 생성 */

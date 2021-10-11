@@ -80,20 +80,20 @@ public class UserRepositorySupportImpl implements UserRepositorySupport{
                         /* 유저 */
                         user.role.eq(Role.USER)
                 )
-                .orderBy(getSortedColumn(findUserVo.getOrder()))
+                .orderBy(getSortedColumn(findUserVo.getSort()))
                 .limit(limit)
                 .fetch();
     }
 
-    private OrderSpecifier<?> getSortedColumn(String order) {
-        if (StringUtils.hasText(order)) {
-            if (order.equals("like")) {
+    private OrderSpecifier<?> getSortedColumn(String sort) {
+        if (StringUtils.hasText(sort)) {
+            if (sort.equals("like")) {
                 return user.likeTo.size().desc();
             }
-            else if (order.equals("view")) {
+            else if (sort.equals("view")) {
                 return user.views.desc();
             }
-            else if (order.equals("date")) {
+            else if (sort.equals("date")) {
                 return user.regDate.desc();
             }
         }

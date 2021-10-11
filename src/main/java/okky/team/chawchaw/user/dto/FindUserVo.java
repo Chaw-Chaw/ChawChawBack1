@@ -16,7 +16,7 @@ public class FindUserVo {
     String country;
     String language;
     String hopeLanguage;
-    String order;
+    String sort;
     String school;
     @NotNull
     Boolean isFirst;

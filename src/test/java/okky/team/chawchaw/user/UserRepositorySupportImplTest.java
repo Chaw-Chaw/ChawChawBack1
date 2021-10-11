@@ -1,16 +1,11 @@
 package okky.team.chawchaw.user;
 
 import okky.team.chawchaw.user.dto.FindUserVo;
-import okky.team.chawchaw.user.dto.UserCardDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("dev")
@@ -46,15 +41,15 @@ class UserRepositorySupportImplTest {
         /* 언어, 희망 언어 검색, 팔로우 순 */
         System.out.println("언어, 희망 언어 검색, 팔로우 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").order("like").build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").sort("like").build());
         /* 언어, 희망 언어 검색, 조회수 순 */
         System.out.println("언어, 희망 언어 검색, 조회수 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").order("view").build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").sort("view").build());
         /* 언어, 희망 언어 검색, 날짜 순 */
         System.out.println("언어, 희망 언어 검색, 날짜 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").order("date").build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").sort("date").build());
         /* 언어, 희망 언어, 이름 검색, 랜덤순 */
         System.out.println("언어, 희망 언어, 이름 검색, 랜덤순");
         userRepository.findAllByElement(
@@ -62,7 +57,7 @@ class UserRepositorySupportImplTest {
         /* 언어, 희망 언어, 이름 검색, 팔로우 순 */
         System.out.println("언어, 희망 언어, 이름 검색, 팔로우 순");
         userRepository.findAllByElement(
-                FindUserVo.builder().language("yi").hopeLanguage("af").name("하주현").order("like").build());
+                FindUserVo.builder().language("yi").hopeLanguage("af").name("하주현").sort("like").build());
     }
 
 }
