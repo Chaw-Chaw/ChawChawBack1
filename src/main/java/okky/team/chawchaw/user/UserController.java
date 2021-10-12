@@ -73,7 +73,7 @@ public class UserController {
                                                           @Valid @ModelAttribute FindUserVo findUserVo,
                                                           HttpServletRequest request) {
 
-        if (findUserVo.getLanguage() != null)
+        if (findUserVo.getLanguage() != null && !findUserVo.getLanguage().isBlank())
             searchLogService.createSearchLog(new CreateSearchLogDto(principalDetails.getId(), findUserVo.getLanguage()));
 
         findUserVo.getExclude().add(principalDetails.getId());

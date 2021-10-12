@@ -10,7 +10,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class LanguageUsersDto implements Serializable {
 
-    String languageName;
+    String languageAbbr;
     Long userCnt;
 
 }
