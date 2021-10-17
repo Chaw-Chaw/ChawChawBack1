@@ -12,6 +12,7 @@ import okky.team.chawchaw.like.dto.LikeMessageDto;
 import okky.team.chawchaw.statistics.log.SearchLogService;
 import okky.team.chawchaw.statistics.log.dto.CreateSearchLogDto;
 import okky.team.chawchaw.user.dto.*;
+import okky.team.chawchaw.user.exception.DiffRefreshTokenException;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseAuthMessage;
 import okky.team.chawchaw.utils.message.ResponseFileMessage;
@@ -190,6 +191,8 @@ public class UserController {
             return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.EXPIRE_REFRESH_TOKEN, false), HttpStatus.UNAUTHORIZED);
         } catch (JWTDecodeException jwtDecodeException) {
             return new ResponseEntity(DefaultResponseVo.res(ResponseAuthMessage.WRONG_REFRESH_TOKEN_FORM, false), HttpStatus.UNAUTHORIZED);
+        } catch (DiffRefreshTokenException diffRefreshTokenException) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.CONNECT_ELSEWHERE, false), HttpStatus.UNAUTHORIZED);
         }
     }
 

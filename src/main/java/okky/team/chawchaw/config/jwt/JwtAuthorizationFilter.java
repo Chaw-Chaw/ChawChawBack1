@@ -61,7 +61,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             if (!tokenRedisRepository.findByUserId(userId).equals(token)) {
                 response.setStatus(401);
                 writer = response.getWriter();
-                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.UNAVAILABLE_ACCESS_TOKEN, false)));
+                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.CONNECT_ELSEWHERE, false)));
                 return;
             }
 

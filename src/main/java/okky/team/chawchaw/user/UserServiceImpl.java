@@ -14,6 +14,7 @@ import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
+import okky.team.chawchaw.user.exception.DiffRefreshTokenException;
 import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.user.exception.PointMyselfException;
@@ -333,8 +334,10 @@ public class UserServiceImpl implements UserService{
             String token = jwtTokenProvider.createToken(user.getId());
             tokenRedisRepository.save(user.getId(), token);
             return token;
+        } else {
+            throw new DiffRefreshTokenException();
         }
-        return "";
+
     }
 
     @Override

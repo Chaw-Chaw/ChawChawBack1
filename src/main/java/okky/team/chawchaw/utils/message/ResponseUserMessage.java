@@ -22,5 +22,6 @@ public class ResponseUserMessage {
     public static final String FIND_NOT_EXIST = "조회 결과가 존재하지 않음";
     public static final String POINT_MYSELF = "자기 자신 선택 불가능";
     public static final String WRONG_LOGIN_ACCESS = "비정상적인 로그인 접근";
+    public static final String CONNECT_ELSEWHERE = "다른 곳에서 접속함";
 
 }
