@@ -50,7 +50,7 @@ public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
                 userService.deleteRefreshToken(userId);
             } else {
                 response.setStatus(401);
-                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.UNAVAILABLE_ACCESS_TOKEN, false)));
+                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.CONNECT_ELSEWHERE, false)));
                 return;
             }
 
