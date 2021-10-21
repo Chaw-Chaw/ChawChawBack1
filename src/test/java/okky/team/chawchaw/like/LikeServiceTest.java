@@ -5,10 +5,12 @@ import okky.team.chawchaw.like.dto.DeleteLikeDto;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
 import okky.team.chawchaw.user.UserService;
+import okky.team.chawchaw.user.dto.DeleteUserDto;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +27,8 @@ class LikeServiceTest {
     private LikeService likeService;
     @Autowired
     private LikeRepository likeRepository;
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Test
     public void 좋아요() throws Exception {
@@ -55,14 +59,14 @@ class LikeServiceTest {
         //given
         UserEntity userFrom = userRepository.save(UserEntity.builder()
                 .email("mangchhe@naver.com")
-                .password("1234")
+                .password(passwordEncoder.encode("1234"))
                 .name("이름")
                 .web_email("웹메일")
                 .school("학교")
                 .build());
         UserEntity userTo = userRepository.save(UserEntity.builder()
                 .email("mangchhe2@naver.com")
-                .password("1234")
+                .password(passwordEncoder.encode("1234"))
                 .name("이름")
                 .web_email("웹메일")
                 .school("학교")
@@ -70,7 +74,7 @@ class LikeServiceTest {
         likeService.addLike(new CreateLikeDto(userFrom.getId(), userFrom.getName(), userTo.getId()));
         likeService.addLike(new CreateLikeDto(userTo.getId(), userFrom.getName(), userFrom.getId()));
         //when
-        userService.deleteUser(userTo.getId());
+        userService.deleteUser(new DeleteUserDto(userTo.getId(), "1234"));
         //then
         Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(0);
     }

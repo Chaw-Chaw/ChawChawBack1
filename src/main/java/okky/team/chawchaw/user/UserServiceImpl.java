@@ -14,6 +14,7 @@ import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
+import okky.team.chawchaw.user.exception.DiffPasswordException;
 import okky.team.chawchaw.user.exception.DiffRefreshTokenException;
 import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
@@ -84,14 +85,15 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    @CacheEvict(value = "userDetail", key = "#userId")
-    public void deleteUser(Long userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+    @CacheEvict(value = "userDetail", key = "#deleteUserDto.userId")
+    public void deleteUser(DeleteUserDto deleteUserDto) {
+
+        UserEntity user = userRepository.findById(deleteUserDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
+        if (!passwordEncoder.matches(deleteUserDto.getPassword(),user.getPassword()))
+            throw new DiffPasswordException();
         likeRepository.deleteByUserFromOrUserTo(user, user);
         blockRepository.deleteByUserFromOrUserTo(user, user);
-        if (user != null)
-            userRepository.delete(user);
-
+        userRepository.delete(user);
     }
 
     @Override

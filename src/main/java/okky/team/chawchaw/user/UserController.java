@@ -12,6 +12,7 @@ import okky.team.chawchaw.like.dto.LikeMessageDto;
 import okky.team.chawchaw.statistics.log.SearchLogService;
 import okky.team.chawchaw.statistics.log.dto.CreateSearchLogDto;
 import okky.team.chawchaw.user.dto.*;
+import okky.team.chawchaw.user.exception.DiffPasswordException;
 import okky.team.chawchaw.user.exception.DiffRefreshTokenException;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseAuthMessage;
@@ -124,9 +125,16 @@ public class UserController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
-        userService.deleteUser(principalDetails.getId());
+    public ResponseEntity deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                     @RequestBody DeleteUserDto deleteUserDto){
 
+        deleteUserDto.setUserId(principalDetails.getId());
+
+        try {
+            userService.deleteUser(deleteUserDto);
+        } catch (DiffPasswordException diffPasswordException) {
+            return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.DIFF_PASSWORD, false), HttpStatus.OK);
+        }
         return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.DELETE_SUCCESS, true), HttpStatus.OK);
     }
 
@@ -197,10 +205,10 @@ public class UserController {
     }
 
     @GetMapping("/alarm")
-    public AlarmDto getAlarm(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ResponseEntity getAlarm(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         List<ChatMessageDto> messages = chatService.findMessagesByUserIdAndRegDate(principalDetails.getId());
         List<LikeMessageDto> likes = likeService.findMessagesByUserFromId(principalDetails.getId());
-        return new AlarmDto(messages, likes);
+        return new ResponseEntity(DefaultResponseVo.res(ResponseUserMessage.FIND_ALARM_SUCCESS, true, new AlarmDto(messages, likes)), HttpStatus.OK);
     }
 
 }

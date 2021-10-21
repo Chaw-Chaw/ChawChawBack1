@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,8 @@ class UserServiceTest {
     private UserHopeLanguageRepository userHopeLanguageRepository;
     @Autowired
     private RedisTemplate redisTemplate;
+    @Autowired
+    BCryptPasswordEncoder passwordEncoder;
 
     @Test
     public void 회원가입() throws Exception {
@@ -84,13 +87,13 @@ class UserServiceTest {
         // given
         UserEntity user = userRepository.save(UserEntity.builder()
                 .email("mangchhe@naver.com")
-                .password("1234")
+                .password(passwordEncoder.encode("1234"))
                 .name("이름")
                 .web_email("웹메일")
                 .school("학교")
                 .build());
         //when
-        userService.deleteUser(user.getId());
+        userService.deleteUser(new DeleteUserDto(user.getId(), "1234"));
         //then
         List<UserEntity> users = userRepository.findAll();
 
