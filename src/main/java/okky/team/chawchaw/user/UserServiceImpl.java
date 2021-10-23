@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,10 +47,10 @@ public class UserServiceImpl implements UserService{
     private final LanguageRepository languageRepository;
     private final UserLanguageRepository userLanguageRepository;
     private final UserHopeLanguageRepository userHopeLanguageRepository;
-    private final RedisTemplate redisTemplate;
     private final AmazonS3 amazonS3;
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRedisRepository tokenRedisRepository;
+    private final UserRedisRepository userRedisRepository;
     @Value("${user.profile.image.default}")
     private String defaultImage;
     @Value("${cloud.aws.s3.bucket}")
@@ -349,27 +347,28 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public Long getViews(Long userId) {
-        Object views = redisTemplate.opsForValue().get("views::" + userId);
+
+        Long views = userRedisRepository.findViewsByUserId(userId);
 
         if (views == null) {
             views = userRepository.findViewsByUserId(userId);
-            redisTemplate.opsForValue().set("views::" + userId, views, 1, TimeUnit.DAYS);
+            userRedisRepository.updateViews(userId, views);
         }
-
-        return (Long) views;
+        return views;
     }
 
     @Override
     @Transactional(readOnly = false)
     public void updateViews() {
-        Set<String> keys = redisTemplate.keys("views::*");
+
+        Set<String> keys = userRedisRepository.findViewsKeys();
         userRepository.findAll();
 
         List<UserEntity> users = keys.stream().map(x -> x.split("::")[1]).map(x -> userRepository.findById(Long.parseLong(x)).get())
                 .collect(Collectors.toList());
 
         for (UserEntity user : users) {
-            Long views = (Long) redisTemplate.opsForValue().get("views::" + user.getId());
+            Long views = userRedisRepository.findViewsByUserId(user.getId());
             if (!user.getViews().equals(views)) {
                 user.changeViews(views);
             }
@@ -380,14 +379,14 @@ public class UserServiceImpl implements UserService{
     @Transactional(readOnly = false)
     public void checkView(Long userFromId, Long userToId) {
 
-        Object views = redisTemplate.opsForValue().get("views::" + userToId);
+        Long views = userRedisRepository.findViewsByUserId(userToId);
 
-        if (redisTemplate.opsForValue().get("viewDuplex::" + userFromId + "_" + userToId) == null) {
-            redisTemplate.opsForValue().set("viewDuplex::" + userFromId + "_" + userToId, 1, 1, TimeUnit.DAYS);
+        if (userRedisRepository.findViewDuplexByUserIds(userFromId, userToId)) {
+            userRedisRepository.updateViewDuplex(userFromId, userToId);
             if (views == null) {
                 views = userRepository.findViewsByUserId(userToId);
             }
-            redisTemplate.opsForValue().set("views::" + userToId, (Long) views + 1, 1, TimeUnit.DAYS);
+            userRedisRepository.updateViews(userToId, views + 1);
         }
     }
 

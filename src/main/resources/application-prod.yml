@@ -90,3 +90,19 @@ user:
 front:
   domain: <>
   domain-local: <>
+
+redis:
+  block:
+    prefix: "block::"
+  message:
+    prefix: "message::"
+    expiration-time: 1800
+  like:
+    prefix: "like::"
+    expiration-time: 604800
+  views:
+    prefix: "views::"
+    expiration-time: 86400
+  viewDuplex:
+    prefix: "viewDuplex::"
+    expiration-time: 86400
