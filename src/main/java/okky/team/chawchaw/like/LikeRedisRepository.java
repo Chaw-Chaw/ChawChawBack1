@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LikeRedisRepository {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, LikeMessageDto> redisTemplate;
     private final RedisProperties redisProperties;
 
     public void save(LikeMessageDto messageDto, Long userId) {
@@ -26,13 +26,13 @@ public class LikeRedisRepository {
 
     public List<LikeMessageDto> findMessagesByUserFromId(Long userFromId) {
         Set<String> keys = redisTemplate.keys(redisProperties.getLike().getPrefix() + userFromId + "_" + "*");
-        List<LikeMessageDto> result = keys.stream().map(x -> (LikeMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
+        List<LikeMessageDto> result = keys.stream().map(x -> redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
         return result;
     }
 
     public void deleteMessagesByUserFromId(Long userFromId) {
         Set<String> keys = redisTemplate.keys(redisProperties.getLike().getPrefix() + userFromId + "_" + "*");
-        keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, "", 1, TimeUnit.MILLISECONDS));
+        keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, new LikeMessageDto(), 1, TimeUnit.MILLISECONDS));
     }
 
 }

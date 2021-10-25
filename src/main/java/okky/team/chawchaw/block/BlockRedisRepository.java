@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class BlockRedisRepository {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, List<BlockSessionDto>> redisTemplate;
     private final RedisProperties redisProperties;
 
     public void save(List<BlockSessionDto> blockUserIds, String email) {
@@ -33,7 +33,7 @@ public class BlockRedisRepository {
 
     public List<BlockSessionDto> findAllByEmail(String email) {
         String key = redisProperties.getBlock().getPrefix() + email;
-        return (List<BlockSessionDto>) redisTemplate.opsForValue().get(key);
+        return redisTemplate.opsForValue().get(key);
     }
 
     public boolean isBlock(String email) {

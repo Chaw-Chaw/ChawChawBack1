@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChatRedisRepository {
 
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, ChatMessageDto> redisTemplate;
     private final BlockRedisRepository blockRedisRepository;
     private final ChatRoomUserRepository chatRoomUserRepository;
     private final RedisProperties redisProperties;
@@ -43,12 +43,12 @@ public class ChatRedisRepository {
 
     public List<ChatMessageDto> findAllByRoomId(Long roomId) {
         Set<String> keys = redisTemplate.keys(redisProperties.getMessage().getPrefix() + roomId.toString() + "_" + "*");
-        return keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
+        return keys.stream().map(x -> redisTemplate.opsForValue().get(x)).collect(Collectors.toList());
     }
 
     public List<ChatMessageDto> findAllByRoomIdOrderByRegDateDesc(Long roomId) {
         Set<String> keys = redisTemplate.keys(redisProperties.getMessage().getPrefix() + roomId.toString() + "_" + "*");
-        return keys.stream().map(x -> (ChatMessageDto) redisTemplate.opsForValue().get(x))
+        return keys.stream().map(x -> redisTemplate.opsForValue().get(x))
                 .sorted(Comparator.comparing(ChatMessageDto::getRegDate))
                 .collect(Collectors.toList());
     }
@@ -56,14 +56,14 @@ public class ChatRedisRepository {
     public void deleteByRoomId(Long roomId) {
         Set<String> keys = redisTemplate.keys(redisProperties.getMessage().getPrefix() + roomId.toString() + "_" + "*");
         for (String key : keys) {
-            ChatMessageDto chatMessageDto = (ChatMessageDto) redisTemplate.opsForValue().get(key);
+            ChatMessageDto chatMessageDto = redisTemplate.opsForValue().get(key);
             if (chatMessageDto.getMessageType().equals(MessageType.IMAGE)) {
                 String[] splitUrl = chatMessageDto.getMessage().split("/");
                 String imageUrl = splitUrl[splitUrl.length - 1];
                 amazonS3.deleteObject(new DeleteObjectRequest(bucket, imageUrl));
             }
         }
-        keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, "", 1, TimeUnit.MILLISECONDS));
+        keys.stream().forEach(x -> redisTemplate.opsForValue().set(x, new ChatMessageDto(), 1, TimeUnit.MILLISECONDS));
     }
 
     public Boolean isSession(String email, Long roomId) {
@@ -95,21 +95,16 @@ public class ChatRedisRepository {
                 regDate = blockUser.getRegDate();
         }
 
-        if (redisTemplate.opsForValue().get("ws::" + email) != null) {
-            redisTemplate.opsForValue().set("ws::" + email, roomId);
-            Set<String> keys = redisTemplate.keys(redisProperties.getMessage().getPrefix() + roomId.toString() + "_" + "*");
+        Set<String> keys = redisTemplate.keys(redisProperties.getMessage().getPrefix() + roomId.toString() + "_" + "*");
 
-            for (String key : keys) {
-                ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);
-                if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId) && message.getRegDate().isBefore(regDate)) {
-                    message.setIsRead(true);
-                    redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
-                }
+        for (String key : keys) {
+            ChatMessageDto message = (ChatMessageDto) redisTemplate.opsForValue().get(key);
+            if (message.getIsRead().equals(false) && !message.getSenderId().equals(userId) && message.getRegDate().isBefore(regDate)) {
+                message.setIsRead(true);
+                redisTemplate.opsForValue().set(key, message, ChronoUnit.SECONDS.between(LocalDateTime.now(), message.getRegDate().plusDays(1)), TimeUnit.SECONDS);
             }
-            return roomId;
         }
-        else
-            throw new Exception();
+        return roomId;
     }
 
     @CacheEvict(value = "ws", key = "#email")

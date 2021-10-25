@@ -14,8 +14,8 @@ import java.time.Duration;
 public class RedisConfig {
 
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+    public <T>RedisTemplate<String, T> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, T> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(connectionFactory);
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         return redisTemplate;
@@ -33,7 +33,9 @@ public class RedisConfig {
                 .withCacheConfiguration("searchLanguageRank",
                         RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)))
                 .withCacheConfiguration("userDetail",
-                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(6)));
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofHours(6)))
+                .withCacheConfiguration("roomUserIds",
+                        RedisCacheConfiguration.defaultCacheConfig().entryTtl(Duration.ofMinutes(10)));
     }
 
 }

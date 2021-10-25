@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class TokenRedisRepository {
 
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     public void save(Long userId, String token) {
         String key = "token::" + userId;
@@ -25,7 +25,7 @@ public class TokenRedisRepository {
 
     public void delete(Long userId) {
         String key = "token::" + userId;
-        redisTemplate.opsForValue().set(key, -1, 1, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(key, "", 1, TimeUnit.MILLISECONDS);
     }
 
 }
