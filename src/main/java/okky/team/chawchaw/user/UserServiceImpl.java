@@ -14,8 +14,8 @@ import okky.team.chawchaw.user.country.CountryRepository;
 import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
+import okky.team.chawchaw.user.exception.ConnectElseWhereException;
 import okky.team.chawchaw.user.exception.DiffPasswordException;
-import okky.team.chawchaw.user.exception.DiffRefreshTokenException;
 import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.user.exception.PointMyselfException;
@@ -335,7 +335,7 @@ public class UserServiceImpl implements UserService{
             tokenRedisRepository.save(user.getId(), token);
             return token;
         } else {
-            throw new DiffRefreshTokenException();
+            throw new ConnectElseWhereException();
         }
 
     }

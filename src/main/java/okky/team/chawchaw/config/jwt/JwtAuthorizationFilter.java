@@ -7,8 +7,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.UserEntity;
 import okky.team.chawchaw.user.UserRepository;
+import okky.team.chawchaw.user.exception.ConnectElseWhereException;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
-import okky.team.chawchaw.utils.message.ResponseAuthMessage;
+import okky.team.chawchaw.utils.message.ResponseGlobalMessage;
+import okky.team.chawchaw.utils.message.ResponseTokenMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -59,10 +61,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
             Long userId = jwtTokenProvider.getClaimByTokenAndKey(token, "userId").asLong();
 
             if (!tokenRedisRepository.findByUserId(userId).equals(token)) {
-                response.setStatus(401);
-                writer = response.getWriter();
-                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.CONNECT_ELSEWHERE, false)));
-                return;
+                throw new ConnectElseWhereException();
             }
 
             if (userId == null) {
@@ -78,17 +77,22 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         } catch (TokenExpiredException tokenExpiredException) {
             response.setStatus(401);
             writer = response.getWriter();
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.EXPIRE_ACCESS_TOKEN, false)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseTokenMessage.T400)));
 
         } catch (JWTDecodeException | SignatureVerificationException verificationException) {
             response.setStatus(401);
             writer = response.getWriter();
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseAuthMessage.WRONG_ACCESS_TOKEN_FORM, false)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseTokenMessage.T401)));
 
         } catch (UsernameNotFoundException usernameNotFoundException) {
             response.setStatus(401);
             writer = response.getWriter();
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.ID_NOT_EXIST, false)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.U403)));
+
+        } catch (ConnectElseWhereException connectElseWhereException) {
+            response.setStatus(401);
+            writer = response.getWriter();
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseGlobalMessage.G404)));
 
         }
     }

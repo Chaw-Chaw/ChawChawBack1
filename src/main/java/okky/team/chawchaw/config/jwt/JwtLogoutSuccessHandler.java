@@ -3,7 +3,7 @@ package okky.team.chawchaw.config.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
-import okky.team.chawchaw.utils.message.ResponseAuthMessage;
+import okky.team.chawchaw.utils.message.ResponseGlobalMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -38,7 +38,8 @@ public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
         String jwtHeader = request.getHeader("Authorization");
 
         if (jwtHeader == null || !jwtHeader.startsWith("Bearer")) {
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGOUT_FAIL, false)));
+            response.setStatus(400);
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.U403)));
             return;
         }
 
@@ -50,17 +51,17 @@ public class JwtLogoutSuccessHandler implements LogoutSuccessHandler {
                 userService.deleteRefreshToken(userId);
             } else {
                 response.setStatus(401);
-                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.CONNECT_ELSEWHERE, false)));
+                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseGlobalMessage.G404)));
                 return;
             }
 
         } catch (Exception e) {
-            response.setStatus(401);
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGOUT_FAIL, false)));
+            response.setStatus(400);
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.U403)));
             return;
         }
 
-        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGOUT_SUCCESS, true)));
+        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseGlobalMessage.G200)));
 
     }
 

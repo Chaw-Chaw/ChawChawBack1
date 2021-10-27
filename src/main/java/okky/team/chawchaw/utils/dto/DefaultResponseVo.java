@@ -10,26 +10,26 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DefaultResponseVo<T> {
+public class DefaultResponseVo<S, T> {
 
-    private String responseMessage;
-    private Boolean isSuccess;
+    private S status;
+    private String message;
     private T data;
 
-    public DefaultResponseVo(String responseMessage, Boolean isSuccess) {
-        this.responseMessage = responseMessage;
-        this.isSuccess = isSuccess;
+    public DefaultResponseVo(S status, String message) {
+        this.status = status;
+        this.message = message;
     }
 
-    public static<T> DefaultResponseVo<T> res(final String responseMessage, final Boolean isSuccess) {
-        return res(responseMessage, isSuccess, null);
+    public static<S, T> DefaultResponseVo<S, T> res(final S status) {
+        return res(status, null);
     }
 
-    public static<T> DefaultResponseVo<T> res(final String responseMessage, final Boolean isSuccess, final T t) {
-        return DefaultResponseVo.<T>builder()
+    public static<S, T> DefaultResponseVo<S, T> res(final S status, final T t) {
+        return DefaultResponseVo.<S, T>builder()
+                .status(status)
+                .message(status.toString())
                 .data(t)
-                .responseMessage(responseMessage)
-                .isSuccess(isSuccess)
                 .build();
     }
 

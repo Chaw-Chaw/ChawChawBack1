@@ -1,16 +1,22 @@
 package okky.team.chawchaw.utils.message;
 
-public class ResponseChatMessage {
+public enum ResponseChatMessage {
 
-    public static final String CREATE_ROOM_SUCCESS = "채팅방 생성 성공";
-    public static final String CREATE_ROOM_FAIL = "채팅방 생성 실패";
-    public static final String FIND_SUCCESS = "채팅방 내용 조회 성공";
-    public static final String FIND_FAIL = "채팅방 내용 조회 실패";
-    public static final String DELETE_SUCCESS = "채팅방 삭제 성공";
-    public static final String DELETE_FAIL = "채팅방 삭제 실패";
-    public static final String EXIST_ROOM = "채팅방 존재함";
-    public static final String NOT_EXIST_ROOM = "채팅방 존재하지 않음";
-    public static final String MOVE_ROOM_SUCCESS = "방 이동 성공";
-    public static final String MOVE_ROOM_FAIL = "방 이동 실패";
+    C400("방 이동 실패"),
+    C401("채팅방 존재함"),
+    C402("채팅방 존재하지 않음"),
+    C403("채팅방 이미지 업로드 실패"),
+    C404("조회 결과가 존재하지 않음");
+
+    private final String message;
+
+    ResponseChatMessage(String message) {
+        this.message = message;
+    }
+
+    @Override
+    public String toString() {
+        return message;
+    }
 
 }

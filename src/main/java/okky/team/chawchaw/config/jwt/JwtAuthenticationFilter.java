@@ -11,6 +11,7 @@ import okky.team.chawchaw.user.dto.LoginUserDto;
 import okky.team.chawchaw.user.dto.TokenDto;
 import okky.team.chawchaw.user.dto.UserProfileTokenDto;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
+import okky.team.chawchaw.utils.message.ResponseGlobalMessage;
 import okky.team.chawchaw.utils.message.ResponseUserMessage;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -60,6 +61,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             response.setContentType("application/json");
             response.setCharacterEncoding("utf-8");
+            response.setStatus(401);
             writer = response.getWriter();
             SocialDto socialDto = null;
 
@@ -69,7 +71,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
              * 소셜 로그인 시 토큰이 아닌 방식으로 접근하는 것을 제한
              */
             if (user.getEmail() != null && (user.getEmail().startsWith("f&") || user.getEmail().startsWith("k&"))) {
-                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.WRONG_LOGIN_ACCESS, false)));
+                writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.U401)));
                 return null;
             }
 
@@ -86,7 +88,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 user.setEmail(socialDto.getEmail().replace("_", "&"));
                 user.setPassword(user.getEmail() + env.getProperty("social.secret"));
                 if (!userService.isUser(user.getEmail())) {
-                    writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.NEED_SIGNUP, false, socialDto)));
+                    writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.U402, socialDto)));
                     return null;
                 }
             }
@@ -99,9 +101,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             authenticate = authenticationManager.authenticate(authenticationToken);
 
         } catch (UsernameNotFoundException usernameNotFoundException) {
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.ID_NOT_EXIST, false)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseGlobalMessage.G400)));
         } catch (Exception e) {
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_FAIL, false)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.U400)));
         } finally {
             return authenticate;
         }
@@ -135,7 +137,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         UserProfileTokenDto responseBody = new UserProfileTokenDto(userService.findUserProfile(principal.getUserEntity()), tokenInfo, blockRepository.findUserToIdsByUserFromId(principal.getId()));
 
-        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseUserMessage.LOGIN_SUCCESS, true, responseBody)));
+        writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseGlobalMessage.G200, responseBody)));
     }
 
 }

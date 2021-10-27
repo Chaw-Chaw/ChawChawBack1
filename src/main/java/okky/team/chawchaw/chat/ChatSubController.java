@@ -9,7 +9,7 @@ import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.chat.exception.NotExistRoomException;
 import okky.team.chawchaw.utils.message.ResponseChatMessage;
-import okky.team.chawchaw.utils.message.ResponseFileMessage;
+import okky.team.chawchaw.utils.message.ResponseGlobalMessage;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +32,7 @@ public class ChatSubController {
     private final UserService userService;
 
     @PostMapping("/room")
-    public ResponseEntity createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ResponseEntity<?> createChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @Valid @RequestBody CreateChatRoomDto createChatRoomDto) {
 
         userService.validMyself(principalDetails.getId(), createChatRoomDto.getUserId());
@@ -41,54 +41,57 @@ public class ChatSubController {
         Long roomId = chatRoomUserService.getRoomIdByUserIds(principalDetails.getId(), createChatRoomDto.getUserId());
 
         if (roomId != -1) {
-            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.EXIST_ROOM, true, new ChatRoomDto(roomId, "none")), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C401, new ChatRoomDto(roomId, "none")), HttpStatus.BAD_REQUEST);
         }
 
         ChatRoomDto result = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.CREATE_ROOM_SUCCESS, true, result), HttpStatus.CREATED);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.CREATED);
     }
 
     @GetMapping("")
-    public ResponseEntity findMessagesByUserId(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ResponseEntity<?> findMessagesByUserId(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         List<ChatDto> result = chatService.findMessagesByUserId(principalDetails.getId());
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
+        if (!result.isEmpty())
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
+        else
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C404), HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/room/enter")
-    public ResponseEntity updateCurrentRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ResponseEntity<?> updateCurrentRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                             @Valid @RequestBody ChatRoomDto chatRoomDto) {
 
         Boolean result = chatService.updateCurrentRoom(principalDetails.getUsername(), chatRoomDto.getRoomId(), principalDetails.getId());
         if (result)
-            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.MOVE_ROOM_SUCCESS, true), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200), HttpStatus.OK);
         else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.MOVE_ROOM_FAIL, false), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C400), HttpStatus.BAD_REQUEST);
     }
 
     @DeleteMapping("/room")
-    public ResponseEntity deleteChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ResponseEntity<?> deleteChatRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                          @Valid @RequestBody DeleteChatRoomDto deleteChatRoomDto) {
         try {
             chatService.deleteRoomByRoomIdAndUserId(deleteChatRoomDto.getRoomId(), principalDetails.getId());
 
         }  catch (NotExistRoomException | EmptyResultDataAccessException e) {
-            return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.NOT_EXIST_ROOM, false), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C402), HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseChatMessage.DELETE_SUCCESS, true), HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200), HttpStatus.OK);
     }
 
     @PostMapping("/image")
-    public ResponseEntity uploadChatImage(@RequestParam MultipartFile file) {
+    public ResponseEntity<?> uploadChatImage(@RequestParam MultipartFile file) {
 
         String result = chatService.uploadMessageImage(file);
 
         if (!result.isEmpty())
-            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_SUCCESS, true, result), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
         else
-            return new ResponseEntity(DefaultResponseVo.res(ResponseFileMessage.UPLOAD_FAIL, false), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C403), HttpStatus.BAD_REQUEST);
     }
 
 }

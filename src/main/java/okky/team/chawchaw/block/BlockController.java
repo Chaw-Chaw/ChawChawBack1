@@ -10,6 +10,7 @@ import okky.team.chawchaw.config.auth.PrincipalDetails;
 import okky.team.chawchaw.user.UserService;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.ResponseBlockMessage;
+import okky.team.chawchaw.utils.message.ResponseGlobalMessage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,7 +27,7 @@ public class BlockController {
     private final UserService userService;
 
     @PostMapping("/users/block")
-    public ResponseEntity createBlock(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ResponseEntity<?> createBlock(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                       @Valid @RequestBody CreateBlockDto createBlockDto) {
 
         userService.validMyself(principalDetails.getId(), createBlockDto.getUserId());
@@ -37,13 +38,13 @@ public class BlockController {
         try {
             blockService.createBlock(createBlockDto);
         } catch (ExistBlockException e) {
-            return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.EXIST_BLOCK, false), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseBlockMessage.B400), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.CREATE_BLOCK_SUCCESS, true), HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/block")
-    public ResponseEntity deleteBlock(@AuthenticationPrincipal PrincipalDetails principalDetails,
+    public ResponseEntity<?> deleteBlock(@AuthenticationPrincipal PrincipalDetails principalDetails,
                                       @Valid @RequestBody DeleteBlockDto deleteBlockDto) {
 
         deleteBlockDto.setUserFromId(principalDetails.getId());
@@ -54,17 +55,17 @@ public class BlockController {
         try {
             blockService.deleteBlock(deleteBlockDto);
         } catch (NotExistBlockException e) {
-            return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.NOT_EXIST_BLOCK, false), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseBlockMessage.B401), HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.DELETE_SUCCESS, true), HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200), HttpStatus.OK);
     }
 
     @GetMapping("/users/block")
-    public ResponseEntity findBlockUsers(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ResponseEntity<?> findBlockUsers(@AuthenticationPrincipal PrincipalDetails principalDetails) {
 
         List<BlockUserDto> result = blockService.findAllByUserFromId(principalDetails.getId());
 
-        return new ResponseEntity(DefaultResponseVo.res(ResponseBlockMessage.FIND_SUCCESS, true, result), HttpStatus.OK);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
     }
 
 }
