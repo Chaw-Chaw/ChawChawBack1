@@ -131,6 +131,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
+        response.setStatus(200);
         PrintWriter writer = response.getWriter();
 
         TokenDto tokenInfo = new TokenDto("JWT", accessToken, tokenProperties.getAccess().getExpirationTime(), tokenProperties.getRefresh().getExpirationTime());

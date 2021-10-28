@@ -102,9 +102,9 @@ public class UserController {
         List<UserCardDto> result = userService.findUserCards(findUserVo);
 
         if (!result.isEmpty())
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
         else
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseUserMessage.U406), HttpStatus.OK);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseUserMessage.U406), HttpStatus.NOT_FOUND);
 
     }
 
