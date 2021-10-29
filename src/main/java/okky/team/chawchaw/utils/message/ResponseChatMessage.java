@@ -5,8 +5,7 @@ public enum ResponseChatMessage {
     C400("방 이동 실패"),
     C401("채팅방 존재함"),
     C402("채팅방 존재하지 않음"),
-    C403("채팅방 이미지 업로드 실패"),
-    C404("조회 결과가 존재하지 않음");
+    C403("채팅방 이미지 업로드 실패");
 
     private final String message;
 

@@ -92,7 +92,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
         } catch (ConnectElseWhereException connectElseWhereException) {
             response.setStatus(401);
             writer = response.getWriter();
-            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseGlobalMessage.G404)));
+            writer.print(mapper.writeValueAsString(DefaultResponseVo.res(ResponseGlobalMessage.G403)));
 
         }
     }

@@ -101,10 +101,7 @@ public class UserController {
 
         List<UserCardDto> result = userService.findUserCards(findUserVo);
 
-        if (!result.isEmpty())
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
-        else
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseUserMessage.U406), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
 
     }
 
@@ -118,10 +115,7 @@ public class UserController {
         result.setViews(userService.getViews(userId));
         result.setIsLike(likeService.isLike(principalDetails.getId(), userId));
 
-        if (result != null)
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
-        else
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseUserMessage.U406), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
     }
 
     @DeleteMapping("")
@@ -207,10 +201,7 @@ public class UserController {
     public ResponseEntity<?> getAlarm(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         List<ChatMessageDto> messages = chatService.findMessagesByUserIdAndRegDate(principalDetails.getId());
         List<LikeMessageDto> likes = likeService.findMessagesByUserFromId(principalDetails.getId());
-        if (!(messages.isEmpty() && likes.isEmpty()))
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, new AlarmDto(messages, likes)), HttpStatus.OK);
-        else
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseUserMessage.U406), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, new AlarmDto(messages, likes)), HttpStatus.OK);
     }
 
 }

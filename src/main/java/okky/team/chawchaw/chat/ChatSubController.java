@@ -53,10 +53,7 @@ public class ChatSubController {
     public ResponseEntity<?> findMessagesByUserId(@AuthenticationPrincipal PrincipalDetails principalDetails) {
         List<ChatDto> result = chatService.findMessagesByUserId(principalDetails.getId());
 
-        if (!result.isEmpty())
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
-        else
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C404), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
     }
 
     @PostMapping("/room/enter")

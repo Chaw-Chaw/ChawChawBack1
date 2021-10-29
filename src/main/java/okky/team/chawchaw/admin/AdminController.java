@@ -93,10 +93,7 @@ public class AdminController {
 
         PageResultDto<UserCardDto> result = adminService.findUserCards(findUserDto);
 
-        if (!result.getContents().isEmpty())
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
-        else
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseAdminMessage.A400), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
     }
 
     @GetMapping("/users/{userId}")
@@ -104,10 +101,7 @@ public class AdminController {
 
         UserDetailDto result = adminService.findUserDetail(userId);
 
-        if (result != null)
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
-        else
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseAdminMessage.A400), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
     }
 
 

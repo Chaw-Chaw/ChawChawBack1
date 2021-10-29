@@ -4,7 +4,6 @@ import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
 import lombok.extern.slf4j.Slf4j;
 import okky.team.chawchaw.block.exception.BlockedUserException;
 import okky.team.chawchaw.user.exception.ConnectElseWhereException;
-import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.user.exception.PointMyselfException;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.*;
@@ -23,53 +22,48 @@ import java.sql.SQLIntegrityConstraintViolationException;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UsernameNotFoundException.class)
-    protected ResponseEntity usernameNotFound(UsernameNotFoundException e) {
-        log.warn("해당 아이디를 찾을 수 없음", e.getMessage());
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G400), HttpStatus.UNAUTHORIZED);
+    protected ResponseEntity<?> usernameNotFound(UsernameNotFoundException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G400), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MultipartException.class)
-    protected ResponseEntity multipartException(MultipartException e) {
-        log.warn("파일 타입이 잘못 됨", e);
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G405), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<?> multipartException(MultipartException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G404), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
-    protected ResponseEntity sqlIntegrityConstrainViolation(SQLIntegrityConstraintViolationException e) {
-        log.error("무결성 제약 조건 위배", e);
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G402), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<?> sqlIntegrityConstrainViolation(SQLIntegrityConstraintViolationException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G500), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    protected ResponseEntity illegalArgument(IllegalArgumentException e) {
-        log.error("DB 잘못된 파라미터", e);
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G402), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<?> illegalArgument(IllegalArgumentException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G500), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MysqlDataTruncation.class)
-    protected ResponseEntity mysqlDataTruncation(MysqlDataTruncation e) {
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G402), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<?> mysqlDataTruncation(MysqlDataTruncation e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G500), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(PointMyselfException.class)
-    protected ResponseEntity pointMyself(PointMyselfException e) {
-        log.warn("자기 자신 선택");
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G401), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<?> pointMyself(PointMyselfException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G401), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BlockedUserException.class)
-    protected ResponseEntity blockUserException(BlockedUserException e) {
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G403), HttpStatus.FORBIDDEN);
+    protected ResponseEntity<?> blockUserException(BlockedUserException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G402), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(BindException.class)
-    protected ResponseEntity bindException(BindException e) {
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G406), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<?> bindException(BindException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G405), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(ConnectElseWhereException.class)
-    protected ResponseEntity connectElseWhereException(ConnectElseWhereException e) {
-        return new ResponseEntity(DefaultResponseVo.res(ResponseGlobalMessage.G404), HttpStatus.BAD_REQUEST);
+    protected ResponseEntity<?> connectElseWhereException(ConnectElseWhereException e) {
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G403), HttpStatus.UNAUTHORIZED);
     }
 
 }
