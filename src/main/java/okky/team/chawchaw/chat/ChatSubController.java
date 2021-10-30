@@ -38,10 +38,10 @@ public class ChatSubController {
         userService.validMyself(principalDetails.getId(), createChatRoomDto.getUserId());
         blockService.validBlockUser(principalDetails.getId(), createChatRoomDto.getUserId());
 
-        Long roomId = chatRoomUserService.getRoomIdByUserIds(principalDetails.getId(), createChatRoomDto.getUserId());
+        Long roomId = chatRoomUserService.findRoomIdByUserIds(principalDetails.getId(), createChatRoomDto.getUserId());
 
         if (roomId != -1) {
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C401, new ChatRoomDto(roomId, "none")), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(DefaultResponseVo.res(ResponseChatMessage.C401), HttpStatus.BAD_REQUEST);
         }
 
         ChatRoomDto result = chatService.createRoom(principalDetails.getId(), createChatRoomDto.getUserId());
@@ -50,10 +50,20 @@ public class ChatSubController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> findMessagesByUserId(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+    public ResponseEntity<?> findRoomMessages(@AuthenticationPrincipal PrincipalDetails principalDetails) {
+
         List<ChatDto> result = chatService.findMessagesByUserId(principalDetails.getId());
 
         return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
+    }
+
+    @GetMapping("/room/{userId}")
+    public ResponseEntity<?> findRoom(@AuthenticationPrincipal PrincipalDetails principalDetails,
+                                      @PathVariable Long userId) {
+
+        Long roomId = chatRoomUserService.findRoomIdByUserIds(principalDetails.getId(), userId);
+
+        return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, new ChatRoomDto(roomId, "none")), HttpStatus.OK);
     }
 
     @PostMapping("/room/enter")

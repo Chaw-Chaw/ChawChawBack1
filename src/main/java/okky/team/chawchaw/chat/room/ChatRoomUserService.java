@@ -28,7 +28,7 @@ public class ChatRoomUserService {
     }
 
     @Transactional(readOnly = false)
-    public Long getRoomIdByUserIds(Long userId, Long userId2) {
+    public Long findRoomIdByUserIds(Long userId, Long userId2) {
         Long roomId = chatRoomUserRepository.findChatRoomIdByUserIds(userId, userId2);
         List<ChatRoomUserEntity> roomUsers = chatRoomUserRepository.findAllByChatRoomId(roomId);
         for (ChatRoomUserEntity roomUser : roomUsers) {

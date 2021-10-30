@@ -12,7 +12,6 @@ import okky.team.chawchaw.like.dto.LikeMessageDto;
 import okky.team.chawchaw.statistics.log.SearchLogService;
 import okky.team.chawchaw.statistics.log.dto.CreateSearchLogDto;
 import okky.team.chawchaw.user.dto.*;
-import okky.team.chawchaw.user.exception.DiffPasswordException;
 import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.utils.dto.DefaultResponseVo;
 import okky.team.chawchaw.utils.message.*;
@@ -119,16 +118,10 @@ public class UserController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                     @RequestBody DeleteUserDto deleteUserDto){
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal PrincipalDetails principalDetails){
 
-        deleteUserDto.setUserId(principalDetails.getId());
+        userService.deleteUser(principalDetails.getId());
 
-        try {
-            userService.deleteUser(deleteUserDto);
-        } catch (DiffPasswordException diffPasswordException) {
-            return new ResponseEntity<>(DefaultResponseVo.res(ResponseUserMessage.U404), HttpStatus.BAD_REQUEST);
-        }
         return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200), HttpStatus.OK);
     }
 

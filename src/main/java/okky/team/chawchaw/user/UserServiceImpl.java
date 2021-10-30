@@ -7,6 +7,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
 import okky.team.chawchaw.block.BlockRepository;
+import okky.team.chawchaw.chat.room.ChatRoomRepository;
+import okky.team.chawchaw.chat.room.ChatRoomUserRepository;
 import okky.team.chawchaw.config.jwt.JwtTokenProvider;
 import okky.team.chawchaw.config.jwt.TokenRedisRepository;
 import okky.team.chawchaw.like.LikeRepository;
@@ -15,7 +17,6 @@ import okky.team.chawchaw.user.country.UserCountryEntity;
 import okky.team.chawchaw.user.country.UserCountryRepository;
 import okky.team.chawchaw.user.dto.*;
 import okky.team.chawchaw.user.exception.ConnectElseWhereException;
-import okky.team.chawchaw.user.exception.DiffPasswordException;
 import okky.team.chawchaw.user.language.*;
 import okky.team.chawchaw.user.exception.DuplicationUserEmailException;
 import okky.team.chawchaw.user.exception.PointMyselfException;
@@ -44,6 +45,8 @@ public class UserServiceImpl implements UserService{
     private final BlockRepository blockRepository;
     private final CountryRepository countryRepository;
     private final UserCountryRepository userCountryRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatRoomUserRepository chatRoomUserRepository;
     private final LanguageRepository languageRepository;
     private final UserLanguageRepository userLanguageRepository;
     private final UserHopeLanguageRepository userHopeLanguageRepository;
@@ -83,14 +86,13 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional(readOnly = false)
-    @CacheEvict(value = "userDetail", key = "#deleteUserDto.userId")
-    public void deleteUser(DeleteUserDto deleteUserDto) {
+    @CacheEvict(value = "userDetail", key = "#userId")
+    public void deleteUser(Long userId) {
 
-        UserEntity user = userRepository.findById(deleteUserDto.getUserId()).orElseThrow(() -> new UsernameNotFoundException("not found user"));
-        if (!passwordEncoder.matches(deleteUserDto.getPassword(),user.getPassword()))
-            throw new DiffPasswordException();
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new UsernameNotFoundException("not found user"));
         likeRepository.deleteByUserFromOrUserTo(user, user);
         blockRepository.deleteByUserFromOrUserTo(user, user);
+        chatRoomRepository.deleteAll(chatRoomUserRepository.findChatRoomsByUserId(user.getId()));
         userRepository.delete(user);
     }
 

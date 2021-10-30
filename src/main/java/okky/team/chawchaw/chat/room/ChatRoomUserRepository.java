@@ -15,11 +15,16 @@ public interface ChatRoomUserRepository extends JpaRepository<ChatRoomUserEntity
 
     void deleteByUserId(Long userId);
 
-    @Query( "select ru.chatRoom.id " +
+    @Query("select ru.chatRoom.id " +
             "from ChatRoomUserEntity ru " +
             "where ru.user.id = :userId or ru.user.id = :userId2 " +
             "group by ru.chatRoom " +
             "having count(ru.chatRoom) = 2")
     Long findChatRoomIdByUserIds(@Param("userId") Long userId, @Param("userId2") Long userId2);
+
+    @Query("select ru.chatRoom " +
+            "from ChatRoomUserEntity ru " +
+            "where ru.user.id = :userId")
+    List<ChatRoomEntity> findChatRoomsByUserId(@Param("userId") Long userId);
 
 }

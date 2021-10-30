@@ -74,7 +74,7 @@ class LikeServiceTest {
         likeService.addLike(new CreateLikeDto(userFrom.getId(), userFrom.getName(), userTo.getId()));
         likeService.addLike(new CreateLikeDto(userTo.getId(), userFrom.getName(), userFrom.getId()));
         //when
-        userService.deleteUser(new DeleteUserDto(userTo.getId(), "1234"));
+        userService.deleteUser(userTo.getId());
         //then
         Assertions.assertThat(likeRepository.findAll().size()).isEqualTo(0);
     }

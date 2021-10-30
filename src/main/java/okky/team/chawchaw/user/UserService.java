@@ -9,7 +9,7 @@ public interface UserService {
 
     Long createUser(CreateUserDto createUserDto);
     void duplicateEmail(String email);
-    void deleteUser(DeleteUserDto deleteUserDto);
+    void deleteUser(Long userId);
 
     List<UserCardDto> findUserCards(FindUserVo findUserVo);
     UserDetailsDto findUserDetails(Long userId);
