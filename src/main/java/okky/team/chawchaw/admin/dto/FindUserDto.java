@@ -18,7 +18,7 @@ public class FindUserDto {
     String language;
     @Length(max = 2)
     String hopeLanguage;
-    @Length(max = 2)
+    @Length(max = 20)
     String school;
     String order;
     String sort;

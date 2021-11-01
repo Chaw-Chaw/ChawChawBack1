@@ -1,13 +1,12 @@
 spring:
   application:
     name: chawchaw
-  profiles: prod
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: <>
-    username: <>
-    password: <>
-#    initialization-mode: always
+    url: ENC(Ecy8VmSmc9cY7jEq1ty/JGU7otnjmUTv2E+yEuYV29eBDqz2phtB5XghaU8xng32xr/ojm3x28Z2z1135AcWuj7Z7ufAoiOdVUOq+j3xwzznnQgw1Xv15ugXuUsQ/N9D)
+    username: ENC(0PPMfXcDLXBPHB8gORuMOzxmHp0nkq/X)
+    password: ENC(bT9KDS1iJ3bXh1SJWAB0WYIIF+V8pi7F)
+    # initialization-mode: always
   jpa:
     hibernate:
       ddl-auto: none
@@ -18,27 +17,23 @@ spring:
     generate-ddl: true
     open-in-view: false
   redis:
-    host: <>
+    host: ENC(fJBcJNdnsD1VIiYUoIC7OndnlvDoBwVyihnrPjAYykzgb6XE+9ho+j0JRFs0uU3yL3/HFYA1whHmOpX1cWT0fA==)
     port: 6379
   mail:
     host: smtp.gmail.com
     port: 587
-    username: <>
-    password: <>
+    username: ENC(3ABbRmcV8L8mvklBKleomk7xxBmWWrFvJ9DTaeU1+ws=)
+    password: ENC(iAbW0/N7pxrKlv2jC2fLzjtAQpsnmmvhzANXWr8UKjA=)
     properties:
       mail:
         smtp:
           starttls:
             enable: true
-            required: true
           auth: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
   servlet:
     multipart:
       enabled: true
-      location: <>
+      location: ENC(NtAteOeZgAHlGk88gVPsXjilcfhp3X6UgIpK8XzvbYc=)
       max-request-size: 30MB
       max-file-size: 10MB
 server:
@@ -46,25 +41,25 @@ server:
 
 logging:
   slack:
-    webhook-uri: <>
+    webhook-uri: ENC(KdDchsPOKPC5qM06L8kp7oAwDzI0F/WWeA/AlMNlvP6as6XJQGb7Is/ERIV97yLP+Nr2jrhRDk5l13TDQV4yIXuqJXbe6HTu/ENAsgOnSU9y/H7IaowGo1Qvf/DV9eLH)
   config: classpath:logback-spring.xml
 
 cloud:
   aws:
     credentials:
-      accessKey: <>
-      secretKey: <>
+      accessKey: ENC(dHWd9ZNvYcPTg0kHeJx9zIL1DcoRH9Z6NBQbws79DGs=)
+      secretKey: ENC(KL1ejN+Jmr7DvYKvvzxou1XbZJqixbWcbpbPLBbyIeLj9HkQBAi/VWJff/ohELo4d8wStFvXo/s=)
     s3:
-      bucket: <>
+      bucket: chawchaw-bucket
     region:
       static: ap-northeast-2
     stack:
       auto: false
   front:
-    domain: <>
+    domain: ENC(C7j3EacHkyPZ3sahNKbxbLeRn5TbDfzqh5FqrIRNNrOPNepTanGFdlRewuEg44yz)
 
 token:
-  secret: <>
+  secret: ENC(QX+myqe9PjucIqYzu10EV6rcJGw6kLuTvJ+oNEyg5FBUQj+4fwr1Fg==)
   prefix: "Bearer "
   access:
     header: "Authorization"
@@ -74,22 +69,22 @@ token:
     expiration_time: 604800000
 
 social:
-  secret: <>
+  secret: ENC(7GqitJ4IAqyZEfAX2vomaLIpuq+EAKR4)
 
 kakao:
-  client-id: <>
-  redirect-url: <>
+  client-id: ENC(wmC0qpzlyZWYjuSdwZ9cWQp+pZiqHWhaRwFOdyNROcEkTwQ2VSqkO5k/JVY7fUk1)
+  redirect-url: ENC(8+JWpnGGYM2CtLgk6l1SCuNF064w46jY9TFtyXt4964WKojQWoLGKRNNrr3DZftwG7kcySC0tLQ=)
 
 user:
   profile:
     image:
-      path: <>
-      default: <>
-      default-url: <>
+      path: ENC(Fke23brAMfUBV6vGZ+zWyDcn1vbw6QU7UaBEW1BirFkPECpbK55gZA==)
+      default: ENC(Zk/rzdw9BVlrbVl7LydQ+eqsUuVVFYaR)
+
 
 front:
-  domain: <>
-  domain-local: <>
+  domain: ENC(a5iMuie2y023eDjz6/R21NkGZvyLf5flteF9vX7zopL8LGI53hyybQ==)
+  domain-local: ENC(Ghnbc6J1hFhXckAGClRjiWEM2kvUe9Fs4/d5pRQd3Kg=)
 
 redis:
   block:
