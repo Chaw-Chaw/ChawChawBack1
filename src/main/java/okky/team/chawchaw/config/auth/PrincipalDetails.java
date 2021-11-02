@@ -41,6 +41,7 @@ public class PrincipalDetails implements UserDetails {
     public String getName() { return userEntity.getName(); }
     public String getSchool() { return userEntity.getSchool(); }
     public String getImageUrl() { return userEntity.getImageUrl(); }
+    public String getRefreshToken() { return userEntity.getRefreshToken(); }
 
     @Override
     public boolean isAccountNonExpired() {

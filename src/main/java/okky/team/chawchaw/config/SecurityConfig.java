@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -32,6 +33,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenRedisRepository tokenRedisRepository;
     private final BlockRepository blockRepository;
+    private final SimpMessageSendingOperations messageTemplate;
     @Value("${front.domain}")
     private String frontDomain;
     @Value("${front.domain-local}")
@@ -43,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilter(corsFilter())
-                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userService, socialService, env, tokenProperties, jwtTokenProvider, tokenRedisRepository, blockRepository))
+                .addFilter(new JwtAuthenticationFilter(authenticationManager(), userService, socialService, env, tokenProperties, jwtTokenProvider, tokenRedisRepository, blockRepository, messageTemplate))
                 .addFilter(new JwtAuthorizationFilter(authenticationManager(), userRepository, jwtTokenProvider, tokenRedisRepository))
                 .formLogin().disable()
                 .httpBasic().disable()
