@@ -17,7 +17,7 @@ spring:
     generate-ddl: true
     open-in-view: false
   redis:
-    host: ENC(fJBcJNdnsD1VIiYUoIC7OndnlvDoBwVyihnrPjAYykzgb6XE+9ho+j0JRFs0uU3yL3/HFYA1whHmOpX1cWT0fA==)
+    host: ENC(qA9TKyHjKryvhDcinHStA+KbvGsG4He6ReJ/xBVge1snn2TgV3ly6Ds4lon63R00yik9nHRFlnRitFoBc83etQ==)
     port: 6379
   mail:
     host: smtp.gmail.com
