@@ -3,7 +3,7 @@ spring:
     name: chawchaw
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(Ecy8VmSmc9cY7jEq1ty/JGU7otnjmUTv2E+yEuYV29eBDqz2phtB5XghaU8xng32xr/ojm3x28Z2z1135AcWuj7Z7ufAoiOdVUOq+j3xwzznnQgw1Xv15ugXuUsQ/N9D)
+    url: ENC(EAcxJ1yWexp/oVC83cSGnpx1+wSuQHWhrSlLLrwvDnjHd+6nwd+6uLuwxtiYOJQqWwB2Ousp+6mZ2RJyiT5ELUcOg7Pct5sJoYdoGutEDukJhC9ABtDWm5gxh7IeXeOc)
     username: ENC(0PPMfXcDLXBPHB8gORuMOzxmHp0nkq/X)
     password: ENC(bT9KDS1iJ3bXh1SJWAB0WYIIF+V8pi7F)
     # initialization-mode: always
@@ -17,7 +17,7 @@ spring:
     generate-ddl: true
     open-in-view: false
   redis:
-    host: ENC(qA9TKyHjKryvhDcinHStA+KbvGsG4He6ReJ/xBVge1snn2TgV3ly6Ds4lon63R00yik9nHRFlnRitFoBc83etQ==)
+    host: ENC(CBV1H4PxSVOGUVXvo57ZK1had4x4LVLUhpYF1eHJcwAm7DHIEXy6iDVEVjvNASOfdud7SrDs+pX/m5NLjzd52Q==)
     port: 6379
   mail:
     host: smtp.gmail.com
@@ -47,16 +47,16 @@ logging:
 cloud:
   aws:
     credentials:
-      accessKey: ENC(dHWd9ZNvYcPTg0kHeJx9zIL1DcoRH9Z6NBQbws79DGs=)
-      secretKey: ENC(KL1ejN+Jmr7DvYKvvzxou1XbZJqixbWcbpbPLBbyIeLj9HkQBAi/VWJff/ohELo4d8wStFvXo/s=)
+      accessKey: ENC(DIyJlw5EpIrQ04gsLID379CexmHqs+31vTxKkzCELIg=)
+      secretKey: ENC(1UjOVjuPTTZTl5pxfU7fBgHkIaiTeVjk8Ana8IA+690kFIuCkih0Jj1la6rFHUIC+PE8qtSdDqU=)
     s3:
-      bucket: chawchaw-bucket
+      bucket: chawchaw-s3-bucket
     region:
       static: ap-northeast-2
     stack:
       auto: false
   front:
-    domain: ENC(C7j3EacHkyPZ3sahNKbxbLeRn5TbDfzqh5FqrIRNNrOPNepTanGFdlRewuEg44yz)
+    domain: ENC(z7471vNoFXxqJKJhISy6oDuL28RD7lGLiqjFOIvWGUwW/341hNyrmob3wDi9U5jA)
 
 token:
   secret: ENC(QX+myqe9PjucIqYzu10EV6rcJGw6kLuTvJ+oNEyg5FBUQj+4fwr1Fg==)
