@@ -56,7 +56,7 @@ cloud:
     stack:
       auto: false
   front:
-    domain: ENC(z7471vNoFXxqJKJhISy6oDuL28RD7lGLiqjFOIvWGUwW/341hNyrmob3wDi9U5jA)
+    domain: ENC(vFPA5k+4qLONkotahcmcOSGI7znXPw2OJUP+ruP4VjCoDaNVMA9Hl7JwWPAEAjLj)
 
 token:
   secret: ENC(QX+myqe9PjucIqYzu10EV6rcJGw6kLuTvJ+oNEyg5FBUQj+4fwr1Fg==)
