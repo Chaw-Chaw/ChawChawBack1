@@ -3,6 +3,8 @@ package okky.team.chawchaw.admin;
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -24,24 +26,23 @@ import org.springframework.util.StringUtils;
 
 @Repository
 @RequiredArgsConstructor
-public class AdminRepositorySupportImpl implements AdminRepositorySupport{
+public class AdminRepositorySupportImpl implements AdminRepositorySupport {
 
     private final JPAQueryFactory jpaQueryFactory;
 
-    QUserEntity user = QUserEntity.userEntity;
-    QUserLanguageEntity userLanguage = QUserLanguageEntity.userLanguageEntity;
-    QUserHopeLanguageEntity userHopeLanguage = QUserHopeLanguageEntity.userHopeLanguageEntity;
-    QLanguageEntity language = QLanguageEntity.languageEntity;
-    QUserCountryEntity userCountry = QUserCountryEntity.userCountryEntity;
-    QCountryEntity country = QCountryEntity.countryEntity;
-
+    private final QUserEntity user = QUserEntity.userEntity;
+    private final QUserLanguageEntity userLanguage = QUserLanguageEntity.userLanguageEntity;
+    private final QUserHopeLanguageEntity userHopeLanguage = QUserHopeLanguageEntity.userHopeLanguageEntity;
+    private final QLanguageEntity language = QLanguageEntity.languageEntity;
+    private final QUserCountryEntity userCountry = QUserCountryEntity.userCountryEntity;
+    private final QCountryEntity country = QCountryEntity.countryEntity;
 
     @Override
-    public Page<UserCardDto> findAllByElement(FindUserDto findUserDto) {
+    public Page<UserCardDto> findAllByFindUserDto(final FindUserDto findUserDto) {
 
-        Pageable pageable = new PageDto(findUserDto.getPageNo()).getPageable();
+        final Pageable pageable = new PageDto(findUserDto.getPageNo()).getPageable();
 
-        QueryResults<UserCardDto> result = jpaQueryFactory
+        final QueryResults<UserCardDto> result = jpaQueryFactory
                 .select(Projections.constructor(
                         UserCardDto.class,
                         user.id,
@@ -57,41 +58,11 @@ public class AdminRepositorySupportImpl implements AdminRepositorySupport{
                 ))
                 .from(user)
                 .where(
-                        /* 국적 */
-                        StringUtils.hasText(findUserDto.getCountry()) ?
-                                user.in(
-                                        JPAExpressions
-                                                .select(userCountry.user)
-                                                .from(userCountry)
-                                                .join(userCountry.user, user)
-                                                .join(userCountry.country, country)
-                                                .where(userCountry.country.name.eq(findUserDto.getCountry()))
-                                ) : null,
-                        /* 구사할 수 있는 언어 */
-                        StringUtils.hasText(findUserDto.getLanguage()) ?
-                                user.in(
-                                        JPAExpressions
-                                                .select(userLanguage.user)
-                                                .from(userLanguage)
-                                                .join(userLanguage.user, user)
-                                                .join(userLanguage.language, language)
-                                                .where(userLanguage.language.abbr.eq(findUserDto.getLanguage()))
-                                ) : null,
-                        /* 배우길 희망하는 언어 */
-                        StringUtils.hasText(findUserDto.getHopeLanguage()) ?
-                                user.in(
-                                        JPAExpressions
-                                                .select(userHopeLanguage.user)
-                                                .from(userHopeLanguage)
-                                                .join(userHopeLanguage.user, user)
-                                                .join(userHopeLanguage.hopeLanguage, language)
-                                                .where(userHopeLanguage.hopeLanguage.abbr.eq(findUserDto.getHopeLanguage()))
-                                ) : null,
-                        /* 학교 */
-                        StringUtils.hasText(findUserDto.getSchool()) ? user.school.eq(findUserDto.getSchool()) : null,
-                        /* 이름 */
-                        StringUtils.hasText(findUserDto.getName()) ? user.name.contains(findUserDto.getName()) : null,
-                        /* 권한 */
+                        containsCountry(findUserDto.getCountry()),
+                        containsLanguage(findUserDto.getLanguage()),
+                        containsHopeLanguage(findUserDto.getHopeLanguage()),
+                        eqSchool(findUserDto.getSchool()),
+                        containsName(findUserDto.getName()),
                         user.role.ne(Role.ADMIN)
                 )
                 .orderBy(getSortedColumn(findUserDto.getSort(), findUserDto.getOrder()))
@@ -102,22 +73,75 @@ public class AdminRepositorySupportImpl implements AdminRepositorySupport{
         return new PageImpl<>(result.getResults(), pageable, result.getTotal());
     }
 
-    private OrderSpecifier<?> getSortedColumn(String sort, String order) {
-        if (StringUtils.hasText(sort)) {
-            if (order.equals("desc")) {
-                if (sort.equals("like")) { return user.likeTo.size().desc(); }
-                else if (sort.equals("view")) { return user.views.desc(); }
-                else if (sort.equals("date")) { return user.regDate.desc(); }
-                else if (sort.equals("name")) { return user.name.desc(); }
-            }
-            else if (order.equals("asc")) {
-                if (sort.equals("like")) { return user.likeTo.size().asc(); }
-                else if (sort.equals("view")) { return user.views.asc(); }
-                else if (sort.equals("date")) { return user.regDate.asc(); }
-                else if (sort.equals("name")) { return user.name.asc(); }
-            }
-        }
-        return user.id.desc();
+    private BooleanExpression containsCountry(final String countryName) {
+        return StringUtils.hasText(countryName) ?
+                user.in(
+                        JPAExpressions
+                                .select(userCountry.user)
+                                .from(userCountry)
+                                .join(userCountry.user, user)
+                                .join(userCountry.country, country)
+                                .where(userCountry.country.name.eq(countryName))
+                ) : null;
     }
 
+    private BooleanExpression containsLanguage(final String languageName) {
+        return StringUtils.hasText(languageName) ?
+                user.in(
+                        JPAExpressions
+                                .select(userLanguage.user)
+                                .from(userLanguage)
+                                .join(userLanguage.user, user)
+                                .join(userLanguage.language, language)
+                                .where(userLanguage.language.abbr.eq(languageName))
+                ) : null;
+    }
+
+    private BooleanExpression containsHopeLanguage(final String hopeLanguageName) {
+        return StringUtils.hasText(hopeLanguageName) ?
+                user.in(
+                        JPAExpressions
+                                .select(userHopeLanguage.user)
+                                .from(userHopeLanguage)
+                                .join(userHopeLanguage.user, user)
+                                .join(userHopeLanguage.hopeLanguage, language)
+                                .where(userHopeLanguage.hopeLanguage.abbr.eq(hopeLanguageName))
+                ) : null;
+    }
+
+    private BooleanExpression eqSchool(final String schoolName) {
+        return StringUtils.hasText(schoolName) ? user.school.eq(schoolName) : null;
+    }
+
+    private BooleanExpression containsName(final String name) {
+        return StringUtils.hasText(name) ? user.name.contains(name) : null;
+    }
+
+    private OrderSpecifier<?> getSortedColumn(final String sort, final String order) {
+        final ComparableExpressionBase<?> sortedColumn;
+        if (!StringUtils.hasText(sort) || !StringUtils.hasText(order))
+            return user.id.desc();
+
+        switch (sort) {
+            case "like":
+                sortedColumn = user.likeTo.size();
+                break;
+            case "view":
+                sortedColumn = user.views;
+                break;
+            case "date":
+                sortedColumn = user.regDate;
+                break;
+            case "name":
+                sortedColumn = user.name;
+                break;
+            default:
+                sortedColumn = user.id;
+        }
+
+        if (order.equals("asc"))
+            return sortedColumn.asc();
+        else
+            return sortedColumn.desc();
+    }
 }

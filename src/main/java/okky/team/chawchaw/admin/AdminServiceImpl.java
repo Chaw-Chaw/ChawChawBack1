@@ -63,7 +63,7 @@ public class AdminServiceImpl implements AdminService{
 
     @Override
     public PageResultDto<UserCardDto> findUserCards(FindUserDto findUserDto) {
-        Page<UserCardDto> result = adminRepositorySupport.findAllByElement(findUserDto);
+        final Page<UserCardDto> result = adminRepositorySupport.findAllByFindUserDto(findUserDto);
         return new PageResultDto<>(result);
     }
 
