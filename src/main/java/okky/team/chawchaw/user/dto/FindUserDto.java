@@ -11,21 +11,20 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FindUserVo {
+public class FindUserDto {
 
     @Length(max = 20)
-    String name;
+    private String name;
     @Length(max = 255)
-    String country;
+    private String country;
     @Length(max = 2)
-    String language;
+    private String language;
     @Length(max = 2)
-    String hopeLanguage;
-    String sort;
+    private String hopeLanguage;
+    private String sort;
     @Length(max = 20)
-    String school;
+    private String school;
     @NotNull
-    Boolean isFirst;
-    List<Long> exclude = new ArrayList<>();
-
+    private Boolean isFirst;
+    private List<Long> exclude = new ArrayList<>();
 }

@@ -208,7 +208,7 @@ class UserServiceTest {
             }
         }
         //when
-        List<UserCardDto> result = userRepository.findAllByElement(FindUserVo.builder()
+        List<UserCardDto> result = userRepository.findAllByFindUserDto(FindUserDto.builder()
                 .language("yi")
                 .hopeLanguage("ab")
                 .build());
