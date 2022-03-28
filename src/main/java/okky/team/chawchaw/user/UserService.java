@@ -11,7 +11,7 @@ public interface UserService {
     void duplicateEmail(String email);
     void deleteUser(Long userId);
 
-    List<UserCardDto> findUserCards(FindUserVo findUserVo);
+    List<UserCardDto> findUserCards(FindUserDto findUserDto);
     UserDetailsDto findUserDetails(Long userId);
     UserProfileDto findUserProfile(UserEntity userEntity);
 

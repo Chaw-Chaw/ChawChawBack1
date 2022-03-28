@@ -76,13 +76,13 @@ public class UserController {
 
     @GetMapping("")
     public ResponseEntity<?> getUserCards(@AuthenticationPrincipal PrincipalDetails principalDetails,
-                                                          @Valid @ModelAttribute FindUserVo findUserVo,
+                                                          @Valid @ModelAttribute FindUserDto findUserDto,
                                                           HttpServletRequest request) {
 
-        if (findUserVo.getLanguage() != null && !findUserVo.getLanguage().isBlank())
-            searchLogService.createSearchLog(new CreateSearchLogDto(principalDetails.getId(), findUserVo.getLanguage()));
+        if (findUserDto.getLanguage() != null && !findUserDto.getLanguage().isBlank())
+            searchLogService.createSearchLog(new CreateSearchLogDto(principalDetails.getId(), findUserDto.getLanguage()));
 
-        findUserVo.getExclude().add(principalDetails.getId());
+        findUserDto.getExclude().add(principalDetails.getId());
 
         Cookie[] cookies = request.getCookies();
 
@@ -90,15 +90,15 @@ public class UserController {
             for (Cookie cookie : cookies) {
                 if (cookie.getName().equals("exclude") && !cookie.getValue().isEmpty()) {
                     for (String s : cookie.getValue().split("/")) {
-                        findUserVo.getExclude().add(Long.parseLong(s));
+                        findUserDto.getExclude().add(Long.parseLong(s));
                     }
                 }
             }
         }
 
-        findUserVo.setSchool(principalDetails.getSchool());
+        findUserDto.setSchool(principalDetails.getSchool());
 
-        List<UserCardDto> result = userService.findUserCards(findUserVo);
+        List<UserCardDto> result = userService.findUserCards(findUserDto);
 
         return new ResponseEntity<>(DefaultResponseVo.res(ResponseGlobalMessage.G200, result), HttpStatus.OK);
 
