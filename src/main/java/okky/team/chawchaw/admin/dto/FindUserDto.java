@@ -6,23 +6,23 @@ import org.hibernate.validator.constraints.Length;
 import javax.validation.constraints.NotNull;
 
 @Getter @Setter
+@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class FindUserDto {
 
     @Length(max = 20)
-    String name;
+    private String name;
     @Length(max = 255)
-    String country;
+    private String country;
     @Length(max = 2)
-    String language;
+    private String language;
     @Length(max = 2)
-    String hopeLanguage;
+    private String hopeLanguage;
     @Length(max = 20)
-    String school;
-    String order;
-    String sort;
+    private String school;
+    private String order;
+    private String sort;
     @NotNull
-    Integer pageNo;
-
+    private Integer pageNo;
 }

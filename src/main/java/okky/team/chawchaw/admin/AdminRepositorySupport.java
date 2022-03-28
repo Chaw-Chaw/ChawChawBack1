@@ -6,6 +6,6 @@ import org.springframework.data.domain.Page;
 
 public interface AdminRepositorySupport {
 
-    Page<UserCardDto> findAllByElement(FindUserDto findUserDto);
+    Page<UserCardDto> findAllByFindUserDto(FindUserDto findUserDto);
 
 }
